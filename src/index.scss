@@ -1,13 +1,17 @@
 body {
   background-color: #00303b;
   color: #f1f2da;
+  overflow: hidden;
+  user-select: none;
 }
 
 #app {
   transform: scale(3);
-  transform-origin: top center;
+  // transform-origin: top center;
   image-rendering: pixelated;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100vw;
+  height: 100vh;
 }
