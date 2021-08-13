@@ -4,6 +4,10 @@ import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 
+const randInt = (low, high) => {
+  return Math.floor(Math.random() * (high - low + 1)) + low;
+};
+
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
 };
@@ -80,16 +84,23 @@ const colCount = 10;
 const frameRate = 150;
 const initialTiles = new Array(150).fill({ name: "." });
 
+// TODO:
+// - every 3 moves, spawn more entities
+// - track total move count
+// - as move count total increases spawn more entities per spawn interval
+
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([
-    { name: "🪨", speed: 3, index: 2, img: asteroidIcon },
-    { name: "🪨", speed: 3, index: 18, img: asteroidIcon },
-    { name: "🪨", speed: 6, index: -6, img: asteroidIcon },
+    // { name: "🪨", speed: 3, index: 2, img: asteroidIcon },
+    // { name: "🪨", speed: 3, index: 18, img: asteroidIcon },
+    // { name: "🪨", speed: 6, index: -6, img: asteroidIcon },
   ]);
-  // waiting, targeting, animating
-  const [gameState, setGameState] = useState("waiting");
+  // waiting, targeting, animating, spawning
+  const [gameState, setGameState] = useState("spawning");
+  const [moveCount, setMoveCount] = useState(0);
+  const [lastSpawned, setLastSpawned] = useState();
 
   const moveEntities = () => {
     const newEntities = entities.map(moveEntity(colCount));
@@ -98,7 +109,7 @@ const App = () => {
       const resetEntities = clearAllTargetEntities(newEntities);
 
       setEntities(resetEntities);
-      setGameState("waiting");
+      setGameState("spawning");
     } else {
       setEntities(newEntities);
     }
@@ -121,6 +132,36 @@ const App = () => {
     return () => clearTimeout(timeout);
   }, [entities, gameState]);
 
+  useEffect(() => {
+    // Spawn new entities every 3 moves
+    // If we're in spawning phase
+    // If we haven't already spawned for this moveCount
+    if (gameState === "spawning") {
+      if (moveCount % 3 === 0 && lastSpawned !== moveCount) {
+        const newEntities = [];
+
+        const spawnCount = randInt(1, 3);
+
+        new Array(spawnCount).fill().forEach(() => {
+          const spawnIndex = randInt(0, colCount - 1);
+          const spawnSpeed = randInt(3, 8);
+
+          newEntities.push({
+            name: "🪨",
+            speed: spawnSpeed,
+            index: spawnIndex,
+            img: asteroidIcon,
+          });
+        });
+
+        setLastSpawned(moveCount);
+        setEntities([...entities, ...newEntities]);
+      }
+
+      setGameState("waiting");
+    }
+  }, [gameState, lastSpawned, entities, moveCount]);
+
   const movePlayer = (newIndex) => {
     if (gameState !== "waiting") {
       // Skip player input unless we're waiting
@@ -132,6 +173,8 @@ const App = () => {
       setPlayerIndex(newIndex);
 
       setGameState("targeting");
+
+      setMoveCount(moveCount + 1);
     }
   };
 
@@ -143,9 +186,6 @@ const App = () => {
         getIndicesInRange(entity, colCount).includes(index)
       )
     ) {
-      // TODO: when we're animating, don't show the full range
-      // of the new warning. Only show what isn't yet animated.
-      // After animation resolution, show new threat range.
       object = { name: "⚠️", img: warningIcon };
     }
 
@@ -167,6 +207,8 @@ const App = () => {
       </div>
     );
   };
+
+  console.log({ gameState, entities, playerIndex, moveCount, lastSpawned });
 
   return <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />;
 };
