@@ -9,6 +9,21 @@ const areIndicesAdjacent = (a, b, colCount) => {
 };
 
 const getIndicesInRange = (entity, colCount) => {
+  if (entity.targetIndex) {
+    // Only return subsection of indices between current and target while animating
+
+    const rowsBetweenCurrentAndDestination = Math.floor(
+      (entity.targetIndex - entity.index) / colCount
+    );
+
+    return (
+      new Array(rowsBetweenCurrentAndDestination)
+        .fill()
+        // Start at the row _after_ the entity's current position
+        .map((_, row) => entity.index + (row + 1) * colCount)
+    );
+  }
+
   return (
     new Array(entity.speed)
       .fill()
@@ -62,7 +77,7 @@ const Grid = ({ tiles, colCount, renderTile }) => {
 };
 
 const colCount = 10;
-const frameRate = 200;
+const frameRate = 150;
 const initialTiles = new Array(150).fill({ name: "." });
 
 const App = () => {
