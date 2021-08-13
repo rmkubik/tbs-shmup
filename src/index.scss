@@ -3,15 +3,32 @@ body {
   color: #f1f2da;
   overflow: hidden;
   user-select: none;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
 }
 
 #app {
-  transform: scale(3);
-  // transform-origin: top center;
-  image-rendering: pixelated;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100vw;
   height: 100vh;
+
+  image-rendering: pixelated;
+
+  transform: scale(3);
+
+  & > div > div:nth-child(2) {
+    font-size: 8px;
+
+    ul {
+      margin-left: 12px;
+      flex: 1;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
 }

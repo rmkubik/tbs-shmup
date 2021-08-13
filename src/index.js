@@ -1,4 +1,4 @@
-import { h, render } from "preact";
+import { Fragment, h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
@@ -80,23 +80,31 @@ const Grid = ({ tiles, colCount, renderTile }) => {
   );
 };
 
+const Bar = ({ power, maxPower, hand }) => {
+  return (
+    <div style={{ display: "flex", flexDirection: "row" }}>
+      <p>
+        PWR: {power}/{maxPower}
+      </p>
+      <ul>
+        {hand.map((card) => (
+          <li>
+            {card.name} - {card.cost}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 const colCount = 10;
 const frameRate = 150;
 const initialTiles = new Array(150).fill({ name: "." });
 
-// TODO:
-// - every 3 moves, spawn more entities
-// - track total move count
-// - as move count total increases spawn more entities per spawn interval
-
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
-  const [entities, setEntities] = useState([
-    // { name: "🪨", speed: 3, index: 2, img: asteroidIcon },
-    // { name: "🪨", speed: 3, index: 18, img: asteroidIcon },
-    // { name: "🪨", speed: 6, index: -6, img: asteroidIcon },
-  ]);
+  const [entities, setEntities] = useState([]);
   // waiting, targeting, animating, spawning
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
@@ -210,7 +218,20 @@ const App = () => {
 
   console.log({ gameState, entities, playerIndex, moveCount, lastSpawned });
 
-  return <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />;
+  return (
+    <div>
+      <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />
+      <Bar
+        power={3}
+        maxPower={3}
+        hand={[
+          { name: "Strafe", cost: 2 },
+          { name: "FTL", cost: 5 },
+          { name: "Roll", cost: 2 },
+        ]}
+      />
+    </div>
+  );
 };
 
 render(<App />, document.getElementById("app"));
