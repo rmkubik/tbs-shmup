@@ -96,6 +96,22 @@ const getIndicesInActionRange = (action, colCount, origin) => {
         )
       );
     }
+
+    if (direction === "upLeft") {
+      indices.push(
+        ...createArray(action.range).map(
+          (_, index) => origin - (index + 1) * colCount - 1
+        )
+      );
+    }
+
+    if (direction === "upRight") {
+      indices.push(
+        ...createArray(action.range).map(
+          (_, index) => origin - (index + 1) * colCount + 1
+        )
+      );
+    }
   });
 
   return indices;
@@ -259,6 +275,7 @@ const App = () => {
 
   const renderTile = (tile, index) => {
     let object = tile;
+    delete object.bg; // remove old bg from tile
 
     // Display warning icons for entity movement
     if (
@@ -277,7 +294,7 @@ const App = () => {
         playerIndex
       ).includes(index)
     ) {
-      object = { name: "◌" };
+      object.bg = "◌";
     }
 
     // Display entity
@@ -293,10 +310,32 @@ const App = () => {
 
     return (
       <div
-        style={{ cursor: "pointer", height: "16px", width: "16px" }}
+        style={{
+          cursor: "pointer",
+          height: "16px",
+          width: "16px",
+          position: "relative",
+        }}
         onClick={() => movePlayer(index)}
       >
-        {object.img ? <img src={object.img} /> : object.name}
+        {object.img ? (
+          <img src={object.img} />
+        ) : (
+          <span
+            style={{ position: "absolute", width: "100%", left: 0, top: 0 }}
+          >
+            {object.name}
+          </span>
+        )}
+        {object.bg ? (
+          <span
+            style={{ position: "absolute", width: "100%", left: 0, top: 0 }}
+          >
+            {object.bg}
+          </span>
+        ) : (
+          ""
+        )}
       </div>
     );
   };
