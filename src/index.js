@@ -86,8 +86,6 @@ const App = () => {
       setGameState("waiting");
     } else {
       setEntities(newEntities);
-
-      return setTimeout(moveEntities, frameRate);
     }
   };
 
@@ -99,19 +97,10 @@ const App = () => {
 
       setGameState("animating");
       setEntities(newEntities);
-
-      // animate entities turns
-      // - mark target destination
-      // - move one step
-      // - set timeout
-      // - animate next step
-      // - once reached target, setState waiting, clear targetDest
     }
 
     if (gameState === "animating") {
-      timeout = moveEntities();
-
-      // console.log(newEntities);
+      timeout = setTimeout(moveEntities, frameRate);
     }
 
     return () => clearTimeout(timeout);
