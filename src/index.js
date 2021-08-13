@@ -12,6 +12,8 @@ const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
 };
 
+const createArray = (length) => new Array(length).fill();
+
 const getIndicesInRange = (entity, colCount) => {
   if (entity.targetIndex) {
     // Only return subsection of indices between current and target while animating
@@ -21,16 +23,14 @@ const getIndicesInRange = (entity, colCount) => {
     );
 
     return (
-      new Array(rowsBetweenCurrentAndDestination)
-        .fill()
+      createArray(rowsBetweenCurrentAndDestination)
         // Start at the row _after_ the entity's current position
         .map((_, row) => entity.index + (row + 1) * colCount)
     );
   }
 
   return (
-    new Array(entity.speed)
-      .fill()
+    createArray(entity.speed)
       // Start at the row _after_ the entity's current position
       .map((_, row) => entity.index + (row + 1) * colCount)
   );
@@ -65,6 +65,42 @@ const moveEntity = (colCount) => (entity) => {
   };
 };
 
+const getIndicesInActionRange = (action, colCount, origin) => {
+  const indices = [];
+
+  action.directions.forEach((direction) => {
+    if (direction === "left") {
+      indices.push(
+        ...createArray(action.range).map((_, index) => origin - (index + 1))
+      );
+    }
+
+    if (direction === "right") {
+      indices.push(
+        ...createArray(action.range).map((_, index) => origin + (index + 1))
+      );
+    }
+
+    if (direction === "up") {
+      indices.push(
+        ...createArray(action.range).map(
+          (_, index) => origin - (index + 1) * colCount
+        )
+      );
+    }
+
+    if (direction === "down") {
+      indices.push(
+        ...createArray(action.range).map(
+          (_, index) => origin + (index + 1) * colCount
+        )
+      );
+    }
+  });
+
+  return indices;
+};
+
 const Grid = ({ tiles, colCount, renderTile }) => {
   return (
     <div
@@ -80,15 +116,21 @@ const Grid = ({ tiles, colCount, renderTile }) => {
   );
 };
 
-const Bar = ({ power, maxPower, hand }) => {
+const Bar = ({ power, maxPower, hand, selectedCard, setSelectedCard }) => {
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
       <p>
         PWR: {power}/{maxPower}
       </p>
       <ul>
-        {hand.map((card) => (
-          <li>
+        {hand.map((card, index) => (
+          <li
+            style={{
+              textDecoration: selectedCard === index ? "underline" : "",
+              cursor: "pointer",
+            }}
+            onClick={() => setSelectedCard(index)}
+          >
             {card.name} - {card.cost}
           </li>
         ))}
@@ -109,6 +151,28 @@ const App = () => {
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
+  const [selectedCard, setSelectedCard] = useState(0);
+  const [hand, setHand] = useState([
+    { name: "Strafe", cost: 2, range: 3, directions: ["left", "right"] },
+    { name: "FTL", cost: 5, range: 10, directions: ["up"] },
+    { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
+    { name: "Stall", cost: 0, range: 0, directions: [] },
+    { name: "Charge", cost: 3, range: 0, directions: [] },
+    {
+      name: "Adjust",
+      cost: 1,
+      range: 1,
+      directions: ["up", "down", "left", "right"],
+    },
+    {
+      name: "Brake",
+      cost: 1,
+      range: 3,
+      directions: ["down"],
+    },
+  ]);
+  const [power, setPower] = useState(3);
+  const [maxPower, setMaxPower] = useState(3);
 
   const moveEntities = () => {
     const newEntities = entities.map(moveEntity(colCount));
@@ -150,7 +214,7 @@ const App = () => {
 
         const spawnCount = randInt(1, 3);
 
-        new Array(spawnCount).fill().forEach(() => {
+        createArray(spawnCount).forEach(() => {
           const spawnIndex = randInt(0, colCount - 1);
           const spawnSpeed = randInt(3, 8);
 
@@ -177,7 +241,14 @@ const App = () => {
     }
 
     // Can only move to adjacent tile
-    if (areIndicesAdjacent(newIndex, playerIndex, colCount)) {
+    // if (areIndicesAdjacent(newIndex, playerIndex, colCount)) {
+    if (
+      getIndicesInActionRange(
+        hand[selectedCard],
+        colCount,
+        playerIndex
+      ).includes(newIndex)
+    ) {
       setPlayerIndex(newIndex);
 
       setGameState("targeting");
@@ -189,6 +260,7 @@ const App = () => {
   const renderTile = (tile, index) => {
     let object = tile;
 
+    // Display warning icons for entity movement
     if (
       entities.some((entity) =>
         getIndicesInRange(entity, colCount).includes(index)
@@ -197,11 +269,24 @@ const App = () => {
       object = { name: "⚠️", img: warningIcon };
     }
 
+    // highlight potential move option
+    if (
+      getIndicesInActionRange(
+        hand[selectedCard],
+        colCount,
+        playerIndex
+      ).includes(index)
+    ) {
+      object = { name: "◌" };
+    }
+
+    // Display entity
     const entity = entities.find((entity) => entity.index === index);
     if (entity) {
       object = entity;
     }
 
+    // Display player at current index
     if (index === playerIndex) {
       object = { name: "🔺", img: shipIcon };
     }
@@ -222,13 +307,11 @@ const App = () => {
     <div>
       <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />
       <Bar
-        power={3}
-        maxPower={3}
-        hand={[
-          { name: "Strafe", cost: 2 },
-          { name: "FTL", cost: 5 },
-          { name: "Roll", cost: 2 },
-        ]}
+        power={power}
+        maxPower={maxPower}
+        hand={hand}
+        selectedCard={selectedCard}
+        setSelectedCard={setSelectedCard}
       />
     </div>
   );
