@@ -19,6 +19,11 @@ const shuffle = (array) => {
   return copy;
 };
 
+const remove = (array, index) => [
+  ...array.slice(0, index),
+  ...array.slice(index + 1),
+];
+
 const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
 
 const randInt = (low, high) => {
@@ -306,7 +311,7 @@ const App = () => {
     }
   }, [gameState]);
 
-  const movePlayer = (newIndex) => {
+  const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
       // Skip player input unless we're waiting
       return;
@@ -330,6 +335,10 @@ const App = () => {
       setMoveCount(moveCount + 1);
 
       setPower(power - hand[selectedCard].cost);
+
+      // discard used card
+      setGraveyard([hand[selectedCard], ...graveyard]);
+      setHand(remove(hand, selectedCard));
     }
   };
 
@@ -379,7 +388,7 @@ const App = () => {
           width: "16px",
           position: "relative",
         }}
-        onClick={() => movePlayer(index)}
+        onClick={() => tryTakeAction(index)}
       >
         {object.img ? (
           <img src={object.img} />
