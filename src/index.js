@@ -93,7 +93,7 @@ const getIndicesInActionRange = (action, colCount, origin) => {
     const min = Math.floor(origin / colCount) * colCount;
     const max = min + colCount;
 
-    return index >= min && index <= max;
+    return index >= min && index < max;
   };
 
   action.directions.forEach((direction) => {
