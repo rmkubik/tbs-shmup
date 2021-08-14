@@ -33,5 +33,13 @@ body {
       // flex-direction: row;
       // justify-content: space-between;
     }
+
+    button {
+      font-size: 8px;
+      border: 1px solid #f1f2da;
+      color: #f1f2da;
+      background: none;
+      cursor: pointer;
+    }
   }
 }

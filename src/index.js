@@ -4,6 +4,8 @@ import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 
+const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
+
 const randInt = (low, high) => {
   return Math.floor(Math.random() * (high - low + 1)) + low;
 };
@@ -68,16 +70,27 @@ const moveEntity = (colCount) => (entity) => {
 const getIndicesInActionRange = (action, colCount, origin) => {
   const indices = [];
 
+  const filterIndicesInRowOnly = (index) => {
+    const min = Math.floor(origin / colCount) * colCount;
+    const max = min + colCount;
+
+    return index >= min && index <= max;
+  };
+
   action.directions.forEach((direction) => {
     if (direction === "left") {
       indices.push(
-        ...createArray(action.range).map((_, index) => origin - (index + 1))
+        ...createArray(action.range)
+          .map((_, index) => origin - (index + 1))
+          .filter(filterIndicesInRowOnly)
       );
     }
 
     if (direction === "right") {
       indices.push(
-        ...createArray(action.range).map((_, index) => origin + (index + 1))
+        ...createArray(action.range)
+          .map((_, index) => origin + (index + 1))
+          .filter(filterIndicesInRowOnly)
       );
     }
 
@@ -132,12 +145,22 @@ const Grid = ({ tiles, colCount, renderTile }) => {
   );
 };
 
-const Bar = ({ power, maxPower, hand, selectedCard, setSelectedCard }) => {
+const Bar = ({
+  power,
+  maxPower,
+  hand,
+  selectedCard,
+  setSelectedCard,
+  onEndClick,
+}) => {
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
-      <p>
-        PWR: {power}/{maxPower}
-      </p>
+      <div>
+        <p>
+          PWR: {power}/{maxPower}
+        </p>
+        <button onClick={onEndClick}>End</button>
+      </div>
       <ul>
         {hand.map((card, index) => (
           <li
@@ -183,7 +206,7 @@ const App = () => {
     {
       name: "Brake",
       cost: 1,
-      range: 3,
+      range: 4,
       directions: ["down"],
     },
   ]);
@@ -225,7 +248,7 @@ const App = () => {
     // If we're in spawning phase
     // If we haven't already spawned for this moveCount
     if (gameState === "spawning") {
-      if (moveCount % 3 === 0 && lastSpawned !== moveCount) {
+      if (moveCount % 2 === 0 && lastSpawned !== moveCount) {
         const newEntities = [];
 
         const spawnCount = randInt(1, 3);
@@ -256,8 +279,12 @@ const App = () => {
       return;
     }
 
-    // Can only move to adjacent tile
-    // if (areIndicesAdjacent(newIndex, playerIndex, colCount)) {
+    if (power < hand[selectedCard].cost) {
+      // Not enough power to pay this card's cost
+      return;
+    }
+
+    // Check if index is a valid action
     if (
       getIndicesInActionRange(
         hand[selectedCard],
@@ -267,9 +294,9 @@ const App = () => {
     ) {
       setPlayerIndex(newIndex);
 
-      setGameState("targeting");
-
       setMoveCount(moveCount + 1);
+
+      setPower(power - hand[selectedCard].cost);
     }
   };
 
@@ -294,6 +321,9 @@ const App = () => {
         playerIndex
       ).includes(index)
     ) {
+      // if (object.name === ".") {
+      //   delete object.name;
+      // }
       object.bg = "◌";
     }
 
@@ -351,6 +381,10 @@ const App = () => {
         hand={hand}
         selectedCard={selectedCard}
         setSelectedCard={setSelectedCard}
+        onEndClick={() => {
+          setPower(maxPower);
+          setGameState("targeting");
+        }}
       />
     </div>
   );
