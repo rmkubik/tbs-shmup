@@ -78,16 +78,41 @@ const isEntityDoneMoving = (entity) => entity.index === entity.targetIndex;
 
 const moveEntity =
   (colCount, playerIndex, setPlayerIndex) => (entity, index, entities) => {
+    const newIndex = isEntityDoneMoving(entity)
+      ? entity.index
+      : entity.index + colCount;
+
+    /**
+     * The entity that was collided _with_ by this entity ALSO needs
+     * to be set as an explosion.
+     *
+     * If not, it will continue to move.
+     *
+     * TODO: How can we do this inside of our map function? We don't know where
+     * the new entity will be?
+     *
+     * Check if another entity will move into us, I guess?
+     */
+    if (
+      remove(entities, index).some(
+        (otherEntity) =>
+          !isEntityDoneMoving(otherEntity) &&
+          otherEntity.index + colCount === newIndex
+      )
+    ) {
+      return {
+        ...entity,
+        index: newIndex,
+        img: explosionIcon,
+        speed: 0,
+        targetIndex: newIndex,
+      };
+    }
+
     if (isEntityDoneMoving(entity)) {
       // We're at target index, just return unedited
       return entity;
     }
-
-    // Check to see if we hit anything
-    // - playerIndex
-    // - other entities
-
-    const newIndex = entity.index + colCount;
 
     if (newIndex === playerIndex) {
       // if we hit player turn into explosion
@@ -102,12 +127,14 @@ const moveEntity =
       };
     }
 
-    // If another entity is at the position where
-    // this entity is moving to, a collision is possible
-    // If the entity is stopped, then collide.
+    /**
+     * If another stationary entity is at the location we're moving to
+     * then this is a collision.
+     */
     if (
       entities.some(
-        (entity) => entity.index === newIndex && isEntityDoneMoving(entity)
+        (otherEntity) =>
+          otherEntity.index === newIndex && isEntityDoneMoving(otherEntity)
       )
     ) {
       return {
@@ -256,7 +283,7 @@ const App = () => {
     },
     {
       name: "🪨",
-      speed: 0,
+      speed: 1,
       index: 70,
       img: asteroidIcon,
     },
