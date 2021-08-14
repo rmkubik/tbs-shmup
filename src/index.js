@@ -91,8 +91,25 @@ const moveEntity =
 
     if (newIndex === playerIndex) {
       // if we hit player turn into explosion
-      setPlayerIndex(-1);
+      setPlayerIndex(-100);
 
+      return {
+        ...entity,
+        index: newIndex,
+        img: explosionIcon,
+        speed: 0,
+        targetIndex: newIndex,
+      };
+    }
+
+    // If another entity is at the position where
+    // this entity is moving to, a collision is possible
+    // If the entity is stopped, then collide.
+    if (
+      entities.some(
+        (entity) => entity.index === newIndex && isEntityDoneMoving(entity)
+      )
+    ) {
       return {
         ...entity,
         index: newIndex,
@@ -230,8 +247,21 @@ const initialTiles = new Array(150).fill({ name: "." });
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
-  const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning
+  const [entities, setEntities] = useState([
+    {
+      name: "🪨",
+      speed: 3,
+      index: 50,
+      img: asteroidIcon,
+    },
+    {
+      name: "🪨",
+      speed: 0,
+      index: 70,
+      img: asteroidIcon,
+    },
+  ]);
+  // drawing, waiting, targeting, animating, spawning, WIP:cleanup, WIP:gameover
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
