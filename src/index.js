@@ -3,6 +3,7 @@ import { useState, useEffect } from "preact/hooks";
 import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
+import explosionIcon from "../assets/explosion.png";
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
@@ -75,17 +76,37 @@ const clearAllTargetEntities = (entities) =>
 
 const isEntityDoneMoving = (entity) => entity.index === entity.targetIndex;
 
-const moveEntity = (colCount) => (entity) => {
-  if (isEntityDoneMoving(entity)) {
-    // We're at target index, just return unedited
-    return entity;
-  }
+const moveEntity =
+  (colCount, playerIndex, setPlayerIndex) => (entity, index, entities) => {
+    if (isEntityDoneMoving(entity)) {
+      // We're at target index, just return unedited
+      return entity;
+    }
 
-  return {
-    ...entity,
-    index: entity.index + colCount,
+    // Check to see if we hit anything
+    // - playerIndex
+    // - other entities
+
+    const newIndex = entity.index + colCount;
+
+    if (newIndex === playerIndex) {
+      // if we hit player turn into explosion
+      setPlayerIndex(-1);
+
+      return {
+        ...entity,
+        index: newIndex,
+        img: explosionIcon,
+        speed: 0,
+        targetIndex: newIndex,
+      };
+    }
+
+    return {
+      ...entity,
+      index: entity.index + colCount,
+    };
   };
-};
 
 const getIndicesInActionRange = (action, colCount, origin) => {
   if (!action) {
@@ -244,7 +265,9 @@ const App = () => {
   const [drawSize, setDrawSize] = useState(3);
 
   const moveEntities = () => {
-    const newEntities = entities.map(moveEntity(colCount));
+    const newEntities = entities.map(
+      moveEntity(colCount, playerIndex, setPlayerIndex)
+    );
 
     if (newEntities.every(isEntityDoneMoving)) {
       const resetEntities = clearAllTargetEntities(newEntities);
