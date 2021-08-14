@@ -4,6 +4,21 @@ import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 
+// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+// Comment about: Durstenfeld shuffle
+const shuffle = (array) => {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+
+  return copy;
+};
+
 const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
 
 const randInt = (low, high) => {
@@ -68,6 +83,10 @@ const moveEntity = (colCount) => (entity) => {
 };
 
 const getIndicesInActionRange = (action, colCount, origin) => {
+  if (!action) {
+    return [];
+  }
+
   const indices = [];
 
   const filterIndicesInRowOnly = (index) => {
@@ -186,32 +205,37 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // waiting, targeting, animating, spawning
+  // drawing, waiting, targeting, animating, spawning
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
-  const [hand, setHand] = useState([
-    { name: "Strafe", cost: 2, range: 3, directions: ["left", "right"] },
-    { name: "FTL", cost: 5, range: 10, directions: ["up"] },
-    { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
-    { name: "Stall", cost: 0, range: 0, directions: [] },
-    { name: "Charge", cost: 3, range: 0, directions: [] },
-    {
-      name: "Adjust",
-      cost: 1,
-      range: 1,
-      directions: ["up", "down", "left", "right"],
-    },
-    {
-      name: "Brake",
-      cost: 1,
-      range: 4,
-      directions: ["down"],
-    },
-  ]);
+  const [graveyard, setGraveyard] = useState([]);
+  const [deck, setDeck] = useState(
+    shuffle([
+      { name: "Strafe", cost: 2, range: 3, directions: ["left", "right"] },
+      { name: "FTL", cost: 5, range: 10, directions: ["up"] },
+      { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
+      { name: "Stall", cost: 0, range: 0, directions: [] },
+      { name: "Charge", cost: 3, range: 0, directions: [] },
+      {
+        name: "Adjust",
+        cost: 1,
+        range: 1,
+        directions: ["up", "down", "left", "right"],
+      },
+      {
+        name: "Brake",
+        cost: 1,
+        range: 4,
+        directions: ["down"],
+      },
+    ])
+  );
+  const [hand, setHand] = useState([]);
   const [power, setPower] = useState(3);
   const [maxPower, setMaxPower] = useState(3);
+  const [drawSize, setDrawSize] = useState(3);
 
   const moveEntities = () => {
     const newEntities = entities.map(moveEntity(colCount));
@@ -269,9 +293,16 @@ const App = () => {
         setEntities([...entities, ...newEntities]);
       }
 
-      setGameState("waiting");
+      setGameState("drawing");
     }
   }, [gameState, lastSpawned, entities, moveCount]);
+
+  useEffect(() => {
+    if (gameState === "drawing") {
+      drawHand();
+      setGameState("waiting");
+    }
+  }, [gameState]);
 
   const movePlayer = (newIndex) => {
     if (gameState !== "waiting") {
@@ -370,7 +401,39 @@ const App = () => {
     );
   };
 
-  console.log({ gameState, entities, playerIndex, moveCount, lastSpawned });
+  const drawHand = () => {
+    let newHand = deck.slice(0, drawSize);
+    let newGraveyard = [...graveyard, ...hand];
+    let newDeck = deck.slice(drawSize);
+
+    const missingCardsFromDraw = drawSize - newHand.length;
+
+    if (missingCardsFromDraw > 0) {
+      // Shuffle graveyard up and use as deck
+      newDeck = shuffle(newGraveyard);
+      // Draw remaining cards to fill out the rest of the hand
+      newHand = [...newHand, ...newDeck.slice(0, missingCardsFromDraw)];
+      // Remove drawn cards from deck
+      newDeck = newDeck.slice(missingCardsFromDraw);
+      // Set graveyard as empty
+      newGraveyard = [];
+    }
+
+    setGraveyard(newGraveyard);
+    setHand(newHand);
+    setDeck(newDeck);
+  };
+
+  console.log({
+    gameState,
+    entities,
+    playerIndex,
+    moveCount,
+    lastSpawned,
+    graveyard,
+    deck,
+    hand,
+  });
 
   return (
     <div>
