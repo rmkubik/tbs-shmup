@@ -208,6 +208,7 @@ const App = () => {
   // drawing, waiting, targeting, animating, spawning
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
+  const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
@@ -270,9 +271,10 @@ const App = () => {
   useEffect(() => {
     // Spawn new entities every 3 moves
     // If we're in spawning phase
-    // If we haven't already spawned for this moveCount
+    // If we haven't already spawned for this turnCount
     if (gameState === "spawning") {
-      if (moveCount % 2 === 0 && lastSpawned !== moveCount) {
+      console.log("spawning", { turnCount, lastSpawned });
+      if (turnCount % 2 === 0 && lastSpawned !== turnCount) {
         const newEntities = [];
 
         const spawnCount = randInt(1, 3);
@@ -289,13 +291,13 @@ const App = () => {
           });
         });
 
-        setLastSpawned(moveCount);
+        setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
       }
 
       setGameState("drawing");
     }
-  }, [gameState, lastSpawned, entities, moveCount]);
+  }, [gameState, lastSpawned, entities, turnCount]);
 
   useEffect(() => {
     if (gameState === "drawing") {
@@ -429,6 +431,7 @@ const App = () => {
     entities,
     playerIndex,
     moveCount,
+    turnCount,
     lastSpawned,
     graveyard,
     deck,
@@ -445,6 +448,7 @@ const App = () => {
         selectedCard={selectedCard}
         setSelectedCard={setSelectedCard}
         onEndClick={() => {
+          setTurnCount(turnCount + 1);
           setPower(maxPower);
           setGameState("targeting");
         }}
