@@ -278,7 +278,6 @@ const App = () => {
   const [entities, setEntities] = useState([]);
   // drawing, waiting, targeting, animating, spawning, cleanup, gameover
   const [gameState, setGameState] = useState("spawning");
-  const [moveCount, setMoveCount] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
@@ -417,9 +416,14 @@ const App = () => {
         playerIndex
       ).includes(newIndex)
     ) {
-      setPlayerIndex(newIndex);
+      // If no action effect, default to moving
+      if (!hand[selectedCard].effect) {
+        setPlayerIndex(newIndex);
+      }
 
-      setMoveCount(moveCount + 1);
+      if (hand[selectedCard].effect === "charge") {
+        setMaxPower(maxPower + 1);
+      }
 
       setPower(power - hand[selectedCard].cost);
 
@@ -526,7 +530,6 @@ const App = () => {
     gameState,
     entities,
     playerIndex,
-    moveCount,
     turnCount,
     lastSpawned,
     graveyard,
