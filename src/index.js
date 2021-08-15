@@ -199,12 +199,22 @@ const moveEntity =
     };
   };
 
-const getIndicesInDirection = (origin, magnitude, colCount, direction) => {
+const getIndicesInDirection = (
+  origin,
+  magnitude,
+  direction,
+  colCount,
+  rowCount
+) => {
   const filterIndicesInRowOnly = (index) => {
     const min = Math.floor(origin / colCount) * colCount;
     const max = min + colCount;
 
     return index >= min && index < max;
+  };
+
+  const filterIndicesInBoundsOnly = (index) => {
+    return index >= 0 && index < rowCount * colCount;
   };
 
   if (direction === "self") {
@@ -224,31 +234,31 @@ const getIndicesInDirection = (origin, magnitude, colCount, direction) => {
   }
 
   if (direction === "up") {
-    return createArray(magnitude).map(
-      (_, index) => origin - (index + 1) * colCount
-    );
+    return createArray(magnitude)
+      .map((_, index) => origin - (index + 1) * colCount)
+      .filter(filterIndicesInBoundsOnly);
   }
 
   if (direction === "down") {
-    return createArray(magnitude).map(
-      (_, index) => origin + (index + 1) * colCount
-    );
+    return createArray(magnitude)
+      .map((_, index) => origin + (index + 1) * colCount)
+      .filter(filterIndicesInBoundsOnly);
   }
 
   if (direction === "upLeft") {
-    return createArray(magnitude).map(
-      (_, index) => origin - (index + 1) * colCount - 1
-    );
+    return createArray(magnitude)
+      .map((_, index) => origin - (index + 1) * colCount - 1)
+      .filter(filterIndicesInBoundsOnly);
   }
 
   if (direction === "upRight") {
-    return createArray(magnitude).map(
-      (_, index) => origin - (index + 1) * colCount + 1
-    );
+    return createArray(magnitude)
+      .map((_, index) => origin - (index + 1) * colCount + 1)
+      .filter(filterIndicesInBoundsOnly);
   }
 };
 
-const getIndicesInActionRange = (action, colCount, origin) => {
+const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
   if (!action) {
     return [];
   }
@@ -262,7 +272,13 @@ const getIndicesInActionRange = (action, colCount, origin) => {
 
   action.directions.forEach((direction) => {
     indices.push(
-      ...getIndicesInDirection(origin, action.range, colCount, direction)
+      ...getIndicesInDirection(
+        origin,
+        action.range,
+        direction,
+        colCount,
+        rowCount
+      )
     );
   });
 
@@ -319,8 +335,9 @@ const Bar = ({
 };
 
 const colCount = 10;
+const rowCount = 15;
 const frameRate = 150;
-const initialTiles = new Array(150).fill({ name: "." });
+const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
 
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
@@ -426,6 +443,12 @@ const App = () => {
     if (gameState === "cleanup") {
       if (playerIndex < 0) {
         // Player is dead
+        // TODO: This also sets itself to game over if the player
+        // moves off the top of the screen. We should probably clamp player movement
+        // to the map bounds.
+        //
+        // This is also a problem if the player moves down off the bottom of the
+        // map as well.
         setGameState("gameover");
         return;
       }
@@ -470,7 +493,8 @@ const App = () => {
       getIndicesInActionRange(
         hand[selectedCard],
         colCount,
-        playerIndex
+        playerIndex,
+        rowCount
       ).includes(newIndex)
     ) {
       // If no action effect, default to moving
@@ -483,8 +507,9 @@ const App = () => {
         const indices = getIndicesInDirection(
           playerIndex,
           hand[selectedCard].range,
+          direction,
           colCount,
-          direction
+          rowCount
         );
 
         setPlayerIndex(last(indices));
@@ -505,7 +530,8 @@ const App = () => {
   const indicesInActionRange = getIndicesInActionRange(
     hand[selectedCard],
     colCount,
-    playerIndex
+    playerIndex,
+    rowCount
   );
   let hoveredIndices = [];
 
@@ -515,8 +541,9 @@ const App = () => {
     const indicesInDirection = getIndicesInDirection(
       playerIndex,
       hand[selectedCard].range,
+      direction,
       colCount,
-      direction
+      rowCount
     );
 
     console.log({ direction, indicesInDirection });
