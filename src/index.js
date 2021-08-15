@@ -41,8 +41,7 @@ const createArray = (length) => new Array(length).fill();
 
 const getDirection = (origin, target, colCount) => {
   if (origin === target) {
-    console.warn("origin and target are the same", { origin, target });
-    return "";
+    return "self";
   }
 
   const originRow = Math.floor(origin / colCount);
@@ -208,6 +207,10 @@ const getIndicesInDirection = (origin, magnitude, colCount, direction) => {
     return index >= min && index < max;
   };
 
+  if (direction === "self") {
+    return [origin];
+  }
+
   if (direction === "left") {
     return createArray(magnitude)
       .map((_, index) => origin - (index + 1))
@@ -266,7 +269,7 @@ const getIndicesInActionRange = (action, colCount, origin) => {
   return indices;
 };
 
-const Grid = ({ tiles, colCount, renderTile }) => {
+const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
   return (
     <div
       style={{
@@ -275,6 +278,7 @@ const Grid = ({ tiles, colCount, renderTile }) => {
         lineHeight: "16px",
         textAlign: "center",
       }}
+      onMouseLeave={() => setHoveredIndex(-1)}
     >
       {tiles.map((tile, index) => renderTile(tile, index))}
     </div>
@@ -353,6 +357,7 @@ const App = () => {
   const [power, setPower] = useState(3);
   const [maxPower, setMaxPower] = useState(3);
   const [drawSize, setDrawSize] = useState(3);
+  const [hoveredIndex, setHoveredIndex] = useState(-1);
 
   const moveEntities = () => {
     const newEntities = entities.map(
@@ -497,6 +502,28 @@ const App = () => {
     }
   };
 
+  const indicesInActionRange = getIndicesInActionRange(
+    hand[selectedCard],
+    colCount,
+    playerIndex
+  );
+  let hoveredIndices = [];
+
+  // If an index is being hovered, and it is a targetable index
+  if (hoveredIndex >= 0 && indicesInActionRange.includes(hoveredIndex)) {
+    const direction = getDirection(playerIndex, hoveredIndex, colCount);
+    const indicesInDirection = getIndicesInDirection(
+      playerIndex,
+      hand[selectedCard].range,
+      colCount,
+      direction
+    );
+
+    console.log({ direction, indicesInDirection });
+
+    hoveredIndices = indicesInDirection;
+  }
+
   const renderTile = (tile, index) => {
     let object = { ...tile };
     delete object.bg; // remove old bg from tile
@@ -511,13 +538,7 @@ const App = () => {
     }
 
     // highlight potential move option
-    if (
-      getIndicesInActionRange(
-        hand[selectedCard],
-        colCount,
-        playerIndex
-      ).includes(index)
-    ) {
+    if (indicesInActionRange.includes(index)) {
       if (object.name === ".") {
         object.name = "";
       }
@@ -526,6 +547,10 @@ const App = () => {
       // Do this for _all_ indices in this direction,
       // not just the hovered.
       object.bg = "◌";
+
+      if (hoveredIndices.includes(index)) {
+        object.bg = "◯";
+      }
     }
 
     // Display entity
@@ -548,6 +573,7 @@ const App = () => {
           position: "relative",
         }}
         onClick={() => tryTakeAction(index)}
+        onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
           <img src={object.img} />
@@ -603,6 +629,7 @@ const App = () => {
     graveyard,
     deck,
     hand,
+    hoveredIndex,
   });
 
   return (
@@ -612,7 +639,12 @@ const App = () => {
       ) : gameState === "victory" ? (
         <p className="gameover">VICTORY</p>
       ) : null}
-      <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />
+      <Grid
+        tiles={tiles}
+        colCount={colCount}
+        renderTile={renderTile}
+        setHoveredIndex={setHoveredIndex}
+      />
       <Bar
         power={power}
         maxPower={maxPower}
