@@ -153,6 +153,11 @@ const getIndicesInActionRange = (action, colCount, origin) => {
     return [];
   }
 
+  // Range zero means only self select to confirm action
+  if (action.range === 0) {
+    return [origin];
+  }
+
   const indices = [];
 
   const filterIndicesInRowOnly = (index) => {
@@ -284,7 +289,7 @@ const App = () => {
       { name: "FTL", cost: 5, range: 10, directions: ["up"] },
       { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
       { name: "Stall", cost: 0, range: 0, directions: [] },
-      { name: "Charge", cost: 3, range: 0, directions: [] },
+      { name: "Charge", cost: 3, range: 0, directions: [], effect: "charge" },
       {
         name: "Adjust",
         cost: 1,
@@ -425,7 +430,7 @@ const App = () => {
   };
 
   const renderTile = (tile, index) => {
-    let object = tile;
+    let object = { ...tile };
     delete object.bg; // remove old bg from tile
 
     // Display warning icons for entity movement
@@ -445,9 +450,9 @@ const App = () => {
         playerIndex
       ).includes(index)
     ) {
-      // if (object.name === ".") {
-      //   delete object.name;
-      // }
+      if (object.name === ".") {
+        object.name = "";
+      }
       object.bg = "◌";
     }
 
@@ -459,7 +464,7 @@ const App = () => {
 
     // Display player at current index
     if (index === playerIndex) {
-      object = { name: "🔺", img: shipIcon };
+      object = { ...object, name: "🔺", img: shipIcon };
     }
 
     return (
