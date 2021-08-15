@@ -27,11 +27,19 @@ body {
       padding: 0;
       list-style: none;
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 32px 32px 32px;
       grid-gap: 8px;
-      // display: flex;
-      // flex-direction: row;
-      // justify-content: space-between;
+
+      li {
+        border: 1px solid #f1f2da;
+        padding: 4px;
+        text-align: center;
+
+        &.selected {
+          background: #f1f2da;
+          color: #00303b;
+        }
+      }
     }
 
     button {

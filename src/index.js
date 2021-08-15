@@ -249,13 +249,13 @@ const Bar = ({
       <ul>
         {hand.map((card, index) => (
           <li
+            className={selectedCard === index ? "selected" : ""}
             style={{
-              textDecoration: selectedCard === index ? "underline" : "",
               cursor: "pointer",
             }}
             onClick={() => setSelectedCard(index)}
           >
-            {card.name} - {card.cost}
+            {card.name} <br /> {card.cost}
           </li>
         ))}
       </ul>
