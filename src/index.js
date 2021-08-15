@@ -239,7 +239,7 @@ const Bar = ({
   onEndClick,
 }) => {
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
+    <div className="bar">
       <div>
         <p>
           PWR: {power}/{maxPower}
@@ -271,7 +271,7 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, WIP:gameover
+  // drawing, waiting, targeting, animating, spawning, cleanup, gameover
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
@@ -368,6 +368,12 @@ const App = () => {
 
   useEffect(() => {
     if (gameState === "cleanup") {
+      if (playerIndex < 0) {
+        // Player is dead
+        setGameState("gameover");
+        return;
+      }
+
       const newEntities = entities
         // Remove entities off bottom of screen
         .filter((entity) => entity.index < tiles.length)
@@ -377,7 +383,7 @@ const App = () => {
       setEntities(newEntities);
       setGameState("drawing");
     }
-  }, [gameState, entities, tiles]);
+  }, [playerIndex, gameState, entities, tiles]);
 
   useEffect(() => {
     if (gameState === "drawing") {
@@ -524,6 +530,7 @@ const App = () => {
 
   return (
     <div>
+      {gameState === "gameover" ? <p className="gameover">GAME OVER</p> : null}
       <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />
       <Bar
         power={power}

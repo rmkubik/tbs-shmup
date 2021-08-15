@@ -17,37 +17,45 @@ body {
   image-rendering: pixelated;
 
   transform: scale(3);
+}
 
-  & > div > div:nth-child(2) {
-    font-size: 8px;
+.gameover {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+}
 
-    ul {
-      margin-left: 12px;
-      flex: 1;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      grid-template-columns: 32px 32px 32px;
-      grid-gap: 8px;
+.bar {
+  display: flex;
+  flex-direction: row;
+  font-size: 8px;
 
-      li {
-        border: 1px solid #f1f2da;
-        padding: 4px;
-        text-align: center;
+  ul {
+    margin-left: 12px;
+    flex: 1;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 32px 32px 32px;
+    grid-gap: 8px;
 
-        &.selected {
-          background: #f1f2da;
-          color: #00303b;
-        }
+    li {
+      border: 1px solid #f1f2da;
+      padding: 4px;
+      text-align: center;
+
+      &.selected {
+        background: #f1f2da;
+        color: #00303b;
       }
     }
+  }
 
-    button {
-      font-size: 8px;
-      border: 1px solid #f1f2da;
-      color: #f1f2da;
-      background: none;
-      cursor: pointer;
-    }
+  button {
+    font-size: 8px;
+    border: 1px solid #f1f2da;
+    color: #f1f2da;
+    background: none;
+    cursor: pointer;
   }
 }
