@@ -346,6 +346,7 @@ const App = () => {
         const spawnCount = randInt(1, 4);
 
         createArray(spawnCount).forEach(() => {
+          // TODO: Maybe we should try to prevent spawns from overlapping
           const spawnIndex = randInt(0, colCount - 1);
           const spawnSpeed = randInt(1, 6);
 
