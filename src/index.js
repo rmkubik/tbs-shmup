@@ -20,6 +20,8 @@ const shuffle = (array) => {
   return copy;
 };
 
+const last = (array) => array[array.length - 1];
+
 const remove = (array, index) => [
   ...array.slice(0, index),
   ...array.slice(index + 1),
@@ -36,6 +38,56 @@ const areIndicesAdjacent = (a, b, colCount) => {
 };
 
 const createArray = (length) => new Array(length).fill();
+
+const getDirection = (origin, target, colCount) => {
+  if (origin === target) {
+    console.warn("origin and target are the same", { origin, target });
+    return "";
+  }
+
+  const originRow = Math.floor(origin / colCount);
+  const originCol = origin % colCount;
+
+  const targetRow = Math.floor(target / colCount);
+  const targetCol = target % colCount;
+
+  const isLeft = targetCol < originCol;
+  const isRight = targetCol > originCol;
+  const isUp = targetRow < originRow;
+  const isDown = targetRow > originRow;
+
+  if (isLeft && isUp) {
+    return "upLeft";
+  }
+
+  if (isRight && isUp) {
+    return "upRight";
+  }
+
+  if (isLeft && isDown) {
+    return "downLeft";
+  }
+
+  if (isRight && isDown) {
+    return "downRight";
+  }
+
+  if (isLeft) {
+    return "left";
+  }
+
+  if (isRight) {
+    return "right";
+  }
+
+  if (isDown) {
+    return "down";
+  }
+
+  if (isUp) {
+    return "up";
+  }
+};
 
 const getIndicesInRange = (entity, colCount) => {
   if (entity.targetIndex) {
@@ -148,6 +200,51 @@ const moveEntity =
     };
   };
 
+const getIndicesInDirection = (origin, magnitude, colCount, direction) => {
+  const filterIndicesInRowOnly = (index) => {
+    const min = Math.floor(origin / colCount) * colCount;
+    const max = min + colCount;
+
+    return index >= min && index < max;
+  };
+
+  if (direction === "left") {
+    return createArray(magnitude)
+      .map((_, index) => origin - (index + 1))
+      .filter(filterIndicesInRowOnly);
+  }
+
+  if (direction === "right") {
+    return createArray(magnitude)
+      .map((_, index) => origin + (index + 1))
+      .filter(filterIndicesInRowOnly);
+  }
+
+  if (direction === "up") {
+    return createArray(magnitude).map(
+      (_, index) => origin - (index + 1) * colCount
+    );
+  }
+
+  if (direction === "down") {
+    return createArray(magnitude).map(
+      (_, index) => origin + (index + 1) * colCount
+    );
+  }
+
+  if (direction === "upLeft") {
+    return createArray(magnitude).map(
+      (_, index) => origin - (index + 1) * colCount - 1
+    );
+  }
+
+  if (direction === "upRight") {
+    return createArray(magnitude).map(
+      (_, index) => origin - (index + 1) * colCount + 1
+    );
+  }
+};
+
 const getIndicesInActionRange = (action, colCount, origin) => {
   if (!action) {
     return [];
@@ -160,61 +257,10 @@ const getIndicesInActionRange = (action, colCount, origin) => {
 
   const indices = [];
 
-  const filterIndicesInRowOnly = (index) => {
-    const min = Math.floor(origin / colCount) * colCount;
-    const max = min + colCount;
-
-    return index >= min && index < max;
-  };
-
   action.directions.forEach((direction) => {
-    if (direction === "left") {
-      indices.push(
-        ...createArray(action.range)
-          .map((_, index) => origin - (index + 1))
-          .filter(filterIndicesInRowOnly)
-      );
-    }
-
-    if (direction === "right") {
-      indices.push(
-        ...createArray(action.range)
-          .map((_, index) => origin + (index + 1))
-          .filter(filterIndicesInRowOnly)
-      );
-    }
-
-    if (direction === "up") {
-      indices.push(
-        ...createArray(action.range).map(
-          (_, index) => origin - (index + 1) * colCount
-        )
-      );
-    }
-
-    if (direction === "down") {
-      indices.push(
-        ...createArray(action.range).map(
-          (_, index) => origin + (index + 1) * colCount
-        )
-      );
-    }
-
-    if (direction === "upLeft") {
-      indices.push(
-        ...createArray(action.range).map(
-          (_, index) => origin - (index + 1) * colCount - 1
-        )
-      );
-    }
-
-    if (direction === "upRight") {
-      indices.push(
-        ...createArray(action.range).map(
-          (_, index) => origin - (index + 1) * colCount + 1
-        )
-      );
-    }
+    indices.push(
+      ...getIndicesInDirection(origin, action.range, colCount, direction)
+    );
   });
 
   return indices;
@@ -304,8 +350,8 @@ const App = () => {
     ])
   );
   const [hand, setHand] = useState([]);
-  const [power, setPower] = useState(10);
-  const [maxPower, setMaxPower] = useState(10);
+  const [power, setPower] = useState(3);
+  const [maxPower, setMaxPower] = useState(3);
   const [drawSize, setDrawSize] = useState(3);
 
   const moveEntities = () => {
@@ -379,7 +425,6 @@ const App = () => {
         return;
       }
 
-      console.log({ playerIndex, colCount });
       if (playerIndex < colCount) {
         // Player made it to the end
         setGameState("victory");
@@ -425,7 +470,19 @@ const App = () => {
     ) {
       // If no action effect, default to moving
       if (!hand[selectedCard].effect) {
-        setPlayerIndex(newIndex);
+        // TODO:
+        // If player intersects with an entity during this move
+        // blow the player up.
+        const direction = getDirection(playerIndex, newIndex, colCount);
+
+        const indices = getIndicesInDirection(
+          playerIndex,
+          hand[selectedCard].range,
+          colCount,
+          direction
+        );
+
+        setPlayerIndex(last(indices));
       }
 
       if (hand[selectedCard].effect === "charge") {
@@ -464,6 +521,10 @@ const App = () => {
       if (object.name === ".") {
         object.name = "";
       }
+      // TODO:
+      // Highlight indices in range when they're hovered
+      // Do this for _all_ indices in this direction,
+      // not just the hovered.
       object.bg = "◌";
     }
 
