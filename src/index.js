@@ -83,15 +83,8 @@ const moveEntity =
       : entity.index + colCount;
 
     /**
-     * The entity that was collided _with_ by this entity ALSO needs
-     * to be set as an explosion.
-     *
-     * If not, it will continue to move.
-     *
-     * TODO: How can we do this inside of our map function? We don't know where
-     * the new entity will be?
-     *
-     * Check if another entity will move into us, I guess?
+     * If an entity that is moving will hit us, we should turn into an
+     * explosion.
      */
     if (
       remove(entities, index).some(
@@ -102,6 +95,7 @@ const moveEntity =
     ) {
       return {
         ...entity,
+        name: "💥",
         index: newIndex,
         img: explosionIcon,
         speed: 0,
@@ -120,6 +114,7 @@ const moveEntity =
 
       return {
         ...entity,
+        name: "💥",
         index: newIndex,
         img: explosionIcon,
         speed: 0,
@@ -139,6 +134,7 @@ const moveEntity =
     ) {
       return {
         ...entity,
+        name: "💥",
         index: newIndex,
         img: explosionIcon,
         speed: 0,
@@ -274,21 +270,8 @@ const initialTiles = new Array(150).fill({ name: "." });
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
-  const [entities, setEntities] = useState([
-    {
-      name: "🪨",
-      speed: 3,
-      index: 50,
-      img: asteroidIcon,
-    },
-    {
-      name: "🪨",
-      speed: 1,
-      index: 70,
-      img: asteroidIcon,
-    },
-  ]);
-  // drawing, waiting, targeting, animating, spawning, WIP:cleanup, WIP:gameover
+  const [entities, setEntities] = useState([]);
+  // drawing, waiting, targeting, animating, spawning, cleanup, WIP:gameover
   const [gameState, setGameState] = useState("spawning");
   const [moveCount, setMoveCount] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
@@ -354,19 +337,17 @@ const App = () => {
   }, [entities, gameState]);
 
   useEffect(() => {
-    // Spawn new entities every 3 moves
-    // If we're in spawning phase
-    // If we haven't already spawned for this turnCount
     if (gameState === "spawning") {
-      console.log("spawning", { turnCount, lastSpawned });
+      // Spawn new entities every X turns if we haven't already spawned
+      // at this current turn count.
       if (turnCount % 2 === 0 && lastSpawned !== turnCount) {
         const newEntities = [];
 
-        const spawnCount = randInt(1, 3);
+        const spawnCount = randInt(1, 4);
 
         createArray(spawnCount).forEach(() => {
           const spawnIndex = randInt(0, colCount - 1);
-          const spawnSpeed = randInt(3, 8);
+          const spawnSpeed = randInt(1, 6);
 
           newEntities.push({
             name: "🪨",
@@ -380,9 +361,23 @@ const App = () => {
         setEntities([...entities, ...newEntities]);
       }
 
-      setGameState("drawing");
+      setGameState("cleanup");
+      // setGameState("drawing");
     }
   }, [gameState, lastSpawned, entities, turnCount]);
+
+  useEffect(() => {
+    if (gameState === "cleanup") {
+      const newEntities = entities
+        // Remove entities off bottom of screen
+        .filter((entity) => entity.index < tiles.length)
+        // Remove explosions
+        .filter((entity) => entity.name !== "💥");
+
+      setEntities(newEntities);
+      setGameState("drawing");
+    }
+  }, [gameState, entities, tiles]);
 
   useEffect(() => {
     if (gameState === "drawing") {
