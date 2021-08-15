@@ -276,7 +276,7 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, gameover
+  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
   const [gameState, setGameState] = useState("spawning");
   const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
@@ -304,8 +304,8 @@ const App = () => {
     ])
   );
   const [hand, setHand] = useState([]);
-  const [power, setPower] = useState(3);
-  const [maxPower, setMaxPower] = useState(3);
+  const [power, setPower] = useState(10);
+  const [maxPower, setMaxPower] = useState(10);
   const [drawSize, setDrawSize] = useState(3);
 
   const moveEntities = () => {
@@ -376,6 +376,13 @@ const App = () => {
       if (playerIndex < 0) {
         // Player is dead
         setGameState("gameover");
+        return;
+      }
+
+      console.log({ playerIndex, colCount });
+      if (playerIndex < colCount) {
+        // Player made it to the end
+        setGameState("victory");
         return;
       }
 
@@ -539,7 +546,11 @@ const App = () => {
 
   return (
     <div>
-      {gameState === "gameover" ? <p className="gameover">GAME OVER</p> : null}
+      {gameState === "gameover" ? (
+        <p className="gameover">GAME OVER</p>
+      ) : gameState === "victory" ? (
+        <p className="gameover">VICTORY</p>
+      ) : null}
       <Grid tiles={tiles} colCount={colCount} renderTile={renderTile} />
       <Bar
         power={power}
