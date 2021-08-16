@@ -27,6 +27,12 @@ const remove = (array, index) => [
   ...array.slice(index + 1),
 ];
 
+const set = (array, index, value) => [
+  ...array.slice(0, index),
+  value,
+  ...array.slice(index + 1),
+];
+
 const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
 
 const randInt = (low, high) => {
@@ -512,6 +518,25 @@ const App = () => {
           rowCount
         );
 
+        const collidedEntityIndex = entities.findIndex((entity) =>
+          indices.includes(entity.index)
+        );
+
+        if (collidedEntityIndex >= 0) {
+          // Kill player if they move into an entity
+          const newEntity = {
+            ...entities[collidedEntityIndex],
+            name: "💥",
+            img: explosionIcon,
+            speed: 0,
+          };
+
+          setEntities(set(entities, collidedEntityIndex, newEntity));
+          setPlayerIndex(-100);
+          setGameState("gameover");
+          return;
+        }
+
         setPlayerIndex(last(indices));
       }
 
@@ -569,10 +594,6 @@ const App = () => {
       if (object.name === ".") {
         object.name = "";
       }
-      // TODO:
-      // Highlight indices in range when they're hovered
-      // Do this for _all_ indices in this direction,
-      // not just the hovered.
       object.bg = "◌";
 
       if (hoveredIndices.includes(index)) {
@@ -583,7 +604,7 @@ const App = () => {
     // Display entity
     const entity = entities.find((entity) => entity.index === index);
     if (entity) {
-      object = entity;
+      object = { ...object, ...entity };
     }
 
     // Display player at current index
