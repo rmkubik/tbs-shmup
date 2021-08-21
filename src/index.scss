@@ -17,7 +17,10 @@ body {
 
   image-rendering: pixelated;
 
-  transform: scale(3);
+  & > * {
+    transform: scale(3);
+    transform-origin: center;
+  }
 }
 
 .gameover {
@@ -44,6 +47,11 @@ body {
       border: 1px solid #f1f2da;
       padding: 4px;
       text-align: center;
+      cursor: pointer;
+
+      &:hover {
+        border-style: dashed;
+      }
 
       &.selected {
         background: #f1f2da;

@@ -327,9 +327,6 @@ const Bar = ({
         {hand.map((card, index) => (
           <li
             className={selectedCard === index ? "selected" : ""}
-            style={{
-              cursor: "pointer",
-            }}
             onClick={() => setSelectedCard(index)}
           >
             {card.name} <br /> {card.cost}
@@ -349,8 +346,8 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
-  const [gameState, setGameState] = useState("spawning");
+  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory, map
+  const [gameState, setGameState] = useState("map"); // useState("spawning");
   const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
@@ -449,12 +446,6 @@ const App = () => {
     if (gameState === "cleanup") {
       if (playerIndex < 0) {
         // Player is dead
-        // TODO: This also sets itself to game over if the player
-        // moves off the top of the screen. We should probably clamp player movement
-        // to the map bounds.
-        //
-        // This is also a problem if the player moves down off the bottom of the
-        // map as well.
         setGameState("gameover");
         return;
       }
@@ -505,9 +496,6 @@ const App = () => {
     ) {
       // If no action effect, default to moving
       if (!hand[selectedCard].effect) {
-        // TODO:
-        // If player intersects with an entity during this move
-        // blow the player up.
         const direction = getDirection(playerIndex, newIndex, colCount);
 
         const indices = getIndicesInDirection(
@@ -570,8 +558,6 @@ const App = () => {
       colCount,
       rowCount
     );
-
-    console.log({ direction, indicesInDirection });
 
     hoveredIndices = indicesInDirection;
   }
@@ -680,7 +666,15 @@ const App = () => {
     hoveredIndex,
   });
 
-  return (
+  return gameState === "map" ? (
+    <div className="bar">
+      <ul>
+        <li onClick={() => setGameState("spawning")}>Asteroid Field</li>
+        <li>Shop</li>
+        <li>Alien Planet</li>
+      </ul>
+    </div>
+  ) : (
     <div>
       {gameState === "gameover" ? (
         <p className="gameover">GAME OVER</p>
