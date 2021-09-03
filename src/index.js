@@ -95,6 +95,8 @@ const getDirection = (origin, target, colCount) => {
 };
 
 const getIndicesInRange = (entity, colCount) => {
+  const isEntityMovingUp = entity.speed < 0;
+
   if (entity.targetIndex) {
     // Only return subsection of indices between current and target while animating
 
@@ -103,16 +105,22 @@ const getIndicesInRange = (entity, colCount) => {
     );
 
     return (
-      createArray(rowsBetweenCurrentAndDestination)
+      createArray(Math.abs(rowsBetweenCurrentAndDestination))
         // Start at the row _after_ the entity's current position
-        .map((_, row) => entity.index + (row + 1) * colCount)
+        .map(
+          (_, row) =>
+            entity.index + (isEntityMovingUp ? row - 1 : row + 1) * colCount
+        )
     );
   }
 
   return (
-    createArray(entity.speed)
+    createArray(Math.abs(entity.speed))
       // Start at the row _after_ the entity's current position
-      .map((_, row) => entity.index + (row + 1) * colCount)
+      .map(
+        (_, row) =>
+          entity.index + (isEntityMovingUp ? row - 1 : row + 1) * colCount
+      )
   );
 };
 
@@ -135,9 +143,15 @@ const isEntityDoneMoving = (entity) => entity.index === entity.targetIndex;
 
 const moveEntity =
   (colCount, playerIndex, setPlayerIndex) => (entity, index, entities) => {
-    const newIndex = isEntityDoneMoving(entity)
-      ? entity.index
-      : entity.index + colCount;
+    let newIndex = entity.index;
+
+    if (!isEntityDoneMoving(entity)) {
+      const isEntityMovingUp = entity.speed < 0;
+
+      newIndex = isEntityMovingUp
+        ? entity.index - colCount
+        : entity.index + colCount;
+    }
 
     /**
      * If an entity that is moving will hit us, we should turn into an
@@ -201,7 +215,7 @@ const moveEntity =
 
     return {
       ...entity,
-      index: entity.index + colCount,
+      index: newIndex,
     };
   };
 
@@ -307,34 +321,18 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
   );
 };
 
-const Bar = ({
-  power,
-  maxPower,
-  hand,
-  selectedCard,
-  setSelectedCard,
-  onEndClick,
-}) => {
-  return (
-    <div className="bar">
-      <div>
-        <p>
-          PWR: {power}/{maxPower}
-        </p>
-        <button onClick={onEndClick}>End</button>
-      </div>
-      <ul>
-        {hand.map((card, index) => (
-          <li
-            className={selectedCard === index ? "selected" : ""}
-            onClick={() => setSelectedCard(index)}
-          >
-            {card.name} <br /> {card.cost}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+const useKeyPress = (handlers, dependencies) => {
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (!event.repeat) {
+        handlers[event.code]?.();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [handlers, ...dependencies]);
 };
 
 const colCount = 10;
@@ -346,38 +344,116 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory, map
-  const [gameState, setGameState] = useState("map"); // useState("spawning");
+  // waiting, targeting, animating, spawning, cleanup, gameover, victory
+  const [gameState, setGameState] = useState("spawning");
   const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
-  const [selectedCard, setSelectedCard] = useState(0);
-  const [graveyard, setGraveyard] = useState([]);
-  const [deck, setDeck] = useState(
-    shuffle([
-      { name: "Strafe", cost: 2, range: 3, directions: ["left", "right"] },
-      { name: "FTL", cost: 5, range: 10, directions: ["up"] },
-      { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
-      { name: "Stall", cost: 0, range: 0, directions: [] },
-      { name: "Charge", cost: 3, range: 0, directions: [], effect: "charge" },
-      {
-        name: "Adjust",
-        cost: 1,
-        range: 1,
-        directions: ["up", "down", "left", "right"],
-      },
-      {
-        name: "Brake",
-        cost: 1,
-        range: 4,
-        directions: ["down"],
-      },
-    ])
-  );
-  const [hand, setHand] = useState([]);
-  const [power, setPower] = useState(3);
-  const [maxPower, setMaxPower] = useState(3);
-  const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [power, setPower] = useState(0);
+  const [powerRegenPerTurn, setPowerRegenPerTurn] = useState(2);
+  const [actions] = useState({ move: { cost: 1 }, shoot: { cost: 2 } });
+
+  const tryTakeAction = (newIndex, type) => {
+    if (gameState !== "waiting") {
+      // Skip player input unless we're waiting
+      return;
+    }
+
+    const action = actions[type];
+
+    if (!action) {
+      console.warn(`Invalid action type: "${type}"`);
+      return;
+    }
+
+    if (power < action.cost) {
+      // Cannot afford action
+      return;
+    }
+
+    switch (type) {
+      case "move":
+        setPlayerIndex(newIndex);
+        break;
+      case "shoot":
+        const newEntity = {
+          index: newIndex,
+          name: "🪨",
+          img: asteroidIcon,
+          speed: -3,
+        };
+
+        setEntities([...entities, newEntity]);
+        break;
+      default:
+        break;
+    }
+
+    // Check if index is a valid action
+    // if (
+    //   getIndicesInActionRange(
+    //     hand[selectedCard],
+    //     colCount,
+    //     playerIndex,
+    //     rowCount
+    //   ).includes(newIndex)
+    // ) {
+    //   // If no action effect, default to moving
+    //   if (!hand[selectedCard].effect) {
+    //     const direction = getDirection(playerIndex, newIndex, colCount);
+
+    //     const indices = getIndicesInDirection(
+    //       playerIndex,
+    //       hand[selectedCard].range,
+    //       direction,
+    //       colCount,
+    //       rowCount
+    //     );
+
+    //     const collidedEntityIndex = entities.findIndex((entity) =>
+    //       indices.includes(entity.index)
+    //     );
+
+    //     if (collidedEntityIndex >= 0) {
+    //       // Kill player if they move into an entity
+    //       const newEntity = {
+    //         ...entities[collidedEntityIndex],
+    //         name: "💥",
+    //         img: explosionIcon,
+    //         speed: 0,
+    //       };
+
+    //       setEntities(set(entities, collidedEntityIndex, newEntity));
+    //       setPlayerIndex(-100);
+    //       setGameState("gameover");
+    //       return;
+    //     }
+
+    //     setPlayerIndex(last(indices));
+    //   }
+
+    const newPower = power - action.cost;
+
+    setPower(newPower);
+
+    // If player is out of power, move to next phase
+    if (newPower === 0) {
+      setTurnCount(turnCount + 1);
+      setGameState("targeting");
+    }
+    // }
+  };
+
+  useKeyPress(
+    {
+      KeyW: () => tryTakeAction(playerIndex - colCount, "move"),
+      KeyA: () => tryTakeAction(playerIndex - 1, "move"),
+      KeyS: () => tryTakeAction(playerIndex + colCount, "move"),
+      KeyD: () => tryTakeAction(playerIndex + 1, "move"),
+      Space: () => tryTakeAction(playerIndex - colCount, "shoot"),
+    },
+    [playerIndex]
+  );
 
   const moveEntities = () => {
     const newEntities = entities.map(
@@ -462,105 +538,33 @@ const App = () => {
         // Remove explosions
         .filter((entity) => entity.name !== "💥");
 
+      setPower(power + powerRegenPerTurn);
       setEntities(newEntities);
-      setGameState("drawing");
-    }
-  }, [playerIndex, gameState, entities, tiles]);
-
-  useEffect(() => {
-    if (gameState === "drawing") {
-      drawHand();
       setGameState("waiting");
     }
-  }, [gameState]);
+  }, [playerIndex, gameState, entities, tiles, power, powerRegenPerTurn]);
 
-  const tryTakeAction = (newIndex) => {
-    if (gameState !== "waiting") {
-      // Skip player input unless we're waiting
-      return;
-    }
+  // const indicesInActionRange = getIndicesInActionRange(
+  //   hand[selectedCard],
+  //   colCount,
+  //   playerIndex,
+  //   rowCount
+  // );
+  // let hoveredIndices = [];
 
-    if (power < hand[selectedCard].cost) {
-      // Not enough power to pay this card's cost
-      return;
-    }
+  // // If an index is being hovered, and it is a targetable index
+  // if (hoveredIndex >= 0 && indicesInActionRange.includes(hoveredIndex)) {
+  //   const direction = getDirection(playerIndex, hoveredIndex, colCount);
+  //   const indicesInDirection = getIndicesInDirection(
+  //     playerIndex,
+  //     hand[selectedCard].range,
+  //     direction,
+  //     colCount,
+  //     rowCount
+  //   );
 
-    // Check if index is a valid action
-    if (
-      getIndicesInActionRange(
-        hand[selectedCard],
-        colCount,
-        playerIndex,
-        rowCount
-      ).includes(newIndex)
-    ) {
-      // If no action effect, default to moving
-      if (!hand[selectedCard].effect) {
-        const direction = getDirection(playerIndex, newIndex, colCount);
-
-        const indices = getIndicesInDirection(
-          playerIndex,
-          hand[selectedCard].range,
-          direction,
-          colCount,
-          rowCount
-        );
-
-        const collidedEntityIndex = entities.findIndex((entity) =>
-          indices.includes(entity.index)
-        );
-
-        if (collidedEntityIndex >= 0) {
-          // Kill player if they move into an entity
-          const newEntity = {
-            ...entities[collidedEntityIndex],
-            name: "💥",
-            img: explosionIcon,
-            speed: 0,
-          };
-
-          setEntities(set(entities, collidedEntityIndex, newEntity));
-          setPlayerIndex(-100);
-          setGameState("gameover");
-          return;
-        }
-
-        setPlayerIndex(last(indices));
-      }
-
-      if (hand[selectedCard].effect === "charge") {
-        setMaxPower(maxPower + 1);
-      }
-
-      setPower(power - hand[selectedCard].cost);
-
-      // discard used card
-      setGraveyard([hand[selectedCard], ...graveyard]);
-      setHand(remove(hand, selectedCard));
-    }
-  };
-
-  const indicesInActionRange = getIndicesInActionRange(
-    hand[selectedCard],
-    colCount,
-    playerIndex,
-    rowCount
-  );
-  let hoveredIndices = [];
-
-  // If an index is being hovered, and it is a targetable index
-  if (hoveredIndex >= 0 && indicesInActionRange.includes(hoveredIndex)) {
-    const direction = getDirection(playerIndex, hoveredIndex, colCount);
-    const indicesInDirection = getIndicesInDirection(
-      playerIndex,
-      hand[selectedCard].range,
-      direction,
-      colCount,
-      rowCount
-    );
-
-    hoveredIndices = indicesInDirection;
-  }
+  //   hoveredIndices = indicesInDirection;
+  // }
 
   const renderTile = (tile, index) => {
     let object = { ...tile };
@@ -576,16 +580,16 @@ const App = () => {
     }
 
     // highlight potential move option
-    if (indicesInActionRange.includes(index)) {
-      if (object.name === ".") {
-        object.name = "";
-      }
-      object.bg = "◌";
+    // if (indicesInActionRange.includes(index)) {
+    //   if (object.name === ".") {
+    //     object.name = "";
+    //   }
+    //   object.bg = "◌";
 
-      if (hoveredIndices.includes(index)) {
-        object.bg = "◯";
-      }
-    }
+    //   if (hoveredIndices.includes(index)) {
+    //     object.bg = "◯";
+    //   }
+    // }
 
     // Display entity
     const entity = entities.find((entity) => entity.index === index);
@@ -606,7 +610,7 @@ const App = () => {
           width: "16px",
           position: "relative",
         }}
-        onClick={() => tryTakeAction(index)}
+        // onClick={() => tryTakeAction(index)}
         onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
@@ -631,50 +635,16 @@ const App = () => {
     );
   };
 
-  const drawHand = () => {
-    let newHand = deck.slice(0, drawSize);
-    let newGraveyard = [...graveyard, ...hand];
-    let newDeck = deck.slice(drawSize);
-
-    const missingCardsFromDraw = drawSize - newHand.length;
-
-    if (missingCardsFromDraw > 0) {
-      // Shuffle graveyard up and use as deck
-      newDeck = shuffle(newGraveyard);
-      // Draw remaining cards to fill out the rest of the hand
-      newHand = [...newHand, ...newDeck.slice(0, missingCardsFromDraw)];
-      // Remove drawn cards from deck
-      newDeck = newDeck.slice(missingCardsFromDraw);
-      // Set graveyard as empty
-      newGraveyard = [];
-    }
-
-    setGraveyard(newGraveyard);
-    setHand(newHand);
-    setDeck(newDeck);
-  };
-
   console.log({
     gameState,
     entities,
     playerIndex,
     turnCount,
     lastSpawned,
-    graveyard,
-    deck,
-    hand,
     hoveredIndex,
   });
 
-  return gameState === "map" ? (
-    <div className="bar">
-      <ul>
-        <li onClick={() => setGameState("spawning")}>Asteroid Field</li>
-        <li>Shop</li>
-        <li>Alien Planet</li>
-      </ul>
-    </div>
-  ) : (
+  return (
     <div>
       {gameState === "gameover" ? (
         <p className="gameover">GAME OVER</p>
@@ -687,18 +657,9 @@ const App = () => {
         renderTile={renderTile}
         setHoveredIndex={setHoveredIndex}
       />
-      <Bar
-        power={power}
-        maxPower={maxPower}
-        hand={hand}
-        selectedCard={selectedCard}
-        setSelectedCard={setSelectedCard}
-        onEndClick={() => {
-          setTurnCount(turnCount + 1);
-          setPower(maxPower);
-          setGameState("targeting");
-        }}
-      />
+      <p>
+        {power} power + {powerRegenPerTurn}/turn
+      </p>
     </div>
   );
 };
