@@ -97,6 +97,18 @@ const getDirection = (origin, target, colCount) => {
 const getIndicesInRange = (entity, colCount) => {
   const isEntityMovingUp = entity.speed < 0;
 
+  const createArrayOfIndices = (count) => {
+    return (
+      createArray(Math.abs(count))
+        // Start at the row _after_ the entity's current position
+        .map((_, row) => {
+          const startIndex = isEntityMovingUp ? -(row + 1) : row + 1;
+
+          return entity.index + startIndex * colCount;
+        })
+    );
+  };
+
   if (entity.targetIndex) {
     // Only return subsection of indices between current and target while animating
 
@@ -104,24 +116,10 @@ const getIndicesInRange = (entity, colCount) => {
       (entity.targetIndex - entity.index) / colCount
     );
 
-    return (
-      createArray(Math.abs(rowsBetweenCurrentAndDestination))
-        // Start at the row _after_ the entity's current position
-        .map(
-          (_, row) =>
-            entity.index + (isEntityMovingUp ? row - 1 : row + 1) * colCount
-        )
-    );
+    return createArrayOfIndices(rowsBetweenCurrentAndDestination);
   }
 
-  return (
-    createArray(Math.abs(entity.speed))
-      // Start at the row _after_ the entity's current position
-      .map(
-        (_, row) =>
-          entity.index + (isEntityMovingUp ? row - 1 : row + 1) * colCount
-      )
-  );
+  return createArrayOfIndices(Math.abs(entity.speed));
 };
 
 const setTargetIndex = (colCount) => (entity) => {
@@ -572,9 +570,11 @@ const App = () => {
 
     // Display warning icons for entity movement
     if (
-      entities.some((entity) =>
-        getIndicesInRange(entity, colCount).includes(index)
-      )
+      entities.some((entity) => {
+        if (entity.speed < 0)
+          console.log({ entity, indices: getIndicesInRange(entity, colCount) });
+        return getIndicesInRange(entity, colCount).includes(index);
+      })
     ) {
       object = { name: "⚠️", img: warningIcon };
     }
