@@ -4,6 +4,7 @@ import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
+import bulletIcon from "../assets/bullet.png";
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
@@ -139,6 +140,15 @@ const clearAllTargetEntities = (entities) =>
 
 const isEntityDoneMoving = (entity) => entity.index === entity.targetIndex;
 
+const isEntityAboutToMoveIntoIndex = (index) => (entity) => {
+  const isEntityMovingUp = entity.speed < 0;
+  const nextIndex = isEntityMovingUp
+    ? entity.index - colCount
+    : entity.index + colCount;
+
+  return !isEntityDoneMoving(entity) && nextIndex === index;
+};
+
 const moveEntity =
   (colCount, playerIndex, setPlayerIndex) => (entity, index, entities) => {
     let newIndex = entity.index;
@@ -151,17 +161,39 @@ const moveEntity =
         : entity.index + colCount;
     }
 
+    // TODO:
+    // - if i move into an entity destroy both of us
+    // - how can i mark both of us as destroyed?
+    // - i know who I am so, it's easy to set myself destroyed
+    // - moveEntity doesn't have any side effects so i can't mark the other one
+    //   as destroyed
+    // - maybe the right answer, is to do a pass through all entities for each move
+    //   and make a collection of all entities that will be colliding with anything.
+    // - then make all of these entities into explosions
+    // - we also need the use case like this:
+    //     . . . .          . . . .
+    //     . V . .   -->    . ^ . .
+    //     . ^ . .          . V . .
+    //     . . . .          . . . .
+    // - maybe this is just much easier to solve if we DON'T do it "functionaly"
+    // - just let the first thing that crashes into the other thing blow them
+    // - both up as a side effecty type dealio
+
+    // TODO:
+    // I think we should entirely redo the collision system.
+    // It seems to be causing random asteroids to delete themselves.
+    // Collisions only work _some_ of the times. Some times a bullet will
+    // phase through an asteroid. Some times on thing in the collision
+    // dies, some times none of them do. Some times both do.
+
+    const otherEntities = remove(entities, index);
+
     /**
      * If an entity that is moving will hit us, we should turn into an
      * explosion.
      */
-    if (
-      remove(entities, index).some(
-        (otherEntity) =>
-          !isEntityDoneMoving(otherEntity) &&
-          otherEntity.index + colCount === newIndex
-      )
-    ) {
+    if (otherEntities.some(isEntityAboutToMoveIntoIndex(newIndex))) {
+      console.log("explosion location 1");
       return {
         ...entity,
         name: "💥",
@@ -196,11 +228,16 @@ const moveEntity =
      * then this is a collision.
      */
     if (
-      entities.some(
-        (otherEntity) =>
-          otherEntity.index === newIndex && isEntityDoneMoving(otherEntity)
-      )
+      otherEntities.some((otherEntity) => {
+        const isOtherEntityMovingUp = otherEntity.speed < 0;
+        const otherEntityNextIndex = isOtherEntityMovingUp
+          ? otherEntity.index - colCount
+          : otherEntity.index + colCount;
+
+        return otherEntityNextIndex && isEntityDoneMoving(otherEntity);
+      })
     ) {
+      console.log("THIS IS WHERE ENTITIES ARE GOING AWAY?");
       return {
         ...entity,
         name: "💥",
@@ -376,8 +413,8 @@ const App = () => {
       case "shoot":
         const newEntity = {
           index: newIndex,
-          name: "🪨",
-          img: asteroidIcon,
+          name: "*",
+          img: bulletIcon,
           speed: -3,
         };
 
@@ -454,9 +491,63 @@ const App = () => {
   );
 
   const moveEntities = () => {
-    const newEntities = entities.map(
-      moveEntity(colCount, playerIndex, setPlayerIndex)
-    );
+    // const newEntities = entities.map(
+    //   moveEntity(colCount, playerIndex, setPlayerIndex)
+    // );
+
+    // copy entities
+    // for entity of entities
+    // is entity already destroyed? skip it
+    // move entity one space
+    // is entity colliding? destroy it and other entity
+    // go on to next entity
+
+    // Make a copy of entities array
+    // (this WILL have side effects if this ends up mattering later)
+    const newEntities = [...entities];
+
+    for (let index = 0; index < newEntities.length; index += 1) {
+      const entity = newEntities[index];
+
+      if (entity.name === "💥") {
+        // This entity is already destroyed, skip it
+        continue;
+      }
+
+      let newIndex = entity.index;
+
+      if (!isEntityDoneMoving(entity)) {
+        const isEntityMovingUp = entity.speed < 0;
+
+        newIndex = isEntityMovingUp
+          ? entity.index - colCount
+          : entity.index + colCount;
+      }
+
+      // Move ourselves to the new index
+      entity.index = newIndex;
+
+      const otherEntities = remove(entities, index);
+      const collidingEntities = otherEntities.filter(
+        (otherEntity) => otherEntity.index === entity.index
+      );
+
+      if (collidingEntities.length > 0) {
+        // Mark each collided entity as exploded
+        collidingEntities.forEach((otherEntity) => {
+          otherEntity.name = "💥";
+          otherEntity.img = explosionIcon;
+          otherEntity.speed = 0;
+          otherEntity.targetIndex = newIndex;
+        });
+
+        // Blow ourselves up
+        entity.name = "💥";
+        entity.img = explosionIcon;
+        entity.speed = 0;
+        entity.targetIndex = newIndex;
+      }
+    }
 
     if (newEntities.every(isEntityDoneMoving)) {
       const resetEntities = clearAllTargetEntities(newEntities);
@@ -495,9 +586,16 @@ const App = () => {
         const spawnCount = randInt(1, 4);
 
         createArray(spawnCount).forEach(() => {
-          // TODO: Maybe we should try to prevent spawns from overlapping
           const spawnIndex = randInt(0, colCount - 1);
           const spawnSpeed = randInt(1, 6);
+
+          if (
+            entities.some((entity) => entity.index === spawnIndex) ||
+            newEntities.some((entity) => entity.index === spawnIndex)
+          ) {
+            // Don't spawn entities on top of other entities
+            return;
+          }
 
           newEntities.push({
             name: "🪨",
@@ -571,8 +669,6 @@ const App = () => {
     // Display warning icons for entity movement
     if (
       entities.some((entity) => {
-        if (entity.speed < 0)
-          console.log({ entity, indices: getIndicesInRange(entity, colCount) });
         return getIndicesInRange(entity, colCount).includes(index);
       })
     ) {
