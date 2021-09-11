@@ -340,6 +340,13 @@ const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
   return indices;
 };
 
+const explodeEntity = (entity) => {
+  entity.name = "💥";
+  entity.img = explosionIcon;
+  entity.speed = 0;
+  entity.targetIndex = entity.index;
+};
+
 const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
   return (
     <div
@@ -527,6 +534,11 @@ const App = () => {
       // Move ourselves to the new index
       entity.index = newIndex;
 
+      if (entity.index === playerIndex) {
+        setPlayerIndex(-100);
+        explodeEntity(entity);
+      }
+
       const otherEntities = remove(entities, index);
       const collidingEntities = otherEntities.filter(
         (otherEntity) => otherEntity.index === entity.index
@@ -535,17 +547,11 @@ const App = () => {
       if (collidingEntities.length > 0) {
         // Mark each collided entity as exploded
         collidingEntities.forEach((otherEntity) => {
-          otherEntity.name = "💥";
-          otherEntity.img = explosionIcon;
-          otherEntity.speed = 0;
-          otherEntity.targetIndex = newIndex;
+          explodeEntity(otherEntity);
         });
 
         // Blow ourselves up
-        entity.name = "💥";
-        entity.img = explosionIcon;
-        entity.speed = 0;
-        entity.targetIndex = newIndex;
+        explodeEntity(entity);
       }
     }
 
