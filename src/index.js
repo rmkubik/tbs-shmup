@@ -20,6 +20,7 @@ const shuffle = (array) => {
   return copy;
 };
 
+
 const last = (array) => array[array.length - 1];
 
 const remove = (array, index) => [
