@@ -20,7 +20,6 @@ const shuffle = (array) => {
   return copy;
 };
 
-
 const last = (array) => array[array.length - 1];
 
 const remove = (array, index) => [
@@ -347,31 +346,20 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory, map
-  const [gameState, setGameState] = useState("map"); // useState("spawning");
+  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
+  const [gameState, setGameState] = useState("spawning"); // useState("spawning");
   const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
   const [deck, setDeck] = useState(
     shuffle([
-      { name: "Strafe", cost: 2, range: 3, directions: ["left", "right"] },
-      { name: "FTL", cost: 5, range: 10, directions: ["up"] },
-      { name: "Roll", cost: 2, range: 1, directions: ["upLeft", "upRight"] },
-      { name: "Stall", cost: 0, range: 0, directions: [] },
-      { name: "Charge", cost: 3, range: 0, directions: [], effect: "charge" },
-      {
-        name: "Adjust",
-        cost: 1,
-        range: 1,
-        directions: ["up", "down", "left", "right"],
-      },
-      {
-        name: "Brake",
-        cost: 1,
-        range: 4,
-        directions: ["down"],
-      },
+      { name: "Left3", cost: 0, range: 3, directions: ["left"] },
+      { name: "Up2", cost: 0, range: 2, directions: ["up"] },
+      { name: "Right1", cost: 0, range: 1, directions: ["right"] },
+      { name: "UpRight2", cost: 0, range: 2, directions: ["upRight"] },
+      { name: "Down2", cost: 0, range: 2, directions: ["down"] },
+      { name: "Up4", cost: 0, range: 4, directions: ["up"] },
     ])
   );
   const [hand, setHand] = useState([]);
@@ -416,15 +404,15 @@ const App = () => {
     if (gameState === "spawning") {
       // Spawn new entities every X turns if we haven't already spawned
       // at this current turn count.
-      if (turnCount % 2 === 0 && lastSpawned !== turnCount) {
+      if (turnCount % 1 === 0 && lastSpawned !== turnCount) {
         const newEntities = [];
 
-        const spawnCount = randInt(1, 4);
+        const spawnCount = randInt(6, 10);
 
         createArray(spawnCount).forEach(() => {
           // TODO: Maybe we should try to prevent spawns from overlapping
           const spawnIndex = randInt(0, colCount - 1);
-          const spawnSpeed = randInt(1, 6);
+          const spawnSpeed = randInt(2, 5);
 
           newEntities.push({
             name: "🪨",
@@ -667,15 +655,7 @@ const App = () => {
     hoveredIndex,
   });
 
-  return gameState === "map" ? (
-    <div className="bar">
-      <ul>
-        <li onClick={() => setGameState("spawning")}>Asteroid Field</li>
-        <li>Shop</li>
-        <li>Alien Planet</li>
-      </ul>
-    </div>
-  ) : (
+  return (
     <div>
       {gameState === "gameover" ? (
         <p className="gameover">GAME OVER</p>
