@@ -354,17 +354,17 @@ const App = () => {
   const [graveyard, setGraveyard] = useState([]);
   const [deck, setDeck] = useState(
     shuffle([
-      { name: "Left3", cost: 0, range: 3, directions: ["left"] },
-      { name: "Up2", cost: 0, range: 2, directions: ["up"] },
-      { name: "Right1", cost: 0, range: 1, directions: ["right"] },
-      { name: "UpRight2", cost: 0, range: 2, directions: ["upRight"] },
-      { name: "Down2", cost: 0, range: 2, directions: ["down"] },
-      { name: "Up4", cost: 0, range: 4, directions: ["up"] },
+      { name: "Left3", cost: 1, range: 3, directions: ["left"] },
+      { name: "Up2", cost: 1, range: 2, directions: ["up"] },
+      { name: "Right1", cost: 1, range: 1, directions: ["right"] },
+      { name: "UpRight2", cost: 1, range: 2, directions: ["upRight"] },
+      { name: "Down2", cost: 1, range: 2, directions: ["down"] },
+      { name: "Up4", cost: 1, range: 4, directions: ["up"] },
     ])
   );
   const [hand, setHand] = useState([]);
-  const [power, setPower] = useState(3);
-  const [maxPower, setMaxPower] = useState(3);
+  const [power, setPower] = useState(2);
+  const [maxPower, setMaxPower] = useState(2);
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
 
@@ -621,8 +621,12 @@ const App = () => {
   };
 
   const drawHand = () => {
-    let newHand = deck.slice(0, drawSize);
-    let newGraveyard = [...graveyard, ...hand];
+    // Draw cards to refill your hand
+    const cardsLeftInHand = hand.length;
+    const missingCardsFromHand = drawSize - cardsLeftInHand;
+
+    let newHand = [...hand, ...deck.slice(0, missingCardsFromHand)];
+    let newGraveyard = graveyard;
     let newDeck = deck.slice(drawSize);
 
     const missingCardsFromDraw = drawSize - newHand.length;
