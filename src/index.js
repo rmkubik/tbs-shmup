@@ -500,9 +500,13 @@ const App = () => {
   useKeyPress(
     {
       KeyW: () => tryTakeAction(playerIndex - colCount, "move"),
+      ArrowUp: () => tryTakeAction(playerIndex - colCount, "move"),
       KeyA: () => tryTakeAction(playerIndex - 1, "move"),
+      ArrowLeft: () => tryTakeAction(playerIndex - 1, "move"),
       KeyS: () => tryTakeAction(playerIndex + colCount, "move"),
+      ArrowDown: () => tryTakeAction(playerIndex + colCount, "move"),
       KeyD: () => tryTakeAction(playerIndex + 1, "move"),
+      ArrowRight: () => tryTakeAction(playerIndex + 1, "move"),
       Space: () => tryTakeAction(playerIndex - colCount, "shoot"),
     },
     [playerIndex]
@@ -604,14 +608,14 @@ const App = () => {
     if (gameState === "spawning") {
       // Spawn new entities every X turns if we haven't already spawned
       // at this current turn count.
-      if (turnCount % 2 === 0 && lastSpawned !== turnCount) {
+      if (turnCount % 1 === 0 && lastSpawned !== turnCount) {
         const newEntities = [];
 
-        const spawnCount = randInt(1, 4);
+        const spawnCount = randInt(6, 10);
 
         createArray(spawnCount).forEach(() => {
           const spawnIndex = randInt(0, colCount - 1);
-          const spawnSpeed = randInt(1, 6);
+          const spawnSpeed = randInt(2, 5);
 
           if (
             entities.some((entity) => entity.index === spawnIndex) ||
@@ -691,13 +695,13 @@ const App = () => {
     delete object.bg; // remove old bg from tile
 
     // Display warning icons for entity movement
-    if (
-      entities.some((entity) => {
-        return getIndicesInRange(entity, colCount).includes(index);
-      })
-    ) {
-      object = { name: "⚠️", img: warningIcon };
-    }
+    // if (
+    //   entities.some((entity) => {
+    //     return getIndicesInRange(entity, colCount).includes(index);
+    //   })
+    // ) {
+    //   object = { name: "⚠️", img: warningIcon };
+    // }
 
     // highlight potential move option
     // if (indicesInActionRange.includes(index)) {
@@ -734,7 +738,21 @@ const App = () => {
         onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
-          <img src={object.img} />
+          <Fragment>
+            <span
+              style={{
+                position: "absolute",
+                textAlign: "center",
+                fontSize: "8px",
+                width: "100%",
+                color: "#00303b",
+                fontWeight: "bolder",
+              }}
+            >
+              {object.speed}
+            </span>
+            <img src={object.img} />
+          </Fragment>
         ) : (
           <span
             style={{ position: "absolute", width: "100%", left: 0, top: 0 }}
@@ -780,6 +798,7 @@ const App = () => {
       <p>
         {power} power + {powerRegenPerTurn}/turn
       </p>
+      <p>Turns survived: {turnCount}</p>
     </div>
   );
 };
