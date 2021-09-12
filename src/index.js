@@ -522,6 +522,13 @@ const App = () => {
 
     // Make a copy of entities array
     // (this WILL have side effects if this ends up mattering later)
+
+    // TODO:
+    // We should prioritize player projectiles moving _before_ other
+    // enemy/neutral entities.
+    // This guarantees that a player can last minute shoot down an
+    // asteroid that is just about to crash into them.
+
     const newEntities = [...entities];
 
     for (let index = 0; index < newEntities.length; index += 1) {
