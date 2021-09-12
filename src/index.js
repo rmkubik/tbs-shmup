@@ -321,7 +321,7 @@ const Bar = ({
         <p>
           PWR: {power}/{maxPower}
         </p>
-        <button onClick={onEndClick}>End</button>
+        {/* <button onClick={onEndClick}>End</button> */}
       </div>
       <ul>
         {hand.map((card, index) => (
@@ -451,6 +451,7 @@ const App = () => {
         // Remove explosions
         .filter((entity) => entity.name !== "💥");
 
+      setPower(maxPower);
       setEntities(newEntities);
       setGameState("drawing");
     }
@@ -521,11 +522,17 @@ const App = () => {
         setMaxPower(maxPower + 1);
       }
 
-      setPower(power - hand[selectedCard].cost);
+      const newPower = power - hand[selectedCard].cost;
+      setPower(newPower);
 
       // discard used card
       setGraveyard([hand[selectedCard], ...graveyard]);
       setHand(remove(hand, selectedCard));
+
+      if (newPower === 0) {
+        setTurnCount(turnCount + 1);
+        setGameState("targeting");
+      }
     }
   };
 
