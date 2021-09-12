@@ -4,6 +4,7 @@ import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
+import bulletIcon from "../assets/bullet.png";
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
@@ -367,6 +368,7 @@ const App = () => {
       { name: "UpRight2", cost: 1, range: 2, directions: ["upRight"] },
       { name: "Down2", cost: 1, range: 2, directions: ["down"] },
       { name: "Up4", cost: 1, range: 4, directions: ["up"] },
+      { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
     ])
   );
   const [hand, setHand] = useState([]);
@@ -580,6 +582,17 @@ const App = () => {
 
       if (hand[selectedCard].effect === "charge") {
         setMaxPower(maxPower + 1);
+      }
+
+      if (hand[selectedCard].effect === "shoot") {
+        const newEntity = {
+          index: newIndex,
+          name: "*",
+          img: bulletIcon,
+          speed: -3,
+        };
+
+        setEntities([...entities, newEntity]);
       }
 
       const newPower = power - hand[selectedCard].cost;
