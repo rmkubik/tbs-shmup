@@ -731,7 +731,7 @@ const App = () => {
 
     let newHand = [...hand, ...deck.slice(0, missingCardsFromHand)];
     let newGraveyard = graveyard;
-    let newDeck = deck.slice(drawSize);
+    let newDeck = deck.slice(missingCardsFromHand);
 
     const missingCardsFromDraw = drawSize - newHand.length;
 
