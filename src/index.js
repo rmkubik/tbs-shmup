@@ -556,13 +556,13 @@ const App = () => {
     delete object.bg; // remove old bg from tile
 
     // Display warning icons for entity movement
-    if (
-      entities.some((entity) =>
-        getIndicesInRange(entity, colCount).includes(index)
-      )
-    ) {
-      object = { name: "⚠️", img: warningIcon };
-    }
+    // if (
+    //   entities.some((entity) =>
+    //     getIndicesInRange(entity, colCount).includes(index)
+    //   )
+    // ) {
+    //   object = { name: "⚠️", img: warningIcon };
+    // }
 
     // highlight potential move option
     if (indicesInActionRange.includes(index)) {
@@ -599,7 +599,21 @@ const App = () => {
         onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
-          <img src={object.img} />
+          <Fragment>
+            <span
+              style={{
+                position: "absolute",
+                textAlign: "center",
+                fontSize: "8px",
+                width: "100%",
+                color: "#00303b",
+                fontWeight: "bolder",
+              }}
+            >
+              {object.speed}
+            </span>
+            <img src={object.img} />
+          </Fragment>
         ) : (
           <span
             style={{ position: "absolute", width: "100%", left: 0, top: 0 }}
