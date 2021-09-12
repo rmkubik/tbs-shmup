@@ -291,6 +291,13 @@ const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
   return indices;
 };
 
+const explodeEntity = (entity) => {
+  entity.name = "💥";
+  entity.img = explosionIcon;
+  entity.speed = 0;
+  entity.targetIndex = entity.index;
+};
+
 const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
   return (
     <div
@@ -369,9 +376,62 @@ const App = () => {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
 
   const moveEntities = () => {
-    const newEntities = entities.map(
-      moveEntity(colCount, playerIndex, setPlayerIndex)
-    );
+    // const newEntities = entities.map(
+    //   moveEntity(colCount, playerIndex, setPlayerIndex)
+    // );
+
+    // if (newEntities.every(isEntityDoneMoving)) {
+    //   const resetEntities = clearAllTargetEntities(newEntities);
+
+    //   setEntities(resetEntities);
+    //   setGameState("spawning");
+    // } else {
+    //   setEntities(newEntities);
+    // }
+
+    const newEntities = [...entities];
+
+    for (let index = 0; index < newEntities.length; index += 1) {
+      const entity = newEntities[index];
+
+      if (entity.name === "💥") {
+        // This entity is already destroyed, skip it
+        continue;
+      }
+
+      let newIndex = entity.index;
+
+      if (!isEntityDoneMoving(entity)) {
+        const isEntityMovingUp = entity.speed < 0;
+
+        newIndex = isEntityMovingUp
+          ? entity.index - colCount
+          : entity.index + colCount;
+      }
+
+      // Move ourselves to the new index
+      entity.index = newIndex;
+
+      if (entity.index === playerIndex) {
+        setPlayerIndex(-100);
+        explodeEntity(entity);
+      }
+
+      const otherEntities = remove(entities, index);
+      const collidingEntities = otherEntities.filter(
+        (otherEntity) => otherEntity.index === entity.index
+      );
+
+      if (collidingEntities.length > 0) {
+        // Mark each collided entity as exploded
+        collidingEntities.forEach((otherEntity) => {
+          explodeEntity(otherEntity);
+        });
+
+        // Blow ourselves up
+        explodeEntity(entity);
+      }
+    }
 
     if (newEntities.every(isEntityDoneMoving)) {
       const resetEntities = clearAllTargetEntities(newEntities);
@@ -532,6 +592,7 @@ const App = () => {
       if (newPower === 0) {
         setTurnCount(turnCount + 1);
         setGameState("targeting");
+        return;
       }
     }
   };
