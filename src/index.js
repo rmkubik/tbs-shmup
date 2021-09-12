@@ -415,7 +415,18 @@ const App = () => {
 
     switch (type) {
       case "move":
-        setPlayerIndex(newIndex);
+        const collidedEntity = entities.find(
+          (entity) => entity.index === newIndex
+        );
+        if (collidedEntity) {
+          // Player crashed into an entity
+          setPlayerIndex(-100);
+          setPower(0);
+          explodeEntity(collidedEntity);
+          setEntities(entities);
+        } else {
+          setPlayerIndex(newIndex);
+        }
         break;
       case "shoot":
         const newEntity = {
