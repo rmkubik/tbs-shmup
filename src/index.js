@@ -780,7 +780,15 @@ const App = () => {
         <div className="sidebar">
           <p>Deck</p>
           <ul>
-            {deck.map((card) => (
+            {[...deck]
+              .sort((cardA, cardB) => cardA.name.localeCompare(cardB.name))
+              .map((card) => (
+                <li>{card.name}</li>
+              ))}
+          </ul>
+          <p>Grave</p>
+          <ul>
+            {graveyard.map((card) => (
               <li>{card.name}</li>
             ))}
           </ul>
