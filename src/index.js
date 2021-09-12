@@ -607,18 +607,20 @@ const App = () => {
       >
         {object.img ? (
           <Fragment>
-            <span
-              style={{
-                position: "absolute",
-                textAlign: "center",
-                fontSize: "8px",
-                width: "100%",
-                color: "#00303b",
-                fontWeight: "bolder",
-              }}
-            >
-              {object.speed}
-            </span>
+            {object.speed !== 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  textAlign: "center",
+                  fontSize: "8px",
+                  width: "100%",
+                  color: "#00303b",
+                  fontWeight: "bolder",
+                }}
+              >
+                {object.speed}
+              </span>
+            )}
             <img src={object.img} />
           </Fragment>
         ) : (
