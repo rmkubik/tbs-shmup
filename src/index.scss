@@ -28,6 +28,24 @@ body {
   font-weight: bold;
 }
 
+.grid-sidebar-container {
+  display: flex;
+  flex-direction: row;
+
+  .sidebar {
+    margin-left: 1.5rem;
+
+    p {
+      font-size: 8px;
+    }
+
+    ul {
+      padding-left: 1rem;
+      font-size: 8px;
+    }
+  }
+}
+
 .bar {
   display: flex;
   flex-direction: row;

@@ -770,12 +770,22 @@ const App = () => {
       ) : gameState === "victory" ? (
         <p className="gameover">VICTORY</p>
       ) : null}
-      <Grid
-        tiles={tiles}
-        colCount={colCount}
-        renderTile={renderTile}
-        setHoveredIndex={setHoveredIndex}
-      />
+      <div className="grid-sidebar-container">
+        <Grid
+          tiles={tiles}
+          colCount={colCount}
+          renderTile={renderTile}
+          setHoveredIndex={setHoveredIndex}
+        />
+        <div className="sidebar">
+          <p>Deck</p>
+          <ul>
+            {deck.map((card) => (
+              <li>{card.name}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
       <Bar
         power={power}
         maxPower={maxPower}
