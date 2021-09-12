@@ -472,9 +472,16 @@ const App = () => {
         const spawnCount = randInt(6, 10);
 
         createArray(spawnCount).forEach(() => {
-          // TODO: Maybe we should try to prevent spawns from overlapping
           const spawnIndex = randInt(0, colCount - 1);
           const spawnSpeed = randInt(2, 5);
+
+          if (
+            entities.some((entity) => entity.index === spawnIndex) ||
+            newEntities.some((entity) => entity.index === spawnIndex)
+          ) {
+            // Don't spawn entities on top of other entities
+            return;
+          }
 
           newEntities.push({
             name: "🪨",
