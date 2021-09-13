@@ -827,12 +827,12 @@ const App = () => {
                 <li>{card.name}</li>
               ))}
           </ul>
-          <p>Grave</p>
+          {/* <p>Grave</p>
           <ul>
             {graveyard.map((card) => (
               <li>{card.name}</li>
             ))}
-          </ul>
+          </ul> */}
         </div>
       </div>
       <Bar
