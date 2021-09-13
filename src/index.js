@@ -321,7 +321,9 @@ const Bar = ({
   hand,
   selectedCard,
   setSelectedCard,
+  hasUsedShipPower,
   onEndClick,
+  onRecycleClick,
 }) => {
   return (
     <div className="bar">
@@ -329,6 +331,9 @@ const Bar = ({
         <p>
           PWR: {power}/{maxPower}
         </p>
+        <button disabled={hasUsedShipPower} onClick={onRecycleClick}>
+          {hasUsedShipPower ? "Recharging..." : "Recycle"}
+        </button>
         {/* <button onClick={onEndClick}>End</button> */}
       </div>
       <ul>
@@ -376,6 +381,7 @@ const App = () => {
   const [maxPower, setMaxPower] = useState(2);
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
 
   const moveEntities = () => {
     // const newEntities = entities.map(
@@ -521,6 +527,7 @@ const App = () => {
         .filter((entity) => entity.name !== "💥");
 
       setPower(maxPower);
+      setHasUsedShipPower(false);
       setEntities(newEntities);
       setGameState("drawing");
     }
@@ -729,9 +736,17 @@ const App = () => {
     const cardsLeftInHand = hand.length;
     const missingCardsFromHand = drawSize - cardsLeftInHand;
 
-    let newHand = [...hand, ...deck.slice(0, missingCardsFromHand)];
+    const { newDeck, newHand, newGraveyard } = drawCards(missingCardsFromHand);
+
+    setGraveyard(newGraveyard);
+    setHand(newHand);
+    setDeck(newDeck);
+  };
+
+  const drawCards = (count) => {
+    let newHand = [...hand, ...deck.slice(0, count)];
     let newGraveyard = graveyard;
-    let newDeck = deck.slice(missingCardsFromHand);
+    let newDeck = deck.slice(count);
 
     const missingCardsFromDraw = drawSize - newHand.length;
 
@@ -746,9 +761,11 @@ const App = () => {
       newGraveyard = [];
     }
 
-    setGraveyard(newGraveyard);
-    setHand(newHand);
-    setDeck(newDeck);
+    return {
+      newDeck,
+      newHand,
+      newGraveyard,
+    };
   };
 
   console.log({
@@ -800,10 +817,31 @@ const App = () => {
         hand={hand}
         selectedCard={selectedCard}
         setSelectedCard={setSelectedCard}
+        hasUsedShipPower={hasUsedShipPower}
         onEndClick={() => {
           setTurnCount(turnCount + 1);
           setPower(maxPower);
           setGameState("targeting");
+        }}
+        onRecycleClick={() => {
+          if (hasUsedShipPower) {
+            return;
+          }
+
+          // Draw a new card
+          let { newDeck, newHand, newGraveyard } = drawCards(1);
+
+          // Discard my currently selected card
+          newHand = [
+            ...newHand.slice(0, selectedCard),
+            ...newHand.slice(selectedCard + 1),
+          ];
+          newGraveyard = [hand[selectedCard], ...graveyard];
+
+          setGraveyard(newGraveyard);
+          setHand(newHand);
+          setDeck(newDeck);
+          setHasUsedShipPower(true);
         }}
       />
     </div>

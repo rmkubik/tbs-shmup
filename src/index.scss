@@ -83,5 +83,10 @@ body {
     color: #f1f2da;
     background: none;
     cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+      border-style: dashed;
+    }
   }
 }
