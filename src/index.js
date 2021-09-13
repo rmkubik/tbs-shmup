@@ -382,6 +382,7 @@ const App = () => {
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
+  const [winStreak, setWinStreak] = useState(0);
 
   const startNewRound = () => {
     setPlayerIndex(145);
@@ -525,12 +526,14 @@ const App = () => {
     if (gameState === "cleanup") {
       if (playerIndex < 0) {
         // Player is dead
+        setWinStreak(0);
         setGameState("gameover");
         return;
       }
 
       if (playerIndex < colCount) {
         // Player made it to the end
+        setWinStreak(winStreak + 1);
         setGameState("victory");
         return;
       }
@@ -602,6 +605,7 @@ const App = () => {
 
           setEntities(set(entities, collidedEntityIndex, newEntity));
           setPlayerIndex(-100);
+          setWinStreak(0);
           setGameState("gameover");
           return;
         }
@@ -611,6 +615,7 @@ const App = () => {
 
         if (movedIndex < colCount) {
           // Player made it to the end
+          setWinStreak(winStreak + 1);
           setGameState("victory");
           return;
         }
@@ -823,7 +828,12 @@ const App = () => {
       ) : gameState === "victory" ? (
         <div className="header">
           <p className="gameover">VICTORY</p>
+          <p className="streak">Win Streak: {winStreak}</p>
           <button onClick={() => startNewRound()}>Restart</button>
+        </div>
+      ) : winStreak > 0 ? (
+        <div className="header">
+          <p className="streak">Win Streak: {winStreak}</p>
         </div>
       ) : null}
       <div className="grid-sidebar-container">
