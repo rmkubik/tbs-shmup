@@ -744,11 +744,13 @@ const App = () => {
   };
 
   const drawCards = (count) => {
-    let newHand = [...hand, ...deck.slice(0, count)];
+    const drawnCards = deck.slice(0, count);
+
+    let newHand = [...hand, ...drawnCards];
     let newGraveyard = graveyard;
     let newDeck = deck.slice(count);
 
-    const missingCardsFromDraw = drawSize - newHand.length;
+    const missingCardsFromDraw = count - drawnCards.length;
 
     if (missingCardsFromDraw > 0) {
       // Shuffle graveyard up and use as deck
@@ -836,7 +838,7 @@ const App = () => {
             ...newHand.slice(0, selectedCard),
             ...newHand.slice(selectedCard + 1),
           ];
-          newGraveyard = [hand[selectedCard], ...graveyard];
+          newGraveyard = [hand[selectedCard], ...newGraveyard];
 
           setGraveyard(newGraveyard);
           setHand(newHand);
