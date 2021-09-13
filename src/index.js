@@ -355,6 +355,16 @@ const rowCount = 15;
 const frameRate = 150;
 const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
 
+const initialDeck = [
+  { name: "Left3", cost: 1, range: 3, directions: ["left"] },
+  { name: "Up2", cost: 1, range: 2, directions: ["up"] },
+  { name: "Right1", cost: 1, range: 1, directions: ["right"] },
+  { name: "UpRight2", cost: 1, range: 2, directions: ["upRight"] },
+  { name: "Down2", cost: 1, range: 2, directions: ["down"] },
+  { name: "Up4", cost: 1, range: 4, directions: ["up"] },
+  { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
+];
+
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
@@ -365,23 +375,28 @@ const App = () => {
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
-  const [deck, setDeck] = useState(
-    shuffle([
-      { name: "Left3", cost: 1, range: 3, directions: ["left"] },
-      { name: "Up2", cost: 1, range: 2, directions: ["up"] },
-      { name: "Right1", cost: 1, range: 1, directions: ["right"] },
-      { name: "UpRight2", cost: 1, range: 2, directions: ["upRight"] },
-      { name: "Down2", cost: 1, range: 2, directions: ["down"] },
-      { name: "Up4", cost: 1, range: 4, directions: ["up"] },
-      { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
-    ])
-  );
+  const [deck, setDeck] = useState(shuffle(initialDeck));
   const [hand, setHand] = useState([]);
   const [power, setPower] = useState(2);
   const [maxPower, setMaxPower] = useState(2);
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
+
+  const startNewRound = () => {
+    setPlayerIndex(145);
+    setEntities([]);
+    setGameState("spawning");
+    setTurnCount(0);
+    setLastSpawned(undefined);
+    setSelectedCard(0);
+    setGraveyard([]);
+    setDeck(shuffle(initialDeck));
+    setHand([]);
+    setPower(2);
+    setMaxPower(2);
+    setHasUsedShipPower(false);
+  };
 
   const moveEntities = () => {
     // const newEntities = entities.map(
@@ -803,12 +818,12 @@ const App = () => {
       {gameState === "gameover" ? (
         <div className="header">
           <p className="gameover">GAME OVER</p>
-          <button onClick={() => window.location.reload()}>Restart</button>
+          <button onClick={() => startNewRound()}>Restart</button>
         </div>
       ) : gameState === "victory" ? (
         <div className="header">
           <p className="gameover">VICTORY</p>
-          <button onClick={() => window.location.reload()}>Restart</button>
+          <button onClick={() => startNewRound()}>Restart</button>
         </div>
       ) : null}
       <div className="grid-sidebar-container">
