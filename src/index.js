@@ -591,7 +591,14 @@ const App = () => {
           return;
         }
 
-        setPlayerIndex(last(indices));
+        const movedIndex = last(indices);
+        setPlayerIndex(movedIndex);
+
+        if (movedIndex < colCount) {
+          // Player made it to the end
+          setGameState("victory");
+          return;
+        }
       }
 
       if (hand[selectedCard].effect === "charge") {
