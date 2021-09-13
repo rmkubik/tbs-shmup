@@ -22,6 +22,35 @@ body {
   }
 }
 
+button {
+  font-size: 8px;
+  border: 1px solid #f1f2da;
+  color: #f1f2da;
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    border-style: dashed;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    border-style: dashed;
+  }
+}
+
+.header {
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    margin-bottom: 1rem;
+  }
+}
+
 .gameover {
   text-align: center;
   font-size: 12px;
@@ -74,19 +103,6 @@ body {
         background: #f1f2da;
         color: #00303b;
       }
-    }
-  }
-
-  button {
-    font-size: 8px;
-    border: 1px solid #f1f2da;
-    color: #f1f2da;
-    background: none;
-    cursor: pointer;
-
-    &:disabled {
-      cursor: not-allowed;
-      border-style: dashed;
     }
   }
 }

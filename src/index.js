@@ -785,9 +785,15 @@ const App = () => {
   return (
     <div>
       {gameState === "gameover" ? (
-        <p className="gameover">GAME OVER</p>
+        <div className="header">
+          <p className="gameover">GAME OVER</p>
+          <button onClick={() => window.location.reload()}>Restart</button>
+        </div>
       ) : gameState === "victory" ? (
-        <p className="gameover">VICTORY</p>
+        <div className="header">
+          <p className="gameover">VICTORY</p>
+          <button onClick={() => window.location.reload()}>Restart</button>
+        </div>
       ) : null}
       <div className="grid-sidebar-container">
         <Grid
