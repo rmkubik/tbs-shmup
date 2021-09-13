@@ -599,14 +599,23 @@ const App = () => {
       }
 
       if (hand[selectedCard].effect === "shoot") {
-        const newEntity = {
-          index: newIndex,
-          name: "*",
-          img: bulletIcon,
-          speed: -3,
-        };
+        // is some other entity at this location?
+        const collidingEntities = entities.filter(
+          (entity) => entity.index === newIndex
+        );
+        if (collidingEntities.length > 0) {
+          // don't create a bullet, blow up entities instead
+          collidingEntities.forEach((entity) => explodeEntity(entity));
+        } else {
+          const newEntity = {
+            index: newIndex,
+            name: "*",
+            img: bulletIcon,
+            speed: -3,
+          };
 
-        setEntities([...entities, newEntity]);
+          setEntities([...entities, newEntity]);
+        }
       }
 
       const newPower = power - hand[selectedCard].cost;
