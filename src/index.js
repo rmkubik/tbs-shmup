@@ -526,7 +526,6 @@ const App = () => {
     if (gameState === "cleanup") {
       if (playerIndex < 0) {
         // Player is dead
-        setWinStreak(0);
         setGameState("gameover");
         return;
       }
@@ -605,7 +604,6 @@ const App = () => {
 
           setEntities(set(entities, collidedEntityIndex, newEntity));
           setPlayerIndex(-100);
-          setWinStreak(0);
           setGameState("gameover");
           return;
         }
@@ -823,13 +821,27 @@ const App = () => {
       {gameState === "gameover" ? (
         <div className="header">
           <p className="gameover">GAME OVER</p>
-          <button onClick={() => startNewRound()}>Restart</button>
+          {winStreak > 0 && <p className="streak">Win Streak: {winStreak}</p>}
+          <button
+            onClick={() => {
+              setWinStreak(0);
+              startNewRound();
+            }}
+          >
+            Restart
+          </button>
         </div>
       ) : gameState === "victory" ? (
         <div className="header">
           <p className="gameover">VICTORY</p>
           <p className="streak">Win Streak: {winStreak}</p>
-          <button onClick={() => startNewRound()}>Restart</button>
+          <button
+            onClick={() => {
+              startNewRound();
+            }}
+          >
+            Continue
+          </button>
         </div>
       ) : winStreak > 0 ? (
         <div className="header">
