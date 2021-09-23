@@ -299,6 +299,37 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
+const pickRandomSpawnIndices = (colCount) => {
+  const indices = [];
+
+  const spawnCount = randInt(6, 10);
+
+  createArray(spawnCount).forEach(() => {
+    const spawnIndex = randInt(0, colCount - 1);
+
+    if (indices.some((index) => index === spawnIndex)) {
+      // Skip indices we've already chosen
+      return;
+    }
+
+    indices.push(spawnIndex);
+  });
+
+  return indices;
+};
+
+const chooseNextSpawns = (colCount) => {
+  const initialIndices = pickRandomSpawnIndices(colCount);
+
+  const nextSpawns = createArray(colCount);
+
+  initialIndices.forEach((index) => {
+    nextSpawns[index] = warningIcon;
+  });
+
+  return nextSpawns;
+};
+
 const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
   return (
     <div
@@ -368,6 +399,7 @@ const initialDeck = [
 const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
+  const [nextSpawns, setNextSpawns] = useState(chooseNextSpawns(colCount));
   const [entities, setEntities] = useState([]);
   // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
   const [gameState, setGameState] = useState("spawning"); // useState("spawning");
@@ -491,10 +523,12 @@ const App = () => {
       if (turnCount % 1 === 0 && lastSpawned !== turnCount) {
         const newEntities = [];
 
-        const spawnCount = randInt(6, 10);
+        nextSpawns.forEach((spawn, spawnIndex) => {
+          if (!spawn) {
+            // This index isn't a spawn location
+            return;
+          }
 
-        createArray(spawnCount).forEach(() => {
-          const spawnIndex = randInt(0, colCount - 1);
           const spawnSpeed = randInt(2, 5);
 
           if (
@@ -515,6 +549,7 @@ const App = () => {
 
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
+        setNextSpawns(chooseNextSpawns(colCount));
       }
 
       setGameState("cleanup");
@@ -849,12 +884,32 @@ const App = () => {
         </div>
       ) : null}
       <div className="grid-sidebar-container">
-        <Grid
-          tiles={tiles}
-          colCount={colCount}
-          renderTile={renderTile}
-          setHoveredIndex={setHoveredIndex}
-        />
+        <div>
+          <Grid
+            tiles={nextSpawns}
+            colCount={colCount}
+            renderTile={(tile) =>
+              tile ? (
+                <img src={tile} />
+              ) : (
+                <div
+                  style={{
+                    height: "16px",
+                    width: "16px",
+                    position: "relative",
+                  }}
+                ></div>
+              )
+            }
+            setHoveredIndex={setHoveredIndex}
+          />
+          <Grid
+            tiles={tiles}
+            colCount={colCount}
+            renderTile={renderTile}
+            setHoveredIndex={setHoveredIndex}
+          />
+        </div>
         <div className="sidebar">
           <p>Deck</p>
           <ul>
