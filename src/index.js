@@ -557,6 +557,21 @@ const App = () => {
 
           const spawnSpeed = randInt(2, 5);
 
+          // If we would spawn on top of a bullet, blow it up and
+          // then don't spawn a new asteroid.
+          const collidingBulletIndices = findAllMatchingIndices(
+            entities,
+            (entity) => entity.index === spawnIndex && entity.name === "*"
+          );
+          if (collidingBulletIndices.length > 0) {
+            collidingBulletIndices.forEach((collidingIndex) => {
+              entities[collidingIndex].name = "💥";
+              entities[collidingIndex].img = explosionIcon;
+              entities[collidingIndex].speed = 0;
+            });
+            return;
+          }
+
           if (
             entities.some((entity) => entity.index === spawnIndex) ||
             newEntities.some((entity) => entity.index === spawnIndex)
