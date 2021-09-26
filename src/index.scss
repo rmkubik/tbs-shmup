@@ -17,7 +17,6 @@ body {
   image-rendering: pixelated;
 
   & > * {
-    // transform: scale(3);
     transform-origin: center;
     padding: 1.5rem;
   }

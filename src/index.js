@@ -371,7 +371,18 @@ const useScaleRef = () => {
 
     window.addEventListener("resize", scaleToFitWindowWithRef);
 
-    return () => window.removeEventListener("resize", scaleToFitWindowWithRef);
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        scaleToFitWindow(entry.target);
+      }
+    });
+
+    resizeObserver.observe(scaleRef.current);
+
+    return () => {
+      window.removeEventListener("resize", scaleToFitWindowWithRef);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   return scaleRef;
