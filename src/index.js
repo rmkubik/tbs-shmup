@@ -330,7 +330,7 @@ const chooseNextSpawns = (colCount) => {
   return nextSpawns;
 };
 
-const Grid = ({ tiles, colCount, renderTile, setHoveredIndex }) => {
+const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
   return (
     <div
       style={{
@@ -889,7 +889,9 @@ const App = () => {
             tiles={nextSpawns}
             colCount={colCount}
             renderTile={(tile) =>
-              tile ? (
+              // Only show warning icons after a single action has
+              // been chosen already
+              power <= 1 && tile ? (
                 <img src={tile} />
               ) : (
                 <div
@@ -901,7 +903,6 @@ const App = () => {
                 ></div>
               )
             }
-            setHoveredIndex={setHoveredIndex}
           />
           <Grid
             tiles={tiles}
