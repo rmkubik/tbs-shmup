@@ -890,8 +890,14 @@ const App = () => {
             colCount={colCount}
             renderTile={(tile) =>
               // Only show warning icons after a single action has
-              // been chosen already
-              power <= 1 && tile ? (
+              // been chosen already.
+              //
+              // Don't show the new warning icons that are assigned once spawning
+              // and cleanup states are written.
+              power <= 1 &&
+              tile &&
+              gameState !== "spawning" &&
+              gameState !== "cleanup" ? (
                 <img src={tile} />
               ) : (
                 <div
