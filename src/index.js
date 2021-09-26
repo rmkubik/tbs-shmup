@@ -6,6 +6,8 @@ import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
+import WeightedMap from "./WeightedMap";
+
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
 const shuffle = (array) => {
@@ -314,7 +316,16 @@ const explodeEntity = (entity) => {
 const pickRandomSpawnIndices = (colCount) => {
   const indices = [];
 
-  const spawnCount = randInt(6, 10);
+  const spawnCountMap = new WeightedMap({
+    3: 40,
+    4: 30,
+    5: 25,
+    6: 5,
+  });
+
+  // const spawnCount = randInt(6, 10);
+  // const spawnCount = randInt(3, 6);
+  const spawnCount = parseInt(spawnCountMap.pickRandom());
 
   createArray(spawnCount).forEach(() => {
     const spawnIndex = randInt(0, colCount - 1);
