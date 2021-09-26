@@ -940,6 +940,10 @@ const App = () => {
     hoveredIndex,
   });
 
+  const sortedDeck = [...deck].sort((cardA, cardB) =>
+    cardA.name.localeCompare(cardB.name)
+  );
+
   return (
     <div ref={scaleRef}>
       {gameState === "gameover" ? (
@@ -1007,15 +1011,17 @@ const App = () => {
           />
         </div>
         <div className="sidebar">
-          <p>Action Pool</p>
+          <p>Deck</p>
           <ul>
-            {[...deck]
-              .sort((cardA, cardB) => cardA.name.localeCompare(cardB.name))
-              .map((card) => (
+            {sortedDeck.length === 0 ? (
+              <span>Empty...</span>
+            ) : (
+              sortedDeck.map((card) => (
                 <li>
                   {card.name} <br /> {card.range}
                 </li>
-              ))}
+              ))
+            )}
           </ul>
           {/* <p>Grave</p>
           <ul>
