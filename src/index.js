@@ -1,5 +1,5 @@
 import { Fragment, h, render } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { useState, useEffect, useRef } from "preact/hooks";
 import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
@@ -342,6 +342,41 @@ const chooseNextSpawns = (colCount) => {
   return nextSpawns;
 };
 
+const scaleToFitWindow = (node) => {
+  if (!node) {
+    // If no node is provided, do nothing
+    return;
+  }
+
+  const { clientWidth, clientHeight } = node;
+  const { innerWidth, innerHeight } = window;
+
+  const scales = [
+    // X scale
+    Math.max(clientWidth, innerWidth) / Math.min(clientWidth, innerWidth),
+    // Y scale
+    Math.max(clientHeight, innerHeight) / Math.min(clientHeight, innerHeight),
+  ];
+
+  node.style.transform = `scale(${Math.min(...scales)})`;
+};
+
+const useScaleRef = () => {
+  const scaleRef = useRef();
+
+  useEffect(() => {
+    const scaleToFitWindowWithRef = () => scaleToFitWindow(scaleRef.current);
+
+    scaleToFitWindowWithRef();
+
+    window.addEventListener("resize", scaleToFitWindowWithRef);
+
+    return () => window.removeEventListener("resize", scaleToFitWindowWithRef);
+  }, []);
+
+  return scaleRef;
+};
+
 const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
   return (
     <div
@@ -427,6 +462,8 @@ const App = () => {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
   const [winStreak, setWinStreak] = useState(0);
+
+  const scaleRef = useScaleRef();
 
   const startNewRound = () => {
     setPlayerIndex(145);
@@ -893,7 +930,7 @@ const App = () => {
   });
 
   return (
-    <div>
+    <div ref={scaleRef}>
       {gameState === "gameover" ? (
         <div className="header">
           <p className="gameover">GAME OVER</p>
