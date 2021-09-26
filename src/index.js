@@ -431,7 +431,7 @@ const Bar = ({
             className={selectedCard === index ? "selected" : ""}
             onClick={() => setSelectedCard(index)}
           >
-            {card.name} <br /> {card.cost}
+            {card.name} <br /> {card.range}
           </li>
         ))}
       </ul>
@@ -445,12 +445,12 @@ const frameRate = 150;
 const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
 
 const initialDeck = [
-  { name: "Left3", cost: 1, range: 3, directions: ["left"] },
-  { name: "Up2", cost: 1, range: 2, directions: ["up"] },
-  { name: "Right1", cost: 1, range: 1, directions: ["right"] },
-  { name: "UpRight2", cost: 1, range: 2, directions: ["upRight"] },
-  { name: "Down2", cost: 1, range: 2, directions: ["down"] },
-  { name: "Up4", cost: 1, range: 4, directions: ["up"] },
+  { name: "Left", cost: 1, range: 3, directions: ["left"] },
+  { name: "Up", cost: 1, range: 2, directions: ["up"] },
+  { name: "Right", cost: 1, range: 1, directions: ["right"] },
+  { name: "UpRight", cost: 1, range: 2, directions: ["upRight"] },
+  { name: "Down", cost: 1, range: 2, directions: ["down"] },
+  { name: "Up", cost: 1, range: 4, directions: ["up"] },
   { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
 ];
 
@@ -1007,12 +1007,14 @@ const App = () => {
           />
         </div>
         <div className="sidebar">
-          <p>Deck</p>
+          <p>Action Pool</p>
           <ul>
             {[...deck]
               .sort((cardA, cardB) => cardA.name.localeCompare(cardB.name))
               .map((card) => (
-                <li>{card.name}</li>
+                <li>
+                  {card.name} <br /> {card.range}
+                </li>
               ))}
           </ul>
           {/* <p>Grave</p>
