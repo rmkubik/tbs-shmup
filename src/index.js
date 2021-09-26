@@ -44,6 +44,18 @@ const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
 };
 
+const findAllMatchingIndices = (array, matcher) => {
+  const matchingIndices = [];
+
+  for (let index = 0; index < array.length; index += 1) {
+    if (matcher(array[index])) {
+      matchingIndices.push(index);
+    }
+  }
+
+  return matchingIndices;
+};
+
 const createArray = (length) => new Array(length).fill();
 
 const getDirection = (origin, target, colCount) => {
@@ -432,20 +444,7 @@ const App = () => {
   };
 
   const moveEntities = () => {
-    // const newEntities = entities.map(
-    //   moveEntity(colCount, playerIndex, setPlayerIndex)
-    // );
-
-    // if (newEntities.every(isEntityDoneMoving)) {
-    //   const resetEntities = clearAllTargetEntities(newEntities);
-
-    //   setEntities(resetEntities);
-    //   setGameState("spawning");
-    // } else {
-    //   setEntities(newEntities);
-    // }
-
-    const newEntities = [...entities];
+    let newEntities = [...entities];
 
     for (let index = 0; index < newEntities.length; index += 1) {
       const entity = newEntities[index];
@@ -488,6 +487,33 @@ const App = () => {
         explodeEntity(entity);
       }
     }
+
+    const isNegativeIndexBullet = (entity) =>
+      entity.name === "*" && entity.index < 0;
+
+    // Get all bullets that are at a negative index
+    const negativeBullets = newEntities.filter(isNegativeIndexBullet);
+
+    // Calculate which column a negative index bullet
+    // is in.
+    //
+    // Negative indices are reversed and off by one.
+    // -1 is in the far right corner.
+    const shotColumns = negativeBullets.map(
+      (bullet) => colCount + (bullet.index % colCount)
+    );
+
+    // If nextSpawn col is shot, make it empty
+    const newNextSpawns = nextSpawns.map((nextSpawn, index) =>
+      shotColumns.some((col) => col === index) ? "" : nextSpawn
+    );
+
+    setNextSpawns(newNextSpawns);
+
+    // Remove negative bullets from entity list
+    newEntities = newEntities.filter(
+      (entity) => !isNegativeIndexBullet(entity)
+    );
 
     if (newEntities.every(isEntityDoneMoving)) {
       const resetEntities = clearAllTargetEntities(newEntities);
