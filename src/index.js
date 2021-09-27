@@ -316,6 +316,7 @@ const explodeEntity = (entity) => {
 const pickRandomSpawnIndices = (colCount) => {
   const indices = [];
 
+  // "light" asteroids weighted map
   const spawnCountMap = new WeightedMap({
     3: 40,
     4: 30,
@@ -323,8 +324,8 @@ const pickRandomSpawnIndices = (colCount) => {
     6: 5,
   });
 
-  // const spawnCount = randInt(6, 10);
-  // const spawnCount = randInt(3, 6);
+  // const spawnCount = randInt(6, 10); // "heavy"
+  // const spawnCount = randInt(3, 6); // "light"
   const spawnCount = parseInt(spawnCountMap.pickRandom());
 
   createArray(spawnCount).forEach(() => {
@@ -446,6 +447,14 @@ const Bar = ({
           </li>
         ))}
       </ul>
+    </div>
+  );
+};
+
+const Modal = ({ children }) => {
+  return (
+    <div className="modal">
+      <div>{children}</div>
     </div>
   );
 };
@@ -958,30 +967,72 @@ const App = () => {
   return (
     <div ref={scaleRef}>
       {gameState === "gameover" ? (
-        <div className="header">
-          <p className="gameover">GAME OVER</p>
-          {winStreak > 0 && <p className="streak">Win Streak: {winStreak}</p>}
-          <button
-            onClick={() => {
-              setWinStreak(0);
-              startNewRound();
-            }}
-          >
-            Restart
-          </button>
-        </div>
+        <Modal>
+          <div className="header">
+            <p className="gameover">GAME OVER</p>
+            <p className="streak">Win Streak: {winStreak}</p>
+          </div>
+          <p>Next Sector Conditions</p>
+          <ul>
+            <li>Light Asteroids</li>
+            <li>Nebula</li>
+          </ul>
+          <p>Ship Systems</p>
+          <ul>
+            <li>
+              SCANNERS: <span className="positive">ONLINE</span>
+            </li>
+            <li>
+              NAVIGATION: <span className="positive">ONLINE</span>
+            </li>
+            <li>
+              ENGINES: <span className="positive">ONLINE</span>
+            </li>
+          </ul>
+          <div className="button-container">
+            <button
+              onClick={() => {
+                setWinStreak(0);
+                startNewRound();
+              }}
+            >
+              Restart
+            </button>
+          </div>
+        </Modal>
       ) : gameState === "victory" ? (
-        <div className="header">
-          <p className="gameover">VICTORY</p>
-          <p className="streak">Win Streak: {winStreak}</p>
-          <button
-            onClick={() => {
-              startNewRound();
-            }}
-          >
-            Continue
-          </button>
-        </div>
+        <Modal>
+          <div className="header">
+            <p className="gameover">VICTORY</p>
+            <p className="streak">Win Streak: {winStreak}</p>
+          </div>
+          <p>Next Sector Conditions</p>
+          <ul>
+            <li>Light Asteroids</li>
+            <li>Nebula</li>
+          </ul>
+          <p>Ship Systems</p>
+          <ul>
+            <li>
+              SCANNERS: <span className="positive">ONLINE</span>
+            </li>
+            <li>
+              NAVIGATION: <span className="positive">ONLINE</span>
+            </li>
+            <li>
+              ENGINES: <span className="positive">ONLINE</span>
+            </li>
+          </ul>
+          <div className="button-container">
+            <button
+              onClick={() => {
+                startNewRound();
+              }}
+            >
+              Continue
+            </button>
+          </div>
+        </Modal>
       ) : winStreak > 0 ? (
         <div className="header">
           <p className="streak">Win Streak: {winStreak}</p>
