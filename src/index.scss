@@ -181,6 +181,8 @@ button {
   height: 100vh;
 
   z-index: 2;
+
+  pointer-events: none;
 }
 
 @keyframes grain {
