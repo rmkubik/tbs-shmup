@@ -965,168 +965,175 @@ const App = () => {
   );
 
   return (
-    <div ref={scaleRef}>
-      {gameState === "gameover" ? (
-        <Modal>
+    <Fragment>
+      <div className="scanLinesH overlay" />
+
+      <div id="game" ref={scaleRef}>
+        {gameState === "gameover" || gameState === "victory" ? (
+          <div className="modal-background overlay" />
+        ) : null}
+        {gameState === "gameover" ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">GAME OVER</p>
+              <p className="streak">Win Streak: {winStreak}</p>
+            </div>
+            <p>Next Sector Conditions</p>
+            <ul>
+              <li>Light Asteroids</li>
+              <li>Nebula</li>
+            </ul>
+            <p>Ship Systems</p>
+            <ul>
+              <li>
+                SCANNERS: <span className="positive">ONLINE</span>
+              </li>
+              <li>
+                NAVIGATION: <span className="positive">ONLINE</span>
+              </li>
+              <li>
+                ENGINES: <span className="positive">ONLINE</span>
+              </li>
+            </ul>
+            <div className="button-container">
+              <button
+                onClick={() => {
+                  setWinStreak(0);
+                  startNewRound();
+                }}
+              >
+                Restart
+              </button>
+            </div>
+          </Modal>
+        ) : gameState === "victory" ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">VICTORY</p>
+              <p className="streak">Win Streak: {winStreak}</p>
+            </div>
+            <p>Next Sector Conditions</p>
+            <ul>
+              <li>Light Asteroids</li>
+              <li>Nebula</li>
+            </ul>
+            <p>Ship Systems</p>
+            <ul>
+              <li>
+                SCANNERS: <span className="positive">ONLINE</span>
+              </li>
+              <li>
+                NAVIGATION: <span className="positive">ONLINE</span>
+              </li>
+              <li>
+                ENGINES: <span className="positive">ONLINE</span>
+              </li>
+            </ul>
+            <div className="button-container">
+              <button
+                onClick={() => {
+                  startNewRound();
+                }}
+              >
+                Continue
+              </button>
+            </div>
+          </Modal>
+        ) : winStreak > 0 ? (
           <div className="header">
-            <p className="gameover">GAME OVER</p>
             <p className="streak">Win Streak: {winStreak}</p>
           </div>
-          <p>Next Sector Conditions</p>
-          <ul>
-            <li>Light Asteroids</li>
-            <li>Nebula</li>
-          </ul>
-          <p>Ship Systems</p>
-          <ul>
-            <li>
-              SCANNERS: <span className="positive">ONLINE</span>
-            </li>
-            <li>
-              NAVIGATION: <span className="positive">ONLINE</span>
-            </li>
-            <li>
-              ENGINES: <span className="positive">ONLINE</span>
-            </li>
-          </ul>
-          <div className="button-container">
-            <button
-              onClick={() => {
-                setWinStreak(0);
-                startNewRound();
-              }}
-            >
-              Restart
-            </button>
+        ) : null}
+        <div className="grid-sidebar-container">
+          <div>
+            <Grid
+              tiles={nextSpawns}
+              colCount={colCount}
+              renderTile={(tile) =>
+                // Only show warning icons after a single action has
+                // been chosen already.
+                //
+                // Don't show the new warning icons that are assigned once spawning
+                // and cleanup states are written.
+                power <= 1 &&
+                tile &&
+                gameState !== "spawning" &&
+                gameState !== "cleanup" ? (
+                  <img src={tile} />
+                ) : (
+                  <div
+                    style={{
+                      height: "16px",
+                      width: "16px",
+                      position: "relative",
+                    }}
+                  ></div>
+                )
+              }
+            />
+            <Grid
+              tiles={tiles}
+              colCount={colCount}
+              renderTile={renderTile}
+              setHoveredIndex={setHoveredIndex}
+            />
           </div>
-        </Modal>
-      ) : gameState === "victory" ? (
-        <Modal>
-          <div className="header">
-            <p className="gameover">VICTORY</p>
-            <p className="streak">Win Streak: {winStreak}</p>
-          </div>
-          <p>Next Sector Conditions</p>
-          <ul>
-            <li>Light Asteroids</li>
-            <li>Nebula</li>
-          </ul>
-          <p>Ship Systems</p>
-          <ul>
-            <li>
-              SCANNERS: <span className="positive">ONLINE</span>
-            </li>
-            <li>
-              NAVIGATION: <span className="positive">ONLINE</span>
-            </li>
-            <li>
-              ENGINES: <span className="positive">ONLINE</span>
-            </li>
-          </ul>
-          <div className="button-container">
-            <button
-              onClick={() => {
-                startNewRound();
-              }}
-            >
-              Continue
-            </button>
-          </div>
-        </Modal>
-      ) : winStreak > 0 ? (
-        <div className="header">
-          <p className="streak">Win Streak: {winStreak}</p>
-        </div>
-      ) : null}
-      <div className="grid-sidebar-container">
-        <div>
-          <Grid
-            tiles={nextSpawns}
-            colCount={colCount}
-            renderTile={(tile) =>
-              // Only show warning icons after a single action has
-              // been chosen already.
-              //
-              // Don't show the new warning icons that are assigned once spawning
-              // and cleanup states are written.
-              power <= 1 &&
-              tile &&
-              gameState !== "spawning" &&
-              gameState !== "cleanup" ? (
-                <img src={tile} />
+          <div className="sidebar">
+            <p>Deck</p>
+            <ul>
+              {sortedDeck.length === 0 ? (
+                <span>Empty...</span>
               ) : (
-                <div
-                  style={{
-                    height: "16px",
-                    width: "16px",
-                    position: "relative",
-                  }}
-                ></div>
-              )
-            }
-          />
-          <Grid
-            tiles={tiles}
-            colCount={colCount}
-            renderTile={renderTile}
-            setHoveredIndex={setHoveredIndex}
-          />
-        </div>
-        <div className="sidebar">
-          <p>Deck</p>
-          <ul>
-            {sortedDeck.length === 0 ? (
-              <span>Empty...</span>
-            ) : (
-              sortedDeck.map((card) => (
-                <li>
-                  {card.name} <br /> {card.range}
-                </li>
-              ))
-            )}
-          </ul>
-          {/* <p>Grave</p>
+                sortedDeck.map((card) => (
+                  <li>
+                    {card.name} <br /> {card.range}
+                  </li>
+                ))
+              )}
+            </ul>
+            {/* <p>Grave</p>
           <ul>
             {graveyard.map((card) => (
               <li>{card.name}</li>
             ))}
           </ul> */}
+          </div>
         </div>
+        <Bar
+          power={power}
+          maxPower={maxPower}
+          hand={hand}
+          selectedCard={selectedCard}
+          setSelectedCard={setSelectedCard}
+          hasUsedShipPower={hasUsedShipPower}
+          onEndClick={() => {
+            setTurnCount(turnCount + 1);
+            setPower(maxPower);
+            setGameState("targeting");
+          }}
+          onRecycleClick={() => {
+            if (hasUsedShipPower) {
+              return;
+            }
+
+            // Draw a new card
+            let { newDeck, newHand, newGraveyard } = drawCards(1);
+
+            // Discard my currently selected card
+            newHand = [
+              ...newHand.slice(0, selectedCard),
+              ...newHand.slice(selectedCard + 1),
+            ];
+            newGraveyard = [hand[selectedCard], ...newGraveyard];
+
+            setGraveyard(newGraveyard);
+            setHand(newHand);
+            setDeck(newDeck);
+            setHasUsedShipPower(true);
+          }}
+        />
       </div>
-      <Bar
-        power={power}
-        maxPower={maxPower}
-        hand={hand}
-        selectedCard={selectedCard}
-        setSelectedCard={setSelectedCard}
-        hasUsedShipPower={hasUsedShipPower}
-        onEndClick={() => {
-          setTurnCount(turnCount + 1);
-          setPower(maxPower);
-          setGameState("targeting");
-        }}
-        onRecycleClick={() => {
-          if (hasUsedShipPower) {
-            return;
-          }
-
-          // Draw a new card
-          let { newDeck, newHand, newGraveyard } = drawCards(1);
-
-          // Discard my currently selected card
-          newHand = [
-            ...newHand.slice(0, selectedCard),
-            ...newHand.slice(selectedCard + 1),
-          ];
-          newGraveyard = [hand[selectedCard], ...newGraveyard];
-
-          setGraveyard(newGraveyard);
-          setHand(newHand);
-          setDeck(newDeck);
-          setHasUsedShipPower(true);
-        }}
-      />
-    </div>
+    </Fragment>
   );
 };
 

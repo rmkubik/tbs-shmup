@@ -19,7 +19,7 @@ body {
 
   image-rendering: pixelated;
 
-  & > * {
+  #game {
     transform-origin: center;
     padding: 1.5rem;
   }
@@ -183,6 +183,9 @@ button {
   background-repeat: repeat;
   opacity: 0.3;
 
+  z-index: 20;
+  pointer-events: none;
+
   &:after {
     animation: grain 8s steps(10) infinite;
     background-image: url("../assets/paper_1_@2X.png");
@@ -202,10 +205,18 @@ button {
   position: fixed;
   width: 100vw;
   height: 100vh;
+}
 
-  z-index: 20;
+.modal-background {
+  background-color: black;
+  opacity: 0.6;
 
-  pointer-events: none;
+  top: -50%;
+  left: -50%;
+  width: 200vw;
+  height: 200vh;
+
+  z-index: 9;
 }
 
 @keyframes grain {
