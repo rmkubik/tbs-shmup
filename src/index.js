@@ -546,7 +546,11 @@ const Condition = ({ condition }) => {
         </li>
       );
     case "stalling":
-      return <li>Farble Gas Field</li>;
+      return (
+        <li>
+          <span className="caution">Farble Gas Field</span>
+        </li>
+      );
     case "heavyAsteroids":
       return (
         <li>
@@ -560,8 +564,9 @@ const Condition = ({ condition }) => {
         </li>
       );
     case "lightAsteroids":
-    default:
       return <li>Light Asteroids</li>;
+    default:
+      return null;
   }
 };
 
@@ -704,6 +709,7 @@ const App = () => {
    */
   window.setWinStreak = setWinStreak;
   window.startNewRound = startNewRound;
+  window.setGameState = setGameState;
   /**
    * End debug stuff
    */
