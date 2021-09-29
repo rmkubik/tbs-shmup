@@ -535,7 +535,11 @@ const Condition = ({ condition }) => {
     case "stalling":
       return <li>Farble Gas Field</li>;
     case "heavyAsteroids":
-      return <li>Heavy Asteroids</li>;
+      return (
+        <li>
+          <span className="negative">Heavy</span> Asteroids
+        </li>
+      );
     case "lightAsteroids":
     default:
       return <li>Light Asteroids</li>;
@@ -1098,7 +1102,6 @@ const App = () => {
   return (
     <Fragment>
       <div className="scanLinesH overlay" />
-
       <div id="game" ref={scaleRef}>
         {gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
@@ -1160,8 +1163,11 @@ const App = () => {
                 //
                 // Don't show the new warning icons that are assigned once spawning
                 // and cleanup states are written.
+                //
+                // Don't show warning icons if we're in a nebula.
                 power <= 1 &&
                 tile &&
+                !sectors[winStreak].conditions.includes("nebula") &&
                 gameState !== "spawning" &&
                 gameState !== "cleanup" ? (
                   <img src={tile} />
