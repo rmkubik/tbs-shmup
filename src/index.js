@@ -975,7 +975,9 @@ const App = () => {
         {gameState === "gameover" ? (
           <Modal>
             <div className="header">
-              <p className="gameover">GAME OVER</p>
+              <p className="gameover">
+                <span className="negative">GAME OVER</span>
+              </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
             <p>Next Sector Conditions</p>
@@ -1009,7 +1011,9 @@ const App = () => {
         ) : gameState === "victory" ? (
           <Modal>
             <div className="header">
-              <p className="gameover">VICTORY</p>
+              <p className="gameover">
+                <span className="positive">VICTORY</span>
+              </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
             <p>Next Sector Conditions</p>

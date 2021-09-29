@@ -166,7 +166,12 @@ button {
   }
 
   span.positive {
-    color: green;
+    color: #77ff77;
+    font-weight: bold;
+  }
+
+  span.negative {
+    color: #ff7777;
     font-weight: bold;
   }
 }
