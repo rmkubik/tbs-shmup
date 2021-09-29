@@ -595,6 +595,13 @@ const initialDeck = [
   { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
 ];
 
+const stallCard = {
+  name: "Stall",
+  cost: 1,
+  range: 0,
+  directions: [],
+};
+
 const App = () => {
   /**
     - `lightAsteroids`
@@ -640,14 +647,6 @@ const App = () => {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
 
-  /**
-   * Attach setters to window for debugging
-   */
-  window.setWinStreak = setWinStreak;
-  /**
-   * End debug stuff
-   */
-
   const scaleRef = useScaleRef();
 
   const startNewRound = () => {
@@ -658,12 +657,30 @@ const App = () => {
     setLastSpawned(undefined);
     setSelectedCard(0);
     setGraveyard([]);
-    setDeck(shuffle(initialDeck));
+
+    // The deck changes depending on the current sector
+    let newDeck = initialDeck;
+
+    if (sectors[winStreak].conditions.includes("stalling")) {
+      newDeck = [...newDeck, stallCard];
+    }
+
+    setDeck(shuffle(newDeck));
+
     setHand([]);
     setPower(2);
     setMaxPower(2);
     setHasUsedShipPower(false);
   };
+
+  /**
+   * Attach setters to window for debugging
+   */
+  window.setWinStreak = setWinStreak;
+  window.startNewRound = startNewRound;
+  /**
+   * End debug stuff
+   */
 
   const moveEntities = () => {
     let newEntities = [...entities];
