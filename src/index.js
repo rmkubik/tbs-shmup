@@ -662,8 +662,16 @@ const App = () => {
     let newDeck = initialDeck;
 
     if (sectors[winStreak].conditions.includes("stalling")) {
+      // Add stall card
       newDeck = [...newDeck, stallCard];
     }
+
+    if (sectors[winStreak].conditions.includes("left-offline")) {
+      // Remove any card with a left direction
+      newDeck = newDeck.filter((card) => !card.directions.includes("left"));
+    }
+
+    console.log({ newDeck });
 
     setDeck(shuffle(newDeck));
 
