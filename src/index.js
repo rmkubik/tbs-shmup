@@ -321,6 +321,13 @@ const pickRandomSpawnIndices = (colCount, sector) => {
       5: 25,
       6: 5,
     }),
+    medium: new WeightedMap({
+      4: 5,
+      5: 40,
+      6: 35,
+      7: 15,
+      8: 5,
+    }),
     heavy: new WeightedMap({
       6: 10,
       7: 20,
@@ -330,9 +337,15 @@ const pickRandomSpawnIndices = (colCount, sector) => {
     }),
   };
 
-  const spawnType = sector?.conditions.includes("heavyAsteroids")
-    ? "heavy"
-    : "light";
+  let spawnType = "light";
+
+  if (sector?.conditions.includes("heavyAsteroids")) {
+    spawnType = "heavy";
+  }
+
+  if (sector?.conditions.includes("mediumAsteroids")) {
+    spawnType = "medium";
+  }
 
   const spawnCountMap = spawnMaps[spawnType];
 
