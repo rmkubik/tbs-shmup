@@ -156,6 +156,7 @@ button {
     span.status {
       margin-left: 0.5rem;
       float: right;
+      font-weight: bold;
     }
   }
 
@@ -166,17 +167,14 @@ button {
 
   span.positive {
     color: #77ff77;
-    font-weight: bold;
   }
 
   span.negative {
     color: #ff7777;
-    font-weight: bold;
   }
 
   span.caution {
     color: #faca93;
-    font-weight: bold;
   }
 
   span.nebula {

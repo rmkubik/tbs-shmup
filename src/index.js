@@ -313,37 +313,53 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
-const pickRandomSpawnIndices = (colCount) => {
-  const indices = [];
+const pickRandomSpawnIndices = (colCount, sector) => {
+  const spawnMaps = {
+    light: new WeightedMap({
+      3: 40,
+      4: 30,
+      5: 25,
+      6: 5,
+    }),
+    heavy: new WeightedMap({
+      6: 10,
+      7: 20,
+      8: 40,
+      9: 20,
+      10: 10,
+    }),
+  };
 
-  // "light" asteroids weighted map
-  const spawnCountMap = new WeightedMap({
-    3: 40,
-    4: 30,
-    5: 25,
-    6: 5,
-  });
+  const spawnType = sector?.conditions.includes("heavyAsteroids")
+    ? "heavy"
+    : "light";
 
-  // const spawnCount = randInt(6, 10); // "heavy"
-  // const spawnCount = randInt(3, 6); // "light"
+  const spawnCountMap = spawnMaps[spawnType];
+
   const spawnCount = parseInt(spawnCountMap.pickRandom());
 
-  createArray(spawnCount).forEach(() => {
+  const indices = [];
+
+  let iterationCount = 0;
+
+  while (indices.length < spawnCount && iterationCount < 100) {
+    iterationCount += 1;
+
     const spawnIndex = randInt(0, colCount - 1);
 
     if (indices.some((index) => index === spawnIndex)) {
       // Skip indices we've already chosen
-      return;
+      continue;
     }
 
     indices.push(spawnIndex);
-  });
+  }
 
   return indices;
 };
 
-const chooseNextSpawns = (colCount) => {
-  const initialIndices = pickRandomSpawnIndices(colCount);
+const chooseNextSpawns = (colCount, sector) => {
+  const initialIndices = pickRandomSpawnIndices(colCount, sector);
 
   const nextSpawns = createArray(colCount);
 
@@ -462,7 +478,7 @@ const Modal = ({ children }) => {
 const Status = ({ status }) => {
   switch (status) {
     case "offline":
-      return <span className="negative status">OFFLINE</span>;
+      return <span className="nebula status">OFFLINE</span>;
     case "stalling":
       return <span className="caution status">STALLING</span>;
     case "left-offline":
@@ -475,20 +491,33 @@ const Status = ({ status }) => {
 };
 
 const SystemsList = ({ sector }) => {
-  const { systems = {} } = sector;
+  const { conditions = [] } = sector;
+
+  const scannersStatus = conditions.includes("nebula") ? "offline" : "online";
+
+  let navigationStatus = "online";
+
+  if (conditions.includes("left-offline")) {
+    navigationStatus = "left-offline";
+  }
+  if (conditions.includes("malfunctioning")) {
+    navigationStatus = "malfunctioning";
+  }
+
+  const enginesStatus = conditions.includes("stalling") ? "stalling" : "online";
 
   return (
     <Fragment>
       <p>Ship Systems</p>
       <ul>
         <li>
-          SCANNERS: <Status status={systems.scanners} />
+          SCANNERS: <Status status={scannersStatus} />
         </li>
         <li>
-          NAVIGATION: <Status status={systems.navigation} />
+          NAVIGATION: <Status status={navigationStatus} />
         </li>
         <li>
-          ENGINES: <Status status={systems.engines} />
+          ENGINES: <Status status={enginesStatus} />
         </li>
       </ul>
     </Fragment>
@@ -503,6 +532,8 @@ const Condition = ({ condition }) => {
           <span className="nebula">Nebula</span>
         </li>
       );
+    case "stalling":
+      return <li>Farble Gas Field</li>;
     case "heavyAsteroids":
       return <li>Heavy Asteroids</li>;
     case "lightAsteroids":
@@ -542,9 +573,35 @@ const initialDeck = [
 ];
 
 const App = () => {
+  /**
+    - `lightAsteroids`
+    - `heavyAsteroids`
+    - `nebula`
+    - `stalling`
+    - `left-offline`
+    - `malfunctioning`
+   */
+  const [sectors, setSectors] = useState([
+    {
+      conditions: ["lightAsteroids"],
+    },
+    { conditions: ["heavyAsteroids"] },
+    { conditions: ["lightAsteroids", "nebula"] },
+    { conditions: ["heavyAsteroids", "nebula"] },
+    { conditions: ["heavyAsteroids", "stalling"] },
+    { conditions: ["heavyAsteroids"] },
+    { conditions: ["lightAsteroids", "malfunctioning"] },
+    { conditions: ["lightAsteroids", "left-offline"] },
+    { conditions: ["heavyAsteroids", "malfunctioning"] },
+    { conditions: ["heavyAsteroids", "left-offline", "stalling", "nebula"] },
+  ]);
+  // const [currentSector, setCurrentSector] = useState(0);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
-  const [nextSpawns, setNextSpawns] = useState(chooseNextSpawns(colCount));
+  const [winStreak, setWinStreak] = useState(0);
+  const [nextSpawns, setNextSpawns] = useState(
+    chooseNextSpawns(colCount, sectors[winStreak])
+  );
   const [entities, setEntities] = useState([]);
   // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
   const [gameState, setGameState] = useState("spawning"); // useState("spawning");
@@ -559,26 +616,14 @@ const App = () => {
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
-  const [winStreak, setWinStreak] = useState(0);
-  // const [conditions, setConditions] = useState({
-  //   lightAsteroids: {
-  //     type: "condition",
-  //   },
-  //   heavyAsteroids: {},
-  // });
-  const [sectors, setSectors] = useState([
-    {
-      conditions: ["lightAsteroids", "nebula"],
-      systems: {
-        scanners: "offline",
-        navigation: "malfunctioning",
-        engines: "stalling",
-      },
-    },
-    { conditions: ["heavyAsteroids"] },
-    { conditions: ["heavyAsteroids"] },
-  ]);
-  const [currentSector, setCurrentSector] = useState(0);
+
+  /**
+   * Attach setters to window for debugging
+   */
+  window.setWinStreak = setWinStreak;
+  /**
+   * End debug stuff
+   */
 
   const scaleRef = useScaleRef();
 
@@ -744,7 +789,7 @@ const App = () => {
 
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
-        setNextSpawns(chooseNextSpawns(colCount));
+        setNextSpawns(chooseNextSpawns(colCount, sectors[winStreak]));
       }
 
       setGameState("cleanup");
@@ -1066,8 +1111,8 @@ const App = () => {
               </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
-            <NextSectorConditions sector={sectors[currentSector]} />
-            <SystemsList sector={sectors[currentSector]} />
+            <NextSectorConditions sector={sectors[winStreak]} />
+            <SystemsList sector={sectors[winStreak]} />
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1087,8 +1132,8 @@ const App = () => {
               </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
-            <NextSectorConditions sector={sectors[currentSector]} />
-            <SystemsList sector={sectors[currentSector]} />
+            <NextSectorConditions sector={sectors[winStreak]} />
+            <SystemsList sector={sectors[winStreak]} />
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1151,12 +1196,6 @@ const App = () => {
                 ))
               )}
             </ul>
-            {/* <p>Grave</p>
-          <ul>
-            {graveyard.map((card) => (
-              <li>{card.name}</li>
-            ))}
-          </ul> */}
           </div>
         </div>
         <Bar
