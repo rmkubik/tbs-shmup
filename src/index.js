@@ -661,6 +661,26 @@ const App = () => {
     // The deck changes depending on the current sector
     let newDeck = initialDeck;
 
+    if (sectors[winStreak].conditions.includes("malfunctioning")) {
+      // Replace old deck manually with left and right cards swapped
+      // There is certainly a "smarter" way to do this
+      newDeck = [
+        { name: "Right", cost: 1, range: 3, directions: ["right"] },
+        { name: "Up", cost: 1, range: 2, directions: ["up"] },
+        { name: "Left", cost: 1, range: 1, directions: ["left"] },
+        { name: "UpLeft", cost: 1, range: 2, directions: ["upLeft"] },
+        { name: "Down", cost: 1, range: 2, directions: ["down"] },
+        { name: "Up", cost: 1, range: 4, directions: ["up"] },
+        {
+          name: "Shoot",
+          cost: 1,
+          range: 1,
+          directions: ["up"],
+          effect: "shoot",
+        },
+      ];
+    }
+
     if (sectors[winStreak].conditions.includes("stalling")) {
       // Add stall card
       newDeck = [...newDeck, stallCard];
@@ -670,8 +690,6 @@ const App = () => {
       // Remove any card with a left direction
       newDeck = newDeck.filter((card) => !card.directions.includes("left"));
     }
-
-    console.log({ newDeck });
 
     setDeck(shuffle(newDeck));
 
