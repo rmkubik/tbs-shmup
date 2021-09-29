@@ -553,6 +553,12 @@ const Condition = ({ condition }) => {
           <span className="negative">Heavy</span> Asteroids
         </li>
       );
+    case "mediumAsteroids":
+      return (
+        <li>
+          <span className="caution">Medium</span> Asteroids
+        </li>
+      );
     case "lightAsteroids":
     default:
       return <li>Light Asteroids</li>;
@@ -602,15 +608,15 @@ const App = () => {
     {
       conditions: ["lightAsteroids"],
     },
-    { conditions: ["heavyAsteroids"] },
+    { conditions: ["mediumAsteroids"] },
     { conditions: ["lightAsteroids", "nebula"] },
-    { conditions: ["heavyAsteroids", "nebula"] },
-    { conditions: ["heavyAsteroids", "stalling"] },
+    { conditions: ["mediumAsteroids", "nebula"] },
+    { conditions: ["mediumAsteroids", "stalling"] },
     { conditions: ["heavyAsteroids"] },
     { conditions: ["lightAsteroids", "malfunctioning"] },
     { conditions: ["lightAsteroids", "left-offline"] },
-    { conditions: ["heavyAsteroids", "malfunctioning"] },
-    { conditions: ["heavyAsteroids", "left-offline", "stalling", "nebula"] },
+    { conditions: ["mediumAsteroids", "malfunctioning"] },
+    { conditions: ["mediumAsteroids", "left-offline", "stalling", "nebula"] },
   ]);
   // const [currentSector, setCurrentSector] = useState(0);
   const [tiles, setTiles] = useState(initialTiles);
