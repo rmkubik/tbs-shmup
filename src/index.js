@@ -459,6 +459,73 @@ const Modal = ({ children }) => {
   );
 };
 
+const Status = ({ status }) => {
+  switch (status) {
+    case "offline":
+      return <span className="negative status">OFFLINE</span>;
+    case "stalling":
+      return <span className="caution status">STALLING</span>;
+    case "left-offline":
+      return <span className="negative status">LEFT THRUSTER OFFLINE</span>;
+    case "malfunctioning":
+      return <span className="caution status">MALFUNCTIONING</span>;
+    default:
+      return <span className="positive status">ONLINE</span>;
+  }
+};
+
+const SystemsList = ({ sector }) => {
+  const { systems = {} } = sector;
+
+  return (
+    <Fragment>
+      <p>Ship Systems</p>
+      <ul>
+        <li>
+          SCANNERS: <Status status={systems.scanners} />
+        </li>
+        <li>
+          NAVIGATION: <Status status={systems.navigation} />
+        </li>
+        <li>
+          ENGINES: <Status status={systems.engines} />
+        </li>
+      </ul>
+    </Fragment>
+  );
+};
+
+const Condition = ({ condition }) => {
+  switch (condition) {
+    case "nebula":
+      return (
+        <li>
+          <span className="nebula">Nebula</span>
+        </li>
+      );
+    case "heavyAsteroids":
+      return <li>Heavy Asteroids</li>;
+    case "lightAsteroids":
+    default:
+      return <li>Light Asteroids</li>;
+  }
+};
+
+const NextSectorConditions = ({ sector }) => {
+  const { conditions = {} } = sector;
+
+  return (
+    <Fragment>
+      <p>Next Sector Conditions</p>
+      <ul>
+        {conditions.map((condition) => (
+          <Condition condition={condition} />
+        ))}
+      </ul>
+    </Fragment>
+  );
+};
+
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
@@ -493,6 +560,25 @@ const App = () => {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
   const [winStreak, setWinStreak] = useState(0);
+  // const [conditions, setConditions] = useState({
+  //   lightAsteroids: {
+  //     type: "condition",
+  //   },
+  //   heavyAsteroids: {},
+  // });
+  const [sectors, setSectors] = useState([
+    {
+      conditions: ["lightAsteroids", "nebula"],
+      systems: {
+        scanners: "offline",
+        navigation: "malfunctioning",
+        engines: "stalling",
+      },
+    },
+    { conditions: ["heavyAsteroids"] },
+    { conditions: ["heavyAsteroids"] },
+  ]);
+  const [currentSector, setCurrentSector] = useState(0);
 
   const scaleRef = useScaleRef();
 
@@ -980,23 +1066,8 @@ const App = () => {
               </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
-            <p>Next Sector Conditions</p>
-            <ul>
-              <li>Light Asteroids</li>
-              <li>Nebula</li>
-            </ul>
-            <p>Ship Systems</p>
-            <ul>
-              <li>
-                SCANNERS: <span className="positive">ONLINE</span>
-              </li>
-              <li>
-                NAVIGATION: <span className="positive">ONLINE</span>
-              </li>
-              <li>
-                ENGINES: <span className="positive">ONLINE</span>
-              </li>
-            </ul>
+            <NextSectorConditions sector={sectors[currentSector]} />
+            <SystemsList sector={sectors[currentSector]} />
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1016,23 +1087,8 @@ const App = () => {
               </p>
               <p className="streak">Win Streak: {winStreak}</p>
             </div>
-            <p>Next Sector Conditions</p>
-            <ul>
-              <li>Light Asteroids</li>
-              <li>Nebula</li>
-            </ul>
-            <p>Ship Systems</p>
-            <ul>
-              <li>
-                SCANNERS: <span className="positive">ONLINE</span>
-              </li>
-              <li>
-                NAVIGATION: <span className="positive">ONLINE</span>
-              </li>
-              <li>
-                ENGINES: <span className="positive">ONLINE</span>
-              </li>
-            </ul>
+            <NextSectorConditions sector={sectors[currentSector]} />
+            <SystemsList sector={sectors[currentSector]} />
             <div className="button-container">
               <button
                 onClick={() => {
