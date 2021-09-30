@@ -667,6 +667,8 @@ const App = () => {
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
+  const [showOptions, setShowOptions] = useState(true);
+  const [enableVfx, setEnableVfx] = useState(true);
 
   const scaleRef = useScaleRef();
 
@@ -1195,12 +1197,37 @@ const App = () => {
 
   return (
     <Fragment>
-      <div className="scanLinesH overlay" />
+      {enableVfx && <div className="scanLinesH overlay" />}
       <div id="game" ref={scaleRef}>
-        {gameState === "gameover" || gameState === "victory" ? (
+        {showOptions || gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
         ) : null}
-        {gameState === "gameover" ? (
+        {showOptions ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">OPTIONS</p>
+            </div>
+            <label htmlFor="enableVfx">
+              <input
+                type="checkbox"
+                name="enableVfx"
+                checked={enableVfx}
+                onChange={(event) => setEnableVfx(event.target.checked)}
+              />
+              Enable VFX Filter
+            </label>
+
+            <div className="button-container">
+              <button
+                onClick={() => {
+                  setShowOptions(false);
+                }}
+              >
+                Resume
+              </button>
+            </div>
+          </Modal>
+        ) : gameState === "gameover" ? (
           <Modal>
             <div className="header">
               <p className="gameover">
