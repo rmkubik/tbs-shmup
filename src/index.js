@@ -575,6 +575,8 @@ const Condition = ({ condition }) => {
       );
     case "lightAsteroids":
       return <li>Light Asteroids</li>;
+    case "patternedAsteroids":
+      return <li>Patterned Asteroids</li>;
     default:
       return null;
   }
