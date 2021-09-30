@@ -313,7 +313,7 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
-const pickRandomSpawnIndices = (colCount, sector) => {
+const pickRandomSpawnIndices = (colCount, sector, turnCount) => {
   const spawnMaps = {
     light: new WeightedMap({
       3: 40,
@@ -347,6 +347,16 @@ const pickRandomSpawnIndices = (colCount, sector) => {
     spawnType = "medium";
   }
 
+  if (sector?.conditions.includes("patternedAsteroids")) {
+    const pattern = spawnPattern
+      .split("\n")
+      .map((string) => string.trim().split(""));
+
+    const currentPattern = pattern[turnCount % pattern.length];
+
+    return findAllMatchingIndices(currentPattern, (val) => val !== ".");
+  }
+
   const spawnCountMap = spawnMaps[spawnType];
 
   const spawnCount = parseInt(spawnCountMap.pickRandom());
@@ -371,8 +381,8 @@ const pickRandomSpawnIndices = (colCount, sector) => {
   return indices;
 };
 
-const chooseNextSpawns = (colCount, sector) => {
-  const initialIndices = pickRandomSpawnIndices(colCount, sector);
+const chooseNextSpawns = (colCount, sector, turnCount) => {
+  const initialIndices = pickRandomSpawnIndices(colCount, sector, turnCount);
 
   const nextSpawns = createArray(colCount);
 
@@ -438,7 +448,7 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
         lineHeight: "16px",
         textAlign: "center",
       }}
-      onMouseLeave={() => setHoveredIndex(-1)}
+      // onMouseLeave={() => setHoveredIndex(-1)}
     >
       {tiles.map((tile, index) => renderTile(tile, index))}
     </div>
@@ -607,6 +617,10 @@ const stallCard = {
   directions: [],
 };
 
+const spawnPattern = `...???????
+                      ???????...
+                      5555555555`;
+
 const App = () => {
   /**
     - `lightAsteroids`
@@ -624,7 +638,7 @@ const App = () => {
     { conditions: ["lightAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "stalling"] },
-    { conditions: ["heavyAsteroids"] },
+    { conditions: ["patternedAsteroids"] },
     { conditions: ["lightAsteroids", "malfunctioning"] },
     { conditions: ["lightAsteroids", "left-offline"] },
     { conditions: ["mediumAsteroids", "malfunctioning"] },
@@ -634,13 +648,13 @@ const App = () => {
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [winStreak, setWinStreak] = useState(0);
+  const [turnCount, setTurnCount] = useState(0);
   const [nextSpawns, setNextSpawns] = useState(
-    chooseNextSpawns(colCount, sectors[winStreak])
+    chooseNextSpawns(colCount, sectors[winStreak], turnCount)
   );
   const [entities, setEntities] = useState([]);
   // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
   const [gameState, setGameState] = useState("spawning"); // useState("spawning");
-  const [turnCount, setTurnCount] = useState(0);
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
@@ -697,7 +711,7 @@ const App = () => {
     }
 
     setDeck(shuffle(newDeck));
-
+    setNextSpawns(chooseNextSpawns(colCount, sectors[winStreak], 0));
     setHand([]);
     setPower(2);
     setMaxPower(2);
@@ -826,7 +840,27 @@ const App = () => {
             return;
           }
 
-          const spawnSpeed = randInt(2, 5);
+          let spawnSpeed = randInt(2, 5);
+
+          if (sectors[winStreak]?.conditions.includes("patternedAsteroids")) {
+            const pattern = spawnPattern
+              .split("\n")
+              .map((string) => string.trim().split(""));
+
+            // Turn has advanced since we set nextSpawns, check previous turn
+            // in the pattern for spawn speeds
+            const currentPattern = pattern[turnCount % pattern.length];
+
+            // ? should be left as random speed
+            // . shouldn't be here, as it isn't marked as a spawn
+            if (
+              currentPattern[spawnIndex] !== "?" &&
+              currentPattern[spawnIndex] !== "."
+            ) {
+              // Otherwise, we use the default speed
+              spawnSpeed = parseInt(currentPattern[spawnIndex]);
+            }
+          }
 
           // If we would spawn on top of a bullet, blow it up and
           // then don't spawn a new asteroid.
@@ -861,7 +895,9 @@ const App = () => {
 
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
-        setNextSpawns(chooseNextSpawns(colCount, sectors[winStreak]));
+        setNextSpawns(
+          chooseNextSpawns(colCount, sectors[winStreak], turnCount + 1)
+        );
       }
 
       setGameState("cleanup");
@@ -1072,7 +1108,7 @@ const App = () => {
           position: "relative",
         }}
         onClick={() => tryTakeAction(index)}
-        onMouseEnter={() => setHoveredIndex(index)}
+        // onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
           <Fragment>
@@ -1150,18 +1186,6 @@ const App = () => {
       newGraveyard,
     };
   };
-
-  console.log({
-    gameState,
-    entities,
-    playerIndex,
-    turnCount,
-    lastSpawned,
-    graveyard,
-    deck,
-    hand,
-    hoveredIndex,
-  });
 
   const sortedDeck = [...deck].sort((cardA, cardB) =>
     cardA.name.localeCompare(cardB.name)
