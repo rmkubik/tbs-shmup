@@ -103,6 +103,11 @@ button {
     font-size: $cardTextSize;
   }
 
+  .options {
+    border: none;
+    padding: 0;
+  }
+
   ul {
     margin-left: 12px;
     flex: 1;
@@ -179,6 +184,24 @@ button {
 
   span.nebula {
     color: #ff77ff;
+  }
+}
+
+.options-fields {
+  display: flex;
+  flex-direction: column;
+
+  & > * {
+    margin-bottom: 0.25rem;
+  }
+
+  input {
+    height: 0.5rem;
+  }
+
+  button {
+    width: fit-content;
+    margin: 0 auto;
   }
 }
 

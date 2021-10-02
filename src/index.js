@@ -5,6 +5,7 @@ import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
+import cogIcon from "../assets/cog.png";
 
 import WeightedMap from "./WeightedMap";
 
@@ -464,6 +465,7 @@ const Bar = ({
   hasUsedShipPower,
   onEndClick,
   onRecycleClick,
+  setShowOptions,
 }) => {
   return (
     <div className="bar">
@@ -486,6 +488,9 @@ const Bar = ({
           </li>
         ))}
       </ul>
+      <button className="options" onClick={() => setShowOptions(true)}>
+        <img src={cogIcon} />
+      </button>
     </div>
   );
 };
@@ -582,12 +587,12 @@ const Condition = ({ condition }) => {
   }
 };
 
-const NextSectorConditions = ({ sector }) => {
+const SectorConditions = ({ sector, title }) => {
   const { conditions = {} } = sector;
 
   return (
     <Fragment>
-      <p>Next Sector Conditions</p>
+      <p>{title}</p>
       <ul>
         {conditions.map((condition) => (
           <Condition condition={condition} />
@@ -667,7 +672,7 @@ const App = () => {
   const [drawSize, setDrawSize] = useState(3);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
-  const [showOptions, setShowOptions] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
   const [enableVfx, setEnableVfx] = useState(true);
 
   const scaleRef = useScaleRef();
@@ -675,7 +680,6 @@ const App = () => {
   const startNewRound = () => {
     setPlayerIndex(145);
     setEntities([]);
-    setGameState("spawning");
     setTurnCount(0);
     setLastSpawned(undefined);
     setSelectedCard(0);
@@ -720,6 +724,7 @@ const App = () => {
     setPower(2);
     setMaxPower(2);
     setHasUsedShipPower(false);
+    setGameState("spawning");
   };
 
   /**
@@ -1207,16 +1212,26 @@ const App = () => {
             <div className="header">
               <p className="gameover">OPTIONS</p>
             </div>
-            <label htmlFor="enableVfx">
-              <input
-                type="checkbox"
-                name="enableVfx"
-                checked={enableVfx}
-                onChange={(event) => setEnableVfx(event.target.checked)}
-              />
-              Enable VFX Filter
-            </label>
-
+            <div className="options-fields">
+              <label htmlFor="enableVfx">
+                <input
+                  type="checkbox"
+                  name="enableVfx"
+                  checked={enableVfx}
+                  onChange={(event) => setEnableVfx(event.target.checked)}
+                />
+                Enable VFX Filter
+              </label>
+              <button
+                onClick={() => {
+                  setWinStreak(0);
+                  setShowOptions(false);
+                  startNewRound();
+                }}
+              >
+                Reset Progress
+              </button>
+            </div>
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1233,14 +1248,17 @@ const App = () => {
               <p className="gameover">
                 <span className="negative">GAME OVER</span>
               </p>
-              <p className="streak">Win Streak: {winStreak}</p>
+              <p className="streak">Sector: {winStreak + 1}</p>
             </div>
-            <NextSectorConditions sector={sectors[winStreak]} />
+            <SectorConditions
+              title="Current Sector Conditions"
+              sector={sectors[winStreak]}
+            />
             <SystemsList sector={sectors[winStreak]} />
             <div className="button-container">
               <button
                 onClick={() => {
-                  setWinStreak(0);
+                  // setWinStreak(0);
                   startNewRound();
                 }}
               >
@@ -1254,9 +1272,12 @@ const App = () => {
               <p className="gameover">
                 <span className="positive">VICTORY</span>
               </p>
-              <p className="streak">Win Streak: {winStreak}</p>
+              <p className="streak">Sector: {winStreak + 1}</p>
             </div>
-            <NextSectorConditions sector={sectors[winStreak]} />
+            <SectorConditions
+              title="Next Sector Conditions"
+              sector={sectors[winStreak]}
+            />
             <SystemsList sector={sectors[winStreak]} />
             <div className="button-container">
               <button
@@ -1268,11 +1289,15 @@ const App = () => {
               </button>
             </div>
           </Modal>
-        ) : winStreak > 0 ? (
-          <div className="header">
-            <p className="streak">Win Streak: {winStreak}</p>
-          </div>
         ) : null}
+        {/*winStreak > 0 ? (
+          <div className="header">
+            <p className="streak">Sector: {winStreak}</p>
+          </div>
+        ) : null*/}
+        <div className="header">
+          <p className="streak">Sector: {winStreak + 1}</p>
+        </div>
         <div className="grid-sidebar-container">
           <div>
             <Grid
@@ -1332,6 +1357,7 @@ const App = () => {
           selectedCard={selectedCard}
           setSelectedCard={setSelectedCard}
           hasUsedShipPower={hasUsedShipPower}
+          setShowOptions={setShowOptions}
           onEndClick={() => {
             setTurnCount(turnCount + 1);
             setPower(maxPower);
