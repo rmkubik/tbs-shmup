@@ -666,6 +666,7 @@ const App = () => {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
   const [enableVfx, setEnableVfx] = useState(true);
   const [isSaveLoaded, setIsSaveLoaded] = useState(false);
 
@@ -1246,6 +1247,26 @@ const App = () => {
             </div>
             <p>Loading save data from local storage...</p>
           </Modal>
+        ) : showCredits ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">CREDITS</p>
+            </div>
+            <p>Ryan Kubik</p>
+            <p>Brendan McCracken</p>
+            <p>Mickey Sanchez</p>
+            <p>Cpt. Pick-a-Card</p>
+            <p>Prof. Flargle</p>
+            <div className="button-container">
+              <button
+                onClick={() => {
+                  setShowCredits(false);
+                }}
+              >
+                Back
+              </button>
+            </div>
+          </Modal>
         ) : showOptions ? (
           <Modal>
             <div className="header">
@@ -1269,6 +1290,13 @@ const App = () => {
                 }}
               >
                 Reset Progress
+              </button>
+              <button
+                onClick={() => {
+                  setShowCredits(true);
+                }}
+              >
+                Credits
               </button>
             </div>
             <div className="button-container">
