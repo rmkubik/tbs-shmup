@@ -9,6 +9,8 @@ import cogIcon from "../assets/cog.png";
 
 import WeightedMap from "./WeightedMap";
 
+const LOCAL_STORAGE_KEY = "com.ryankubik.rocket-jockey";
+
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
 const shuffle = (array) => {
@@ -629,14 +631,6 @@ const spawnPattern = `...???????
                       5555555555`;
 
 const App = () => {
-  /**
-    - `lightAsteroids`
-    - `heavyAsteroids`
-    - `nebula`
-    - `stalling`
-    - `left-offline`
-    - `malfunctioning`
-   */
   const [sectors, setSectors] = useState([
     {
       conditions: ["lightAsteroids"],
@@ -651,7 +645,6 @@ const App = () => {
     { conditions: ["mediumAsteroids", "malfunctioning"] },
     { conditions: ["mediumAsteroids", "left-offline", "stalling", "nebula"] },
   ]);
-  // const [currentSector, setCurrentSector] = useState(0);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [winStreak, setWinStreak] = useState(0);
@@ -661,7 +654,7 @@ const App = () => {
   );
   const [entities, setEntities] = useState([]);
   // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
-  const [gameState, setGameState] = useState("spawning"); // useState("spawning");
+  const [gameState, setGameState] = useState("spawning");
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
@@ -674,6 +667,7 @@ const App = () => {
   const [hasUsedShipPower, setHasUsedShipPower] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [enableVfx, setEnableVfx] = useState(true);
+  const [isSaveLoaded, setIsSaveLoaded] = useState(false);
 
   const scaleRef = useScaleRef();
 
@@ -736,6 +730,27 @@ const App = () => {
   /**
    * End debug stuff
    */
+
+  useEffect(() => {
+    let localStorageData;
+
+    try {
+      localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saveData = JSON.parse(localStorageData);
+
+      if (saveData.winStreak) {
+        setWinStreak(saveData.winStreak);
+      }
+    } catch (err) {
+      console.error(
+        `Error occurred trying to read saveData from local storage key "${LOCAL_STORAGE_KEY}". Continuing with default start.`
+      );
+      console.error({ localStorageData });
+      console.error(err);
+    }
+
+    setIsSaveLoaded(true);
+  }, []);
 
   const moveEntities = () => {
     let newEntities = [...entities];
@@ -948,6 +963,23 @@ const App = () => {
       setGameState("waiting");
     }
   }, [gameState]);
+
+  useEffect(() => {
+    try {
+      console.log("Saving progress...");
+
+      const saveData = JSON.stringify({
+        winStreak,
+      });
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
+
+      console.log("Progress saved...");
+    } catch (err) {
+      console.error("An error occurred trying to save game.");
+      console.error(err);
+    }
+  }, [winStreak]);
 
   const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
@@ -1207,7 +1239,14 @@ const App = () => {
         {showOptions || gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
         ) : null}
-        {showOptions ? (
+        {!isSaveLoaded ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">LOADING</p>
+            </div>
+            <p>Loading save data from local storage...</p>
+          </Modal>
+        ) : showOptions ? (
           <Modal>
             <div className="header">
               <p className="gameover">OPTIONS</p>
