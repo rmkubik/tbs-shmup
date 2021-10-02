@@ -451,7 +451,7 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
         lineHeight: "16px",
         textAlign: "center",
       }}
-      // onMouseLeave={() => setHoveredIndex(-1)}
+      onMouseLeave={() => setHoveredIndex(-1)}
     >
       {tiles.map((tile, index) => renderTile(tile, index))}
     </div>
@@ -1163,7 +1163,7 @@ const App = () => {
           position: "relative",
         }}
         onClick={() => tryTakeAction(index)}
-        // onMouseEnter={() => setHoveredIndex(index)}
+        onMouseEnter={() => setHoveredIndex(index)}
       >
         {object.img ? (
           <Fragment>
