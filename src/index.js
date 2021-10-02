@@ -671,6 +671,7 @@ const App = () => {
   const [showMainMenu, setShowMainMenu] = useState(true);
   const [enableVfx, setEnableVfx] = useState(true);
   const [isSaveLoaded, setIsSaveLoaded] = useState(false);
+  const [skipMenuStory, setSkipMenuStory] = useState(false);
 
   const scaleRef = useScaleRef();
 
@@ -741,8 +742,17 @@ const App = () => {
       localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY);
       const saveData = JSON.parse(localStorageData);
 
-      if (saveData.winStreak) {
+      if (saveData.winStreak !== undefined) {
         setWinStreak(saveData.winStreak);
+      }
+
+      if (saveData.skipMenuStory !== undefined) {
+        setSkipMenuStory(saveData.skipMenuStory);
+
+        if (saveData.skipMenuStory) {
+          setShowMainMenu(false);
+          setShowStory(false);
+        }
       }
     } catch (err) {
       console.error(
@@ -973,6 +983,7 @@ const App = () => {
 
       const saveData = JSON.stringify({
         winStreak,
+        skipMenuStory,
       });
 
       localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
@@ -982,7 +993,7 @@ const App = () => {
       console.error("An error occurred trying to save game.");
       console.error(err);
     }
-  }, [winStreak]);
+  }, [winStreak, skipMenuStory]);
 
   const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
@@ -1332,6 +1343,24 @@ const App = () => {
                 />
                 Enable VFX Filter
               </label>
+              <label htmlFor="skipStoryIntro">
+                <input
+                  type="checkbox"
+                  name="skipStoryIntro"
+                  checked={skipMenuStory}
+                  onChange={(event) => setSkipMenuStory(event.target.checked)}
+                />
+                Skip Story Intro
+              </label>
+              <button
+                onClick={() => {
+                  setShowStory(true);
+                  setShowOptions(false);
+                  startNewRound();
+                }}
+              >
+                Story
+              </button>
               <button
                 onClick={() => {
                   setWinStreak(0);
