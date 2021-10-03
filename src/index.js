@@ -316,7 +316,7 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
-const pickRandomSpawnIndices = (colCount, sector, turnCount) => {
+const pickRandomSpawnIndices = (colCount, sector, turnCount, spawnPattern) => {
   const spawnMaps = {
     light: new WeightedMap({
       3: 40,
@@ -384,8 +384,13 @@ const pickRandomSpawnIndices = (colCount, sector, turnCount) => {
   return indices;
 };
 
-const chooseNextSpawns = (colCount, sector, turnCount) => {
-  const initialIndices = pickRandomSpawnIndices(colCount, sector, turnCount);
+const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
+  const initialIndices = pickRandomSpawnIndices(
+    colCount,
+    sector,
+    turnCount,
+    spawnPattern
+  );
 
   const nextSpawns = createArray(colCount);
 
@@ -626,9 +631,11 @@ const stallCard = {
   directions: [],
 };
 
-const spawnPattern = `...???????
-                      ???????...
-                      5555555555`;
+const defaultSpawnPattern = `...???????
+                             ..........
+                             ???????...
+                             ..........
+                             5555555555`;
 
 const App = () => {
   const [sectors, setSectors] = useState([
@@ -649,8 +656,9 @@ const App = () => {
   const [playerIndex, setPlayerIndex] = useState(145);
   const [winStreak, setWinStreak] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
+  const [spawnPattern, setSpawnPattern] = useState(defaultSpawnPattern);
   const [nextSpawns, setNextSpawns] = useState(
-    chooseNextSpawns(colCount, sectors[winStreak], turnCount)
+    chooseNextSpawns(colCount, sectors[winStreak], turnCount, spawnPattern)
   );
   const [entities, setEntities] = useState([]);
   // loading, drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
@@ -717,7 +725,9 @@ const App = () => {
     }
 
     setDeck(shuffle(newDeck));
-    setNextSpawns(chooseNextSpawns(colCount, sectors[winStreak], 0));
+    setNextSpawns(
+      chooseNextSpawns(colCount, sectors[winStreak], 0, spawnPattern)
+    );
     setHand([]);
     setPower(2);
     setMaxPower(2);
@@ -731,6 +741,7 @@ const App = () => {
   window.setWinStreak = setWinStreak;
   window.startNewRound = startNewRound;
   window.setGameState = setGameState;
+  window.setSpawnPattern = setSpawnPattern;
   /**
    * End debug stuff
    */
@@ -944,7 +955,12 @@ const App = () => {
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
         setNextSpawns(
-          chooseNextSpawns(colCount, sectors[winStreak], turnCount + 1)
+          chooseNextSpawns(
+            colCount,
+            sectors[winStreak],
+            turnCount + 1,
+            spawnPattern
+          )
         );
       }
 
