@@ -653,8 +653,8 @@ const App = () => {
     chooseNextSpawns(colCount, sectors[winStreak], turnCount)
   );
   const [entities, setEntities] = useState([]);
-  // drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
-  const [gameState, setGameState] = useState("spawning");
+  // loading, drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
+  const [gameState, setGameState] = useState("loading");
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
@@ -754,6 +754,8 @@ const App = () => {
           setShowStory(false);
         }
       }
+
+      console.log("Loaded save.");
     } catch (err) {
       console.error(
         `Error occurred trying to read saveData from local storage key "${LOCAL_STORAGE_KEY}". Continuing with default start.`
@@ -764,6 +766,15 @@ const App = () => {
 
     setIsSaveLoaded(true);
   }, []);
+
+  // This is a hack so that startNewRound
+  // happens _after_ we've set up state
+  // correctly from localStorage.
+  useEffect(() => {
+    if (isSaveLoaded) {
+      startNewRound();
+    }
+  }, [isSaveLoaded]);
 
   const moveEntities = () => {
     let newEntities = [...entities];
