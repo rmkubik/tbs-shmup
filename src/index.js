@@ -1439,7 +1439,7 @@ const App = () => {
               </button>
             </div>
           </Modal>
-        ) : gameState === "victory" && winStreak === sectors.length - 1 ? (
+        ) : gameState === "victory" && winStreak === sectors.length ? (
           <Modal>
             <div className="header">
               <p className="gameover">
