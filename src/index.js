@@ -646,11 +646,12 @@ const App = () => {
     { conditions: ["lightAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "stalling"] },
-    { conditions: ["patternedAsteroids"] },
+    { conditions: ["patternedAsteroids", "stalling"] },
+    { conditions: ["lightAsteroids", "left-offline", "nebula"] },
     { conditions: ["lightAsteroids", "malfunctioning"] },
-    { conditions: ["lightAsteroids", "left-offline"] },
-    { conditions: ["mediumAsteroids", "malfunctioning"] },
-    { conditions: ["mediumAsteroids", "left-offline", "stalling", "nebula"] },
+    { conditions: ["mediumAsteroids", "left-offline", "stalling"] },
+    { conditions: ["mediumAsteroids", "malfunctioning", "stalling"] },
+    { conditions: ["heavyAsteroids", "nebula"] },
   ]);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
