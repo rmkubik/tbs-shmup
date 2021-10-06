@@ -642,7 +642,7 @@ const App = () => {
     {
       conditions: ["lightAsteroids"],
     },
-    { conditions: ["mediumAsteroids"] },
+    { conditions: ["mediumAsteroids", "checkpoint"] },
     { conditions: ["lightAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "stalling"] },
@@ -681,6 +681,7 @@ const App = () => {
   const [enableVfx, setEnableVfx] = useState(true);
   const [isSaveLoaded, setIsSaveLoaded] = useState(false);
   const [skipMenuStory, setSkipMenuStory] = useState(false);
+  const [lastCheckpoint, setLastCheckpoint] = useState(0);
 
   const scaleRef = useScaleRef();
 
@@ -715,20 +716,25 @@ const App = () => {
       ];
     }
 
-    if (sectors[winStreak].conditions.includes("stalling")) {
+    const newSector = sectors[winStreak];
+
+    if (newSector.conditions.includes("stalling")) {
       // Add stall card
       newDeck = [...newDeck, stallCard];
     }
 
-    if (sectors[winStreak].conditions.includes("left-offline")) {
+    if (newSector.conditions.includes("left-offline")) {
       // Remove any card with a left direction
       newDeck = newDeck.filter((card) => !card.directions.includes("left"));
     }
 
+    // If this new sector is a checkpoint, set it as our last checkpoint
+    if (newSector.conditions.includes("checkpoint")) {
+      setLastCheckpoint(winStreak);
+    }
+
     setDeck(shuffle(newDeck));
-    setNextSpawns(
-      chooseNextSpawns(colCount, sectors[winStreak], 0, spawnPattern)
-    );
+    setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
     setPower(2);
     setMaxPower(2);
@@ -743,6 +749,7 @@ const App = () => {
   window.startNewRound = startNewRound;
   window.setGameState = setGameState;
   window.setSpawnPattern = setSpawnPattern;
+  window.setLastCheckpoint = setLastCheckpoint;
   /**
    * End debug stuff
    */
@@ -751,7 +758,7 @@ const App = () => {
     let localStorageData;
 
     try {
-      localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY) || {};
       const saveData = JSON.parse(localStorageData);
 
       if (saveData.winStreak !== undefined) {
@@ -765,6 +772,14 @@ const App = () => {
           setShowMainMenu(false);
           setShowStory(false);
         }
+      }
+
+      if (saveData.lastCheckpoint !== undefined) {
+        setLastCheckpoint(saveData.lastCheckpoint);
+      }
+
+      if (saveData.enableVfx !== undefined) {
+        setEnableVfx(saveData.enableVfx);
       }
 
       console.log("Loaded save.");
@@ -1012,6 +1027,8 @@ const App = () => {
       const saveData = JSON.stringify({
         winStreak,
         skipMenuStory,
+        enableVfx,
+        lastCheckpoint,
       });
 
       localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
@@ -1423,6 +1440,8 @@ const App = () => {
                 <span className="negative">GAME OVER</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
+              <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
+              <p className="streak">Next Checkpoint: {"DNE"}</p>
             </div>
             <SectorConditions
               title="Current Sector Conditions"
@@ -1432,7 +1451,7 @@ const App = () => {
             <div className="button-container">
               <button
                 onClick={() => {
-                  // setWinStreak(0);
+                  setWinStreak(lastCheckpoint);
                   startNewRound();
                 }}
               >
@@ -1469,6 +1488,8 @@ const App = () => {
                 <span className="positive">VICTORY</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
+              <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
+              <p className="streak">Next Checkpoint: {"DNE"}</p>
             </div>
             <SectorConditions
               title="Next Sector Conditions"
