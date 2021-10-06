@@ -609,6 +609,29 @@ const SectorConditions = ({ sector, title }) => {
   );
 };
 
+const Checkpoints = ({ sectors, lastCheckpoint, winStreak }) => {
+  const nextCheckpoint = sectors
+    .slice(winStreak + 1)
+    .findIndex((sector) => sector.conditions.includes("checkpoint"));
+
+  let nextCheckpointComponent = (
+    <p className="streak">Victory at Sector: {sectors.length}</p>
+  );
+
+  if (nextCheckpoint !== -1) {
+    nextCheckpointComponent = (
+      <p className="streak">Next Checkpoint: {nextCheckpoint + 1}</p>
+    );
+  }
+
+  return (
+    <Fragment>
+      <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
+      {nextCheckpointComponent}
+    </Fragment>
+  );
+};
+
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
@@ -648,7 +671,7 @@ const App = () => {
     { conditions: ["mediumAsteroids", "stalling"] },
     { conditions: ["patternedAsteroids", "stalling"] },
     { conditions: ["lightAsteroids", "left-offline", "nebula"] },
-    { conditions: ["lightAsteroids", "malfunctioning"] },
+    { conditions: ["lightAsteroids", "malfunctioning", "checkpoint"] },
     { conditions: ["mediumAsteroids", "left-offline", "stalling"] },
     { conditions: ["mediumAsteroids", "malfunctioning", "stalling"] },
     { conditions: ["heavyAsteroids", "nebula"] },
@@ -1440,8 +1463,11 @@ const App = () => {
                 <span className="negative">GAME OVER</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
-              <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
-              <p className="streak">Next Checkpoint: {"DNE"}</p>
+              <Checkpoints
+                lastCheckpoint={lastCheckpoint}
+                sectors={sectors}
+                winStreak={winStreak}
+              />
             </div>
             <SectorConditions
               title="Current Sector Conditions"
@@ -1488,8 +1514,11 @@ const App = () => {
                 <span className="positive">VICTORY</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
-              <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
-              <p className="streak">Next Checkpoint: {"DNE"}</p>
+              <Checkpoints
+                lastCheckpoint={lastCheckpoint}
+                sectors={sectors}
+                winStreak={winStreak}
+              />
             </div>
             <SectorConditions
               title="Next Sector Conditions"
