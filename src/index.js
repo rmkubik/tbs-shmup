@@ -8,6 +8,7 @@ import bulletIcon from "../assets/bullet.png";
 import cogIcon from "../assets/cog.png";
 
 import WeightedMap from "./WeightedMap";
+import useSaveState from "./hooks/useSaveState";
 
 const LOCAL_STORAGE_KEY = "com.ryankubik.rocket-jockey";
 
@@ -700,12 +701,25 @@ const App = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
   const [showStory, setShowStory] = useState(false);
-  const [showMainMenu, setShowMainMenu] = useState(true);
+  const [showMainMenu, setShowMainMenu] = useState(false);
   const [enableVfx, setEnableVfx] = useState(true);
-  const [isSaveLoaded, setIsSaveLoaded] = useState(false);
   const [skipMenuStory, setSkipMenuStory] = useState(false);
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
+  const isSaveLoaded = useSaveState({
+    storageKey: LOCAL_STORAGE_KEY,
+    savedFields: [
+      ["winStreak", winStreak, setWinStreak],
+      ["skipMenuStory", skipMenuStory, setSkipMenuStory],
+      ["enableVfx", enableVfx, setEnableVfx],
+      ["lastCheckpoint", lastCheckpoint, setLastCheckpoint],
+      [
+        "areCheckpointsEnabled",
+        areCheckpointsEnabled,
+        setAreCheckpointsEnabled,
+      ],
+    ],
+  });
 
   const scaleRef = useScaleRef();
 
@@ -778,49 +792,15 @@ const App = () => {
    * End debug stuff
    */
 
-  const savedFields = [
-    ["winStreak", winStreak, setWinStreak],
-    ["skipMenuStory", skipMenuStory, setSkipMenuStory],
-    ["enableVfx", enableVfx, setEnableVfx],
-    ["lastCheckpoint", lastCheckpoint, setLastCheckpoint],
-    ["areCheckpointsEnabled", areCheckpointsEnabled, setAreCheckpointsEnabled],
-  ];
-
-  useEffect(() => {
-    let localStorageData;
-
-    try {
-      localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY) || {};
-      const saveData = JSON.parse(localStorageData);
-
-      savedFields.forEach(([key, value, setter]) => {
-        if (saveData[key] !== undefined) {
-          setter(saveData[key]);
-        }
-      });
-
-      if (saveData.skipMenuStory) {
-        setShowMainMenu(false);
-        setShowStory(false);
-      }
-
-      console.log("Loaded save.");
-    } catch (err) {
-      console.error(
-        `Error occurred trying to read saveData from local storage key "${LOCAL_STORAGE_KEY}". Continuing with default start.`
-      );
-      console.error({ localStorageData });
-      console.error(err);
-    }
-
-    setIsSaveLoaded(true);
-  }, []);
-
   // This is a hack so that startNewRound
   // happens _after_ we've set up state
   // correctly from localStorage.
   useEffect(() => {
     if (isSaveLoaded) {
+      if (!skipMenuStory) {
+        setShowMainMenu(true);
+      }
+
       startNewRound();
     }
   }, [isSaveLoaded]);
@@ -1041,30 +1021,6 @@ const App = () => {
       setGameState("waiting");
     }
   }, [gameState]);
-
-  useEffect(
-    () => {
-      try {
-        console.log("Saving progress...");
-
-        const saveObject = savedFields.reduce((object, [key, value]) => {
-          return {
-            ...object,
-            [key]: value,
-          };
-        }, {});
-        const saveData = JSON.stringify(saveObject);
-
-        localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
-
-        console.log("Progress saved...");
-      } catch (err) {
-        console.error("An error occurred trying to save game.");
-        console.error(err);
-      }
-    },
-    savedFields.map(([_, value]) => value)
-  );
 
   const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
