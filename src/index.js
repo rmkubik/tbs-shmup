@@ -1008,6 +1008,12 @@ const App = () => {
   }, [gameState, lastSpawned, entities, turnCount]);
 
   useEffect(() => {
+    if (showStory) {
+      playSound("alarm", { loop: true });
+    }
+  }, [showStory]);
+
+  useEffect(() => {
     if (gameState === "cleanup") {
       if (playerIndex < 0) {
         // Player is dead
@@ -1351,7 +1357,6 @@ const App = () => {
                 onClick={() => {
                   setShowStory(true);
                   setShowMainMenu(false);
-                  playSound("alarm", { loop: true });
                 }}
               >
                 Start
