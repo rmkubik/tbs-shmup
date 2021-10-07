@@ -177,6 +177,8 @@ const moveEntity =
           otherEntity.index + colCount === newIndex
       )
     ) {
+      playSound("explode_med");
+
       return {
         ...entity,
         name: "💥",
@@ -195,6 +197,7 @@ const moveEntity =
     if (newIndex === playerIndex) {
       // if we hit player turn into explosion
       setPlayerIndex(-100);
+      playSound("explode_med");
 
       return {
         ...entity,
@@ -216,6 +219,8 @@ const moveEntity =
           otherEntity.index === newIndex && isEntityDoneMoving(otherEntity)
       )
     ) {
+      playSound("explode_med");
+
       return {
         ...entity,
         name: "💥",
@@ -861,6 +866,8 @@ const App = () => {
       entity.index = newIndex;
 
       if (entity.index === playerIndex) {
+        playSound("explode_med");
+
         setPlayerIndex(-100);
         explodeEntity(entity);
       }
@@ -873,8 +880,12 @@ const App = () => {
       if (collidingEntities.length > 0) {
         // Mark each collided entity as exploded
         collidingEntities.forEach((otherEntity) => {
+          playSound("explode_med");
+
           explodeEntity(otherEntity);
         });
+
+        playSound("explode_med");
 
         // Blow ourselves up
         explodeEntity(entity);
@@ -978,6 +989,8 @@ const App = () => {
           );
           if (collidingBulletIndices.length > 0) {
             collidingBulletIndices.forEach((collidingIndex) => {
+              playSound("explode_med");
+
               entities[collidingIndex].name = "💥";
               entities[collidingIndex].img = explosionIcon;
               entities[collidingIndex].speed = 0;
@@ -1057,6 +1070,10 @@ const App = () => {
       drawHand();
       setGameState("waiting");
     }
+
+    if (gameState === "victory") {
+      playSound("warp");
+    }
   }, [gameState]);
 
   const tryTakeAction = (newIndex) => {
@@ -1081,6 +1098,8 @@ const App = () => {
     ) {
       // If no action effect, default to moving
       if (!hand[selectedCard].effect) {
+        playSound("move");
+
         const direction = getDirection(playerIndex, newIndex, colCount);
 
         const indices = getIndicesInDirection(
@@ -1096,6 +1115,8 @@ const App = () => {
         );
 
         if (collidedEntityIndex >= 0) {
+          playSound("explode_med");
+
           // Kill player if they move into an entity
           const newEntity = {
             ...entities[collidedEntityIndex],
@@ -1131,6 +1152,8 @@ const App = () => {
           (entity) => entity.index === newIndex
         );
         if (collidingEntities.length > 0) {
+          playSound("explode_med");
+
           // don't create a bullet, blow up entities instead
           collidingEntities.forEach((entity) => explodeEntity(entity));
         } else {
@@ -1350,6 +1373,7 @@ const App = () => {
                 onClick={() => {
                   setShowStory(false);
                   stopSound("alarm");
+                  playSound("ui_select");
                 }}
               >
                 Play
