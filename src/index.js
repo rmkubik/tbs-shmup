@@ -689,6 +689,7 @@ const App = () => {
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
+  // TODO: This is a place where we want to onShuffle
   const [deck, setDeck] = useState(shuffle(initialDeck));
   const [hand, setHand] = useState([]);
   const [power, setPower] = useState(2);
@@ -704,6 +705,7 @@ const App = () => {
   const [skipMenuStory, setSkipMenuStory] = useState(false);
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
+  const [shouldShowSectorDetails, setShouldShowSectorDetails] = useState(false);
   const isSaveLoaded = useSaveState({
     storageKey: "com.ryankubik.rocket-jockey",
     savedFields: [
@@ -769,6 +771,7 @@ const App = () => {
       setLastCheckpoint(winStreak);
     }
 
+    // TODO: This is a place where we want to onShuffle
     setDeck(shuffle(newDeck));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
@@ -1249,6 +1252,7 @@ const App = () => {
 
     const missingCardsFromDraw = count - drawnCards.length;
 
+    // TODO: This is a place where we want to onShuffle
     if (missingCardsFromDraw > 0) {
       // Shuffle graveyard up and use as deck
       newDeck = shuffle(newGraveyard);
@@ -1333,6 +1337,36 @@ const App = () => {
               </button>
             </div>
           </Modal>
+        ) : shouldShowSectorDetails ? (
+          <Modal>
+            <div className="header">
+              <p className="gameover">
+                <span>RUN DETAILS</span>
+              </p>
+              <p className="streak">Sector: {winStreak + 1}</p>
+              {areCheckpointsEnabled && (
+                <Checkpoints
+                  lastCheckpoint={lastCheckpoint}
+                  sectors={sectors}
+                  winStreak={winStreak}
+                />
+              )}
+            </div>
+            <SectorConditions
+              title="Current Sector Conditions"
+              sector={sectors[winStreak]}
+            />
+            <SystemsList sector={sectors[winStreak]} />
+            <div className="button-container">
+              <button
+                onClick={() => {
+                  setShouldShowSectorDetails(false);
+                }}
+              >
+                Back
+              </button>
+            </div>
+          </Modal>
         ) : showCredits ? (
           <Modal>
             <div className="header">
@@ -1391,6 +1425,13 @@ const App = () => {
                 />
                 Disable Checkpoints
               </label>
+              <button
+                onClick={() => {
+                  setShouldShowSectorDetails(true);
+                }}
+              >
+                Current Sector Details
+              </button>
               <button
                 onClick={() => {
                   setShowStory(true);
