@@ -3,15 +3,21 @@ import { useEffect, useRef, useState } from "preact/hooks";
 
 const useAudio = (soundFiles = []) => {
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const [volume, setVolumeInternal] = useState(0.5);
   const sounds = useRef({});
 
-  const playSound = (key, { loop = false }) => {
+  const playSound = (key, { loop = false } = {}) => {
     sounds.current[key].loop(loop);
     sounds.current[key].play();
   };
 
   const stopSound = (key) => {
     sounds.current[key].stop();
+  };
+
+  const setVolume = (volume) => {
+    setVolumeInternal(volume);
+    Howler.volume(volume);
   };
 
   useEffect(() => {
@@ -41,7 +47,7 @@ const useAudio = (soundFiles = []) => {
     sounds.current = newSounds;
   }, []);
 
-  return { isAudioLoaded, playSound, stopSound };
+  return { isAudioLoaded, playSound, stopSound, volume, setVolume };
 };
 
 export default useAudio;

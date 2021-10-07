@@ -716,6 +716,15 @@ const App = () => {
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
   const [shouldShowSectorDetails, setShouldShowSectorDetails] = useState(false);
+  const { isAudioLoaded, playSound, stopSound, volume, setVolume } = useAudio([
+    alarmSound,
+    clickSound,
+    explodeMedSound,
+    moveSound,
+    uiBack,
+    uiSelect,
+    warp,
+  ]);
   const isSaveLoaded = useSaveState({
     storageKey: "com.ryankubik.rocket-jockey",
     savedFields: [
@@ -728,17 +737,9 @@ const App = () => {
         areCheckpointsEnabled,
         setAreCheckpointsEnabled,
       ],
+      ["volume", volume, setVolume],
     ],
   });
-  const { isAudioLoaded, playSound, stopSound } = useAudio([
-    alarmSound,
-    clickSound,
-    explodeMedSound,
-    moveSound,
-    uiBack,
-    uiSelect,
-    warp,
-  ]);
 
   const scaleRef = useScaleRef();
 
@@ -1450,6 +1451,21 @@ const App = () => {
                   }
                 />
                 Disable Checkpoints
+              </label>
+              <label htmlFor="volume">
+                Volume
+                <br />
+                <input
+                  type="range"
+                  name="volume"
+                  value={volume * 100}
+                  min={0}
+                  max={100}
+                  onChange={(event) => {
+                    playSound("click");
+                    setVolume(event.target.value / 100);
+                  }}
+                />
               </label>
               <button
                 onClick={() => {
