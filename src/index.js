@@ -826,6 +826,16 @@ const App = () => {
     }
   }, [isSaveLoaded]);
 
+  useEffect(() => {
+    const onClick = () => {
+      playSound("click");
+    };
+
+    document.addEventListener("click", onClick);
+
+    return () => document.removeEventListener("click", onClick);
+  }, [playSound]);
+
   const moveEntities = () => {
     let newEntities = [...entities];
 
@@ -1424,6 +1434,7 @@ const App = () => {
                 <input
                   type="checkbox"
                   name="enableVfx"
+                  id="enableVfx"
                   checked={enableVfx}
                   onChange={(event) => setEnableVfx(event.target.checked)}
                 />
@@ -1433,6 +1444,7 @@ const App = () => {
                 <input
                   type="checkbox"
                   name="skipStoryIntro"
+                  id="skipStoryIntro"
                   checked={skipMenuStory}
                   onChange={(event) => setSkipMenuStory(event.target.checked)}
                 />
@@ -1442,6 +1454,7 @@ const App = () => {
                 <input
                   type="checkbox"
                   name="disableCheckpoints"
+                  id="disableCheckpoints"
                   checked={!areCheckpointsEnabled}
                   // We're inverting this option for the user
                   // When they say yes to disabling checkpoints, we
@@ -1458,6 +1471,7 @@ const App = () => {
                 <input
                   type="range"
                   name="volume"
+                  id="volume"
                   value={volume * 100}
                   min={0}
                   max={100}
