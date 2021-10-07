@@ -705,6 +705,7 @@ const App = () => {
   const [isSaveLoaded, setIsSaveLoaded] = useState(false);
   const [skipMenuStory, setSkipMenuStory] = useState(false);
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
+  const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
 
   const scaleRef = useScaleRef();
 
@@ -803,6 +804,10 @@ const App = () => {
 
       if (saveData.enableVfx !== undefined) {
         setEnableVfx(saveData.enableVfx);
+      }
+
+      if (saveData.areCheckpointsEnabled !== undefined) {
+        setAreCheckpointsEnabled(saveData.areCheckpointsEnabled);
       }
 
       console.log("Loaded save.");
@@ -1052,6 +1057,7 @@ const App = () => {
         skipMenuStory,
         enableVfx,
         lastCheckpoint,
+        areCheckpointsEnabled,
       });
 
       localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
@@ -1061,7 +1067,13 @@ const App = () => {
       console.error("An error occurred trying to save game.");
       console.error(err);
     }
-  }, [winStreak, skipMenuStory]);
+  }, [
+    winStreak,
+    skipMenuStory,
+    enableVfx,
+    lastCheckpoint,
+    areCheckpointsEnabled,
+  ]);
 
   const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
@@ -1420,6 +1432,20 @@ const App = () => {
                 />
                 Skip Story Intro
               </label>
+              <label htmlFor="disableCheckpoints">
+                <input
+                  type="checkbox"
+                  name="disableCheckpoints"
+                  checked={!areCheckpointsEnabled}
+                  // We're inverting this option for the user
+                  // When they say yes to disabling checkpoints, we
+                  // set internal state to false.
+                  onChange={(event) =>
+                    setAreCheckpointsEnabled(!event.target.checked)
+                  }
+                />
+                Disable Checkpoints
+              </label>
               <button
                 onClick={() => {
                   setShowStory(true);
@@ -1463,11 +1489,13 @@ const App = () => {
                 <span className="negative">GAME OVER</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
-              <Checkpoints
-                lastCheckpoint={lastCheckpoint}
-                sectors={sectors}
-                winStreak={winStreak}
-              />
+              {areCheckpointsEnabled && (
+                <Checkpoints
+                  lastCheckpoint={lastCheckpoint}
+                  sectors={sectors}
+                  winStreak={winStreak}
+                />
+              )}
             </div>
             <SectorConditions
               title="Current Sector Conditions"
@@ -1477,7 +1505,9 @@ const App = () => {
             <div className="button-container">
               <button
                 onClick={() => {
-                  setWinStreak(lastCheckpoint);
+                  if (areCheckpointsEnabled) {
+                    setWinStreak(lastCheckpoint);
+                  }
                   startNewRound();
                 }}
               >
@@ -1514,11 +1544,13 @@ const App = () => {
                 <span className="positive">VICTORY</span>
               </p>
               <p className="streak">Sector: {winStreak + 1}</p>
-              <Checkpoints
-                lastCheckpoint={lastCheckpoint}
-                sectors={sectors}
-                winStreak={winStreak}
-              />
+              {areCheckpointsEnabled && (
+                <Checkpoints
+                  lastCheckpoint={lastCheckpoint}
+                  sectors={sectors}
+                  winStreak={winStreak}
+                />
+              )}
             </div>
             <SectorConditions
               title="Next Sector Conditions"
