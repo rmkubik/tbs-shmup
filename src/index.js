@@ -10,8 +10,6 @@ import cogIcon from "../assets/cog.png";
 import WeightedMap from "./WeightedMap";
 import useSaveState from "./hooks/useSaveState";
 
-const LOCAL_STORAGE_KEY = "com.ryankubik.rocket-jockey";
-
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
 const shuffle = (array) => {
@@ -707,7 +705,7 @@ const App = () => {
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
   const isSaveLoaded = useSaveState({
-    storageKey: LOCAL_STORAGE_KEY,
+    storageKey: "com.ryankubik.rocket-jockey",
     savedFields: [
       ["winStreak", winStreak, setWinStreak],
       ["skipMenuStory", skipMenuStory, setSkipMenuStory],
