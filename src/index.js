@@ -748,6 +748,20 @@ const App = () => {
 
   const scaleRef = useScaleRef();
 
+  const shuffleGraveyardIntoDeck = () => {
+    // get graveyard
+    // shuffle graveyard
+    // treat shuffled grave as new deck
+    // apply onShuffle transform
+    // clear graveyard
+    // set deck
+    //
+    // TODO:
+    // How can I do this and also draw from it in other places?
+    // I'd need to be able to set the deck from this shuffle
+    // And then again i'd need to set it again after I draw
+  };
+
   const startNewRound = () => {
     setPlayerIndex(145);
     setEntities([]);
@@ -1711,6 +1725,8 @@ const App = () => {
             if (hasUsedShipPower) {
               return;
             }
+
+            playSound("ui_select");
 
             // Draw a new card
             let { newDeck, newHand, newGraveyard } = drawCards(1);
