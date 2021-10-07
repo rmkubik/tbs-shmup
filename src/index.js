@@ -778,6 +778,14 @@ const App = () => {
    * End debug stuff
    */
 
+  const savedFields = [
+    ["winStreak", winStreak, setWinStreak],
+    ["skipMenuStory", skipMenuStory, setSkipMenuStory],
+    ["enableVfx", enableVfx, setEnableVfx],
+    ["lastCheckpoint", lastCheckpoint, setLastCheckpoint],
+    ["areCheckpointsEnabled", areCheckpointsEnabled, setAreCheckpointsEnabled],
+  ];
+
   useEffect(() => {
     let localStorageData;
 
@@ -785,29 +793,15 @@ const App = () => {
       localStorageData = localStorage.getItem(LOCAL_STORAGE_KEY) || {};
       const saveData = JSON.parse(localStorageData);
 
-      if (saveData.winStreak !== undefined) {
-        setWinStreak(saveData.winStreak);
-      }
-
-      if (saveData.skipMenuStory !== undefined) {
-        setSkipMenuStory(saveData.skipMenuStory);
-
-        if (saveData.skipMenuStory) {
-          setShowMainMenu(false);
-          setShowStory(false);
+      savedFields.forEach(([key, value, setter]) => {
+        if (saveData[key] !== undefined) {
+          setter(saveData[key]);
         }
-      }
+      });
 
-      if (saveData.lastCheckpoint !== undefined) {
-        setLastCheckpoint(saveData.lastCheckpoint);
-      }
-
-      if (saveData.enableVfx !== undefined) {
-        setEnableVfx(saveData.enableVfx);
-      }
-
-      if (saveData.areCheckpointsEnabled !== undefined) {
-        setAreCheckpointsEnabled(saveData.areCheckpointsEnabled);
+      if (saveData.skipMenuStory) {
+        setShowMainMenu(false);
+        setShowStory(false);
       }
 
       console.log("Loaded save.");
@@ -1048,32 +1042,29 @@ const App = () => {
     }
   }, [gameState]);
 
-  useEffect(() => {
-    try {
-      console.log("Saving progress...");
+  useEffect(
+    () => {
+      try {
+        console.log("Saving progress...");
 
-      const saveData = JSON.stringify({
-        winStreak,
-        skipMenuStory,
-        enableVfx,
-        lastCheckpoint,
-        areCheckpointsEnabled,
-      });
+        const saveObject = savedFields.reduce((object, [key, value]) => {
+          return {
+            ...object,
+            [key]: value,
+          };
+        }, {});
+        const saveData = JSON.stringify(saveObject);
 
-      localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
+        localStorage.setItem(LOCAL_STORAGE_KEY, saveData);
 
-      console.log("Progress saved...");
-    } catch (err) {
-      console.error("An error occurred trying to save game.");
-      console.error(err);
-    }
-  }, [
-    winStreak,
-    skipMenuStory,
-    enableVfx,
-    lastCheckpoint,
-    areCheckpointsEnabled,
-  ]);
+        console.log("Progress saved...");
+      } catch (err) {
+        console.error("An error occurred trying to save game.");
+        console.error(err);
+      }
+    },
+    savedFields.map(([_, value]) => value)
+  );
 
   const tryTakeAction = (newIndex) => {
     if (gameState !== "waiting") {
