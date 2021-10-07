@@ -1,5 +1,14 @@
 import { Fragment, h, render } from "preact";
 import { useState, useEffect, useRef } from "preact/hooks";
+
+import alarmSound from "../assets/audio/alarm.ogg";
+import clickSound from "../assets/audio/click.ogg";
+import explodeMedSound from "../assets/audio/explode_med.ogg";
+import moveSound from "../assets/audio/move.ogg";
+import uiBack from "../assets/audio/ui_back.ogg";
+import uiSelect from "../assets/audio/ui_select.ogg";
+import warp from "../assets/audio/warp.ogg";
+
 import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
@@ -9,6 +18,7 @@ import cogIcon from "../assets/cog.png";
 
 import WeightedMap from "./WeightedMap";
 import useSaveState from "./hooks/useSaveState";
+import useAudio from "./hooks/useAudio";
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
@@ -720,6 +730,15 @@ const App = () => {
       ],
     ],
   });
+  const { isAudioLoaded, playSound, stopSound } = useAudio([
+    alarmSound,
+    clickSound,
+    explodeMedSound,
+    moveSound,
+    uiBack,
+    uiSelect,
+    warp,
+  ]);
 
   const scaleRef = useScaleRef();
 
@@ -1282,12 +1301,12 @@ const App = () => {
         {showOptions || gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
         ) : null}
-        {!isSaveLoaded ? (
+        {!isSaveLoaded && !isAudioLoaded ? (
           <Modal>
             <div className="header">
               <p className="gameover">LOADING</p>
             </div>
-            <p>Loading save data from local storage...</p>
+            <p>Loading save data and assets...</p>
           </Modal>
         ) : showStory ? (
           <Modal>
@@ -1313,6 +1332,7 @@ const App = () => {
               <button
                 onClick={() => {
                   setShowStory(false);
+                  stopSound("alarm");
                 }}
               >
                 Play
@@ -1331,6 +1351,7 @@ const App = () => {
                 onClick={() => {
                   setShowStory(true);
                   setShowMainMenu(false);
+                  playSound("alarm", { loop: true });
                 }}
               >
                 Start
