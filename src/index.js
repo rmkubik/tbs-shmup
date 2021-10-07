@@ -14,11 +14,15 @@ import shipIcon from "../assets/ship.png";
 import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
-import cogIcon from "../assets/cog.png";
 
 import WeightedMap from "./WeightedMap";
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
+import Checkpoints from "./components/Checkpoints";
+import Modal from "./components/Modal";
+import SystemsList from "./components/SystemsList";
+import Bar from "./components/Bar";
+import SectorConditions from "./components/SectorConditions";
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 // Comment about: Durstenfeld shuffle
@@ -474,175 +478,6 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
     >
       {tiles.map((tile, index) => renderTile(tile, index))}
     </div>
-  );
-};
-
-const Bar = ({
-  power,
-  maxPower,
-  hand,
-  selectedCard,
-  setSelectedCard,
-  hasUsedShipPower,
-  onEndClick,
-  onRecycleClick,
-  setShowOptions,
-}) => {
-  return (
-    <div className="bar">
-      <div>
-        <p>
-          PWR: {power}/{maxPower}
-        </p>
-        <button disabled={hasUsedShipPower} onClick={onRecycleClick}>
-          {hasUsedShipPower ? "Recharging..." : "Recycle"}
-        </button>
-        {/* <button onClick={onEndClick}>End</button> */}
-      </div>
-      <ul>
-        {hand.map((card, index) => (
-          <li
-            className={selectedCard === index ? "selected" : ""}
-            onClick={() => setSelectedCard(index)}
-          >
-            {card.name} <br /> {card.range}
-          </li>
-        ))}
-      </ul>
-      <button className="options" onClick={() => setShowOptions(true)}>
-        <img src={cogIcon} />
-      </button>
-    </div>
-  );
-};
-
-const Modal = ({ children }) => {
-  return (
-    <div className="modal">
-      <div>{children}</div>
-    </div>
-  );
-};
-
-const Status = ({ status }) => {
-  switch (status) {
-    case "offline":
-      return <span className="nebula status">OFFLINE</span>;
-    case "stalling":
-      return <span className="caution status">STALLING</span>;
-    case "left-offline":
-      return <span className="negative status">LEFT THRUSTER OFFLINE</span>;
-    case "malfunctioning":
-      return <span className="caution status">MALFUNCTIONING</span>;
-    default:
-      return <span className="positive status">ONLINE</span>;
-  }
-};
-
-const SystemsList = ({ sector }) => {
-  const { conditions = [] } = sector;
-
-  const scannersStatus = conditions.includes("nebula") ? "offline" : "online";
-
-  let navigationStatus = "online";
-
-  if (conditions.includes("left-offline")) {
-    navigationStatus = "left-offline";
-  }
-  if (conditions.includes("malfunctioning")) {
-    navigationStatus = "malfunctioning";
-  }
-
-  const enginesStatus = conditions.includes("stalling") ? "stalling" : "online";
-
-  return (
-    <Fragment>
-      <p>Ship Systems</p>
-      <ul>
-        <li>
-          SCANNERS: <Status status={scannersStatus} />
-        </li>
-        <li>
-          NAVIGATION: <Status status={navigationStatus} />
-        </li>
-        <li>
-          ENGINES: <Status status={enginesStatus} />
-        </li>
-      </ul>
-    </Fragment>
-  );
-};
-
-const Condition = ({ condition }) => {
-  switch (condition) {
-    case "nebula":
-      return (
-        <li>
-          <span className="nebula">Nebula</span>
-        </li>
-      );
-    case "stalling":
-      return (
-        <li>
-          <span className="caution">Farble Gas Field</span>
-        </li>
-      );
-    case "heavyAsteroids":
-      return (
-        <li>
-          <span className="negative">Heavy</span> Asteroids
-        </li>
-      );
-    case "mediumAsteroids":
-      return (
-        <li>
-          <span className="caution">Medium</span> Asteroids
-        </li>
-      );
-    case "lightAsteroids":
-      return <li>Light Asteroids</li>;
-    case "patternedAsteroids":
-      return <li>Patterned Asteroids</li>;
-    default:
-      return null;
-  }
-};
-
-const SectorConditions = ({ sector, title }) => {
-  const { conditions = {} } = sector;
-
-  return (
-    <Fragment>
-      <p>{title}</p>
-      <ul>
-        {conditions.map((condition) => (
-          <Condition condition={condition} />
-        ))}
-      </ul>
-    </Fragment>
-  );
-};
-
-const Checkpoints = ({ sectors, lastCheckpoint, winStreak }) => {
-  const nextCheckpoint = sectors
-    .slice(winStreak + 1)
-    .findIndex((sector) => sector.conditions.includes("checkpoint"));
-
-  let nextCheckpointComponent = (
-    <p className="streak">Victory at Sector: {sectors.length}</p>
-  );
-
-  if (nextCheckpoint !== -1) {
-    nextCheckpointComponent = (
-      <p className="streak">Next Checkpoint: {nextCheckpoint + 1}</p>
-    );
-  }
-
-  return (
-    <Fragment>
-      <p className="streak">Last Checkpoint: {lastCheckpoint + 1}</p>
-      {nextCheckpointComponent}
-    </Fragment>
   );
 };
 
