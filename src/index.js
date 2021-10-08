@@ -344,10 +344,9 @@ const pickRandomSpawnIndices = (colCount, sector, turnCount, spawnPattern) => {
     }),
     medium: new WeightedMap({
       4: 5,
-      5: 40,
+      5: 45,
       6: 35,
       7: 15,
-      8: 5,
     }),
     heavy: new WeightedMap({
       6: 10,

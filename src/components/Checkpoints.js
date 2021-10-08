@@ -1,9 +1,12 @@
 import { h, Fragment } from "preact";
 
 const Checkpoints = ({ sectors, lastCheckpoint, winStreak }) => {
-  const nextCheckpoint = sectors
-    .slice(winStreak + 1)
-    .findIndex((sector) => sector.conditions.includes("checkpoint"));
+  const completedSectors = sectors.slice(0, winStreak);
+  const remainingSectors = sectors.slice(winStreak + 1);
+  const nextCheckpoint =
+    remainingSectors.findIndex((sector) =>
+      sector.conditions.includes("checkpoint")
+    ) + completedSectors.length;
 
   let nextCheckpointComponent = (
     <p className="streak">Victory at Sector: {sectors.length}</p>
