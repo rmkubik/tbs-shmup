@@ -511,7 +511,7 @@ const defaultSpawnPattern = `...???????
 const App = () => {
   const [sectors, setSectors] = useState([
     {
-      conditions: ["lightAsteroids"],
+      conditions: ["lightAsteroids"]
     },
     { conditions: ["mediumAsteroids", "checkpoint"] },
     { conditions: ["lightAsteroids", "nebula"] },
