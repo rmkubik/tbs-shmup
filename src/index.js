@@ -30,12 +30,15 @@ import Checkpoints from "./components/Checkpoints";
 import Modal from "./components/Modal";
 import Bar from "./components/Bar";
 import SectorConditions from "./components/SectorConditions";
+import Grid from "./components/Grid";
+import LoadingModal from "./components/LoadingModal";
 
 import sectorsData from "./data/sectors";
 import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
+import StoryModal from "./components/StoryModal";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -427,22 +430,6 @@ const useScaleRef = () => {
   }, []);
 
   return scaleRef;
-};
-
-const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "16px ".repeat(colCount),
-        lineHeight: "16px",
-        textAlign: "center",
-      }}
-      onMouseLeave={() => setHoveredIndex(-1)}
-    >
-      {tiles.map((tile, index) => renderTile(tile, index))}
-    </div>
-  );
 };
 
 const colCount = 10;
@@ -1136,44 +1123,15 @@ const App = () => {
           <div className="modal-background overlay" />
         ) : null}
         {!isSaveLoaded && !isAudioLoaded ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">LOADING</p>
-            </div>
-            <p>Loading save data and assets...</p>
-          </Modal>
+          <LoadingModal />
         ) : showStory ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">THE STORY SO FAR</p>
-            </div>
-            <p>
-              Your planet is dying. You're sprinting frantically to the long
-              abandoned HEW rocket hangar, praying there's still one more ship.
-            </p>
-            <p>
-              You burst through the doors and fluorescent lighting crackles into
-              existence. Across the hangar, you see a derelict Mark ATT vessel.
-            </p>
-            <p>
-              You sprint onto the ship. He's seen better days, but he'll have to
-              do. Your only chance now is to get out of this system, one sector
-              at a time.
-            </p>
-            <p>You gun the engine and fly off into the stars.</p>
-            <p>Good luck, Captain.</p>
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  setShowStory(false);
-                  stopSound("alarm");
-                  playSound("ui_select");
-                }}
-              >
-                Play
-              </button>
-            </div>
-          </Modal>
+          <StoryModal
+            onPlay={() => {
+              setShowStory(false);
+              stopSound("alarm");
+              playSound("ui_select");
+            }}
+          />
         ) : showMainMenu ? (
           <Modal>
             <div className="header">
