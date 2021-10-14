@@ -1265,7 +1265,7 @@ const App = () => {
               title="Current Sector Conditions"
               sector={sectors[winStreak]}
             />
-            <SystemsList sector={sectors[winStreak]} />
+            {/* <SystemsList sector={sectors[winStreak]} /> */}
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1415,7 +1415,7 @@ const App = () => {
               title="Current Sector Conditions"
               sector={sectors[winStreak]}
             />
-            <SystemsList sector={sectors[winStreak]} />
+            {/* <SystemsList sector={sectors[winStreak]} /> */}
             <div className="button-container">
               <button
                 onClick={() => {
@@ -1470,7 +1470,7 @@ const App = () => {
               title="Next Sector Conditions"
               sector={sectors[winStreak]}
             />
-            <SystemsList sector={sectors[winStreak]} />
+            {/* <SystemsList sector={sectors[winStreak]} /> */}
             <div className="button-container">
               <button
                 onClick={() => {
