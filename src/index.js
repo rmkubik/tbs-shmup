@@ -15,7 +15,16 @@ import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
-import WeightedMap from "./WeightedMap";
+import WeightedMap from "./utils/WeightedMap";
+import shuffle from "./utils/shuffle";
+import last from "./utils/last";
+import randInt from "./utils/randInt";
+import remove from "./utils/remove";
+import set from "./utils/set";
+import clamp from "./utils/clamp";
+import findAllMatchingIndices from "./utils/findAllMatchingIndices";
+import createArray from "./utils/createArray";
+
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
 import Checkpoints from "./components/Checkpoints";
@@ -23,58 +32,11 @@ import Modal from "./components/Modal";
 import SystemsList from "./components/SystemsList";
 import Bar from "./components/Bar";
 import SectorConditions from "./components/SectorConditions";
-
-// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-// Comment about: Durstenfeld shuffle
-const shuffle = (array) => {
-  const copy = [...array];
-
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = copy[i];
-    copy[i] = copy[j];
-    copy[j] = temp;
-  }
-
-  return copy;
-};
-
-const last = (array) => array[array.length - 1];
-
-const remove = (array, index) => [
-  ...array.slice(0, index),
-  ...array.slice(index + 1),
-];
-
-const set = (array, index, value) => [
-  ...array.slice(0, index),
-  value,
-  ...array.slice(index + 1),
-];
-
-const clamp = (number, min, max) => Math.min(Math.max(number, min), max);
-
-const randInt = (low, high) => {
-  return Math.floor(Math.random() * (high - low + 1)) + low;
-};
+import asteroidPatterns from "./data/asteroidPatterns";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
 };
-
-const findAllMatchingIndices = (array, matcher) => {
-  const matchingIndices = [];
-
-  for (let index = 0; index < array.length; index += 1) {
-    if (matcher(array[index])) {
-      matchingIndices.push(index);
-    }
-  }
-
-  return matchingIndices;
-};
-
-const createArray = (length) => new Array(length).fill();
 
 const getDirection = (origin, target, colCount) => {
   if (origin === target) {
@@ -367,7 +329,7 @@ const pickRandomSpawnIndices = (colCount, sector, turnCount, spawnPattern) => {
     spawnType = "medium";
   }
 
-  if (sector?.conditions.includes("patternedAsteroids")) {
+  if (doesSectorHavePatternedAsteroids(sector)) {
     const pattern = spawnPattern
       .split("\n")
       .map((string) => string.trim().split(""));
@@ -480,6 +442,31 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
   );
 };
 
+const doesSectorHavePatternedAsteroids = (sector) => {
+  if (!sector) {
+    return false;
+  }
+
+  return sector.conditions.some((condition) =>
+    condition.includes("patternedAsteroids")
+  );
+};
+
+const getCurrentSpawnPattern = (sector) => {
+  if (!doesSectorHavePatternedAsteroids(sector)) {
+    // Default to the slalom pattern
+    return asteroidPatterns.slalom;
+  }
+
+  const conditionKey = sector.conditions.find((condition) =>
+    condition.includes("patternedAsteroids")
+  );
+
+  const [, patternKey] = conditionKey.split("-");
+
+  return asteroidPatterns[patternKey];
+};
+
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
@@ -517,7 +504,7 @@ const App = () => {
     { conditions: ["lightAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "nebula"] },
     { conditions: ["mediumAsteroids", "stalling"] },
-    { conditions: ["patternedAsteroids", "stalling"] },
+    { conditions: ["patternedAsteroids-slalom", "stalling"] },
     { conditions: ["lightAsteroids", "left-offline", "nebula"] },
     { conditions: ["lightAsteroids", "malfunctioning", "checkpoint"] },
     { conditions: ["mediumAsteroids", "left-offline", "stalling"] },
@@ -528,7 +515,8 @@ const App = () => {
   const [playerIndex, setPlayerIndex] = useState(145);
   const [winStreak, setWinStreak] = useState(0);
   const [turnCount, setTurnCount] = useState(0);
-  const [spawnPattern, setSpawnPattern] = useState(defaultSpawnPattern);
+  // const [spawnPattern, setSpawnPattern] = useState(defaultSpawnPattern);
+  const spawnPattern = getCurrentSpawnPattern(sectors[winStreak]);
   const [nextSpawns, setNextSpawns] = useState(
     chooseNextSpawns(colCount, sectors[winStreak], turnCount, spawnPattern)
   );
@@ -660,7 +648,7 @@ const App = () => {
   window.setWinStreak = setWinStreak;
   window.startNewRound = startNewRound;
   window.setGameState = setGameState;
-  window.setSpawnPattern = setSpawnPattern;
+  // window.setSpawnPattern = setSpawnPattern;
   window.setLastCheckpoint = setLastCheckpoint;
   /**
    * End debug stuff
@@ -809,7 +797,7 @@ const App = () => {
 
           let spawnSpeed = randInt(2, 5);
 
-          if (sectors[winStreak]?.conditions.includes("patternedAsteroids")) {
+          if (doesSectorHavePatternedAsteroids(sectors[winStreak])) {
             const pattern = spawnPattern
               .split("\n")
               .map((string) => string.trim().split(""));
