@@ -21,7 +21,6 @@ import last from "./utils/last";
 import randInt from "./utils/randInt";
 import remove from "./utils/remove";
 import set from "./utils/set";
-import clamp from "./utils/clamp";
 import findAllMatchingIndices from "./utils/findAllMatchingIndices";
 import createArray from "./utils/createArray";
 
@@ -29,10 +28,14 @@ import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
 import Checkpoints from "./components/Checkpoints";
 import Modal from "./components/Modal";
-import SystemsList from "./components/SystemsList";
 import Bar from "./components/Bar";
 import SectorConditions from "./components/SectorConditions";
-import asteroidPatterns from "./data/asteroidPatterns";
+
+import sectorsData from "./data/sectors";
+import {
+  doesSectorHavePatternedAsteroids,
+  getCurrentSpawnPattern,
+} from "./data/asteroidPatterns";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -442,31 +445,6 @@ const Grid = ({ tiles, colCount, renderTile, setHoveredIndex = () => {} }) => {
   );
 };
 
-const doesSectorHavePatternedAsteroids = (sector) => {
-  if (!sector) {
-    return false;
-  }
-
-  return sector.conditions.some((condition) =>
-    condition.includes("patternedAsteroids")
-  );
-};
-
-const getCurrentSpawnPattern = (sector) => {
-  if (!doesSectorHavePatternedAsteroids(sector)) {
-    // Default to the slalom pattern
-    return asteroidPatterns.slalom;
-  }
-
-  const conditionKey = sector.conditions.find((condition) =>
-    condition.includes("patternedAsteroids")
-  );
-
-  const [, patternKey] = conditionKey.split("-");
-
-  return asteroidPatterns[patternKey];
-};
-
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
@@ -489,28 +467,8 @@ const stallCard = {
   directions: [],
 };
 
-const defaultSpawnPattern = `...???????
-                             ..........
-                             ???????...
-                             ..........
-                             5555555555`;
-
 const App = () => {
-  const [sectors, setSectors] = useState([
-    {
-      conditions: ["lightAsteroids"],
-    },
-    { conditions: ["mediumAsteroids", "checkpoint"] },
-    { conditions: ["lightAsteroids", "nebula"] },
-    { conditions: ["mediumAsteroids", "nebula"] },
-    { conditions: ["mediumAsteroids", "stalling"] },
-    { conditions: ["patternedAsteroids-slalom", "stalling"] },
-    { conditions: ["lightAsteroids", "left-offline", "nebula"] },
-    { conditions: ["lightAsteroids", "malfunctioning", "checkpoint"] },
-    { conditions: ["mediumAsteroids", "left-offline", "stalling"] },
-    { conditions: ["mediumAsteroids", "malfunctioning", "stalling"] },
-    { conditions: ["heavyAsteroids", "nebula"] },
-  ]);
+  const [sectors, setSectors] = useState(sectorsData);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
   const [winStreak, setWinStreak] = useState(0);

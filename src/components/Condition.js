@@ -36,10 +36,28 @@ const Condition = ({ condition }) => {
           <span className="positive">Light density asteroids</span>
         </li>
       );
-    case "patternedAsteroids":
+    case "patternedAsteroids-slalom":
       return (
         <li>
           <b>SCANNERS:</b> Slalom asteroid field
+        </li>
+      );
+    case "patternedAsteroids-kreldfarr":
+      return (
+        <li>
+          <b>SCANNERS:</b> Kreldfarr asteroid wall
+        </li>
+      );
+    case "patternedAsteroids-hwaranklex":
+      return (
+        <li>
+          <b>SCANNERS:</b> Hwaranklex asteroid formation
+        </li>
+      );
+    case "patternedAsteroids-wildRoids":
+      return (
+        <li>
+          <b>SCANNERS:</b> Wild asteroid oscillation
         </li>
       );
     case "left-offline":
@@ -57,6 +75,7 @@ const Condition = ({ condition }) => {
         </li>
       );
     default:
+      console.warn(`Condition "${condition}" has no description.`);
       return null;
   }
 };
