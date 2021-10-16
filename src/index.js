@@ -15,6 +15,12 @@ import asteroidIcon from "../assets/asteroid.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
+import sectorsData from "./data/sectors";
+import {
+  doesSectorHavePatternedAsteroids,
+  getCurrentSpawnPattern,
+} from "./data/asteroidPatterns";
+
 import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
 import last from "./utils/last";
@@ -26,18 +32,10 @@ import createArray from "./utils/createArray";
 
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
-import Checkpoints from "./components/Checkpoints";
-import Modal from "./components/Modal";
+
 import Bar from "./components/Bar";
-import SectorConditions from "./components/SectorConditions";
 import Grid from "./components/Grid";
 import LoadingModal from "./components/LoadingModal";
-
-import sectorsData from "./data/sectors";
-import {
-  doesSectorHavePatternedAsteroids,
-  getCurrentSpawnPattern,
-} from "./data/asteroidPatterns";
 import StoryModal from "./components/StoryModal";
 import MainMenuModal from "./components/MainMenuModal";
 import SectorDetailsModal from "./components/SectorDetailsModal";
@@ -46,6 +44,7 @@ import OptionsModal from "./components/OptionsModal";
 import GameOverModal from "./components/GameOverModal";
 import VictoryModal from "./components/VictoryModal";
 import EscapedModal from "./components/EscapedModal";
+import GalaxyMapModal from "./components/GalaxyMapModal";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -495,6 +494,7 @@ const App = () => {
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
   const [shouldShowSectorDetails, setShouldShowSectorDetails] = useState(false);
+  const [shouldShowGalaxyMap, setShouldShowGalaxyMap] = useState(false);
   const { isAudioLoaded, playSound, stopSound, volume, setVolume } = useAudio([
     alarmSound,
     clickSound,
@@ -1162,6 +1162,14 @@ const App = () => {
               setShowCredits(false);
             }}
           />
+        ) : shouldShowGalaxyMap ? (
+          <GalaxyMapModal
+            onResume={() => {
+              setShouldShowGalaxyMap(false);
+            }}
+            sectors={sectors}
+            winStreak={winStreak}
+          />
         ) : showOptions ? (
           <OptionsModal
             enableVfx={enableVfx}
@@ -1179,6 +1187,7 @@ const App = () => {
             startNewRound={startNewRound}
             setWinStreak={setWinStreak}
             setShowCredits={setShowCredits}
+            setShouldShowGalaxyMap={setShouldShowGalaxyMap}
           />
         ) : gameState === "gameover" ? (
           <GameOverModal

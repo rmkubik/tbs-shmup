@@ -1,5 +1,7 @@
 import { h } from "preact";
 import Modal from "./Modal";
+import Checkpoints from "./Checkpoints";
+import SectorConditions from "./SectorConditions";
 
 const GameOverModal = ({
   onRestart,

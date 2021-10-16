@@ -17,6 +17,7 @@ const OptionsModal = ({
   startNewRound,
   setWinStreak,
   setShowCredits,
+  setShouldShowGalaxyMap,
 }) => {
   return (
     <Modal>
@@ -81,6 +82,13 @@ const OptionsModal = ({
           }}
         >
           Current Sector Details
+        </button>
+        <button
+          onClick={() => {
+            setShouldShowGalaxyMap(true);
+          }}
+        >
+          Galaxy Map
         </button>
         <button
           onClick={() => {
