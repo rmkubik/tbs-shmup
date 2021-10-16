@@ -39,6 +39,13 @@ import {
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
 import StoryModal from "./components/StoryModal";
+import MainMenuModal from "./components/MainMenuModal";
+import SectorDetailsModal from "./components/SectorDetailsModal";
+import CreditsModal from "./components/CreditsModal";
+import OptionsModal from "./components/OptionsModal";
+import GameOverModal from "./components/GameOverModal";
+import VictoryModal from "./components/VictoryModal";
+import EscapedModal from "./components/EscapedModal";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -1133,258 +1140,77 @@ const App = () => {
             }}
           />
         ) : showMainMenu ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">ROCKET JOCKEY</p>
-            </div>
-            <p>Captain Pick-a-Card's Great Escape</p>
-
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  setShowStory(true);
-                  setShowMainMenu(false);
-                }}
-              >
-                Start
-              </button>
-            </div>
-          </Modal>
+          <MainMenuModal
+            onStart={() => {
+              setShowStory(true);
+              setShowMainMenu(false);
+            }}
+          />
         ) : shouldShowSectorDetails ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">
-                <span>RUN DETAILS</span>
-              </p>
-              <p className="streak">Sector: {winStreak + 1}</p>
-              {areCheckpointsEnabled && (
-                <Checkpoints
-                  lastCheckpoint={lastCheckpoint}
-                  sectors={sectors}
-                  winStreak={winStreak}
-                />
-              )}
-            </div>
-            <SectorConditions
-              title="Current Sector Conditions"
-              sector={sectors[winStreak]}
-            />
-            {/* <SystemsList sector={sectors[winStreak]} /> */}
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  setShouldShowSectorDetails(false);
-                }}
-              >
-                Back
-              </button>
-            </div>
-          </Modal>
+          <SectorDetailsModal
+            sectors={sectors}
+            areCheckpointsEnabled={areCheckpointsEnabled}
+            lastCheckpoint={lastCheckpoint}
+            winStreak={winStreak}
+            onBack={() => {
+              setShouldShowSectorDetails(false);
+            }}
+          />
         ) : showCredits ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">CREDITS</p>
-            </div>
-            <p>Ryan Kubik</p>
-            <p>Brendan McCracken</p>
-            <p>Mickey Sanchez</p>
-            <p>Cpt. Pick-a-Card</p>
-            <p>Prof. Flargle</p>
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  setShowCredits(false);
-                }}
-              >
-                Back
-              </button>
-            </div>
-          </Modal>
+          <CreditsModal
+            onBack={() => {
+              setShowCredits(false);
+            }}
+          />
         ) : showOptions ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">OPTIONS</p>
-            </div>
-            <div className="options-fields">
-              <label htmlFor="enableVfx">
-                <input
-                  type="checkbox"
-                  name="enableVfx"
-                  id="enableVfx"
-                  checked={enableVfx}
-                  onChange={(event) => setEnableVfx(event.target.checked)}
-                />
-                Enable VFX Filter
-              </label>
-              <label htmlFor="skipStoryIntro">
-                <input
-                  type="checkbox"
-                  name="skipStoryIntro"
-                  id="skipStoryIntro"
-                  checked={skipMenuStory}
-                  onChange={(event) => setSkipMenuStory(event.target.checked)}
-                />
-                Skip Story Intro
-              </label>
-              <label htmlFor="disableCheckpoints">
-                <input
-                  type="checkbox"
-                  name="disableCheckpoints"
-                  id="disableCheckpoints"
-                  checked={!areCheckpointsEnabled}
-                  // We're inverting this option for the user
-                  // When they say yes to disabling checkpoints, we
-                  // set internal state to false.
-                  onChange={(event) =>
-                    setAreCheckpointsEnabled(!event.target.checked)
-                  }
-                />
-                Disable Checkpoints
-              </label>
-              <label htmlFor="volume">
-                Volume
-                <br />
-                <input
-                  type="range"
-                  name="volume"
-                  id="volume"
-                  value={volume * 100}
-                  min={0}
-                  max={100}
-                  onChange={(event) => {
-                    playSound("click");
-                    setVolume(event.target.value / 100);
-                  }}
-                />
-              </label>
-              <button
-                onClick={() => {
-                  setShouldShowSectorDetails(true);
-                }}
-              >
-                Current Sector Details
-              </button>
-              <button
-                onClick={() => {
-                  setShowStory(true);
-                  setShowOptions(false);
-                  startNewRound();
-                }}
-              >
-                Story
-              </button>
-              <button
-                onClick={() => {
-                  setWinStreak(0);
-                  setShowOptions(false);
-                  startNewRound();
-                }}
-              >
-                Reset Progress
-              </button>
-              <button
-                onClick={() => {
-                  setShowCredits(true);
-                }}
-              >
-                Credits
-              </button>
-            </div>
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  setShowOptions(false);
-                }}
-              >
-                Resume
-              </button>
-            </div>
-          </Modal>
+          <OptionsModal
+            enableVfx={enableVfx}
+            setEnableVfx={setEnableVfx}
+            skipMenuStory={skipMenuStory}
+            setSkipMenuStory={setSkipMenuStory}
+            areCheckpointsEnabled={areCheckpointsEnabled}
+            setAreCheckpointsEnabled={setAreCheckpointsEnabled}
+            volume={volume}
+            setVolume={setVolume}
+            playSound={playSound}
+            setShouldShowSectorDetails={setShouldShowSectorDetails}
+            setShowStory={setShowStory}
+            setShowOptions={setShowOptions}
+            startNewRound={startNewRound}
+            setWinStreak={setWinStreak}
+            setShowCredits={setShowCredits}
+          />
         ) : gameState === "gameover" ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">
-                <span className="negative">GAME OVER</span>
-              </p>
-              <p className="streak">Sector: {winStreak + 1}</p>
-              {areCheckpointsEnabled && (
-                <Checkpoints
-                  lastCheckpoint={lastCheckpoint}
-                  sectors={sectors}
-                  winStreak={winStreak}
-                />
-              )}
-            </div>
-            <SectorConditions
-              title="Current Sector Conditions"
-              sector={sectors[winStreak]}
-            />
-            {/* <SystemsList sector={sectors[winStreak]} /> */}
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  if (areCheckpointsEnabled) {
-                    setWinStreak(lastCheckpoint);
-                  }
-                  startNewRound();
-                }}
-              >
-                Restart
-              </button>
-            </div>
-          </Modal>
+          <GameOverModal
+            winStreak={winStreak}
+            areCheckpointsEnabled={areCheckpointsEnabled}
+            lastCheckpoint={lastCheckpoint}
+            sectors={sectors}
+            onRestart={() => {
+              if (areCheckpointsEnabled) {
+                setWinStreak(lastCheckpoint);
+              }
+              startNewRound();
+            }}
+          />
         ) : winStreak >= sectors.length ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">
-                <span className="positive">YOU ESCAPED</span>
-              </p>
-              <p className="streak">
-                All {winStreak} sectors are behind you now.
-              </p>
-            </div>
-            <p>Congratulations, Captain!</p>
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  startNewRound();
-                  setShowMainMenu(true);
-                }}
-              >
-                Menu
-              </button>
-            </div>
-          </Modal>
+          <EscapedModal
+            winStreak={winStreak}
+            onMenuClick={() => {
+              startNewRound();
+              setShowMainMenu(true);
+            }}
+          />
         ) : gameState === "victory" ? (
-          <Modal>
-            <div className="header">
-              <p className="gameover">
-                <span className="positive">VICTORY</span>
-              </p>
-              <p className="streak">Sector: {winStreak + 1}</p>
-              {areCheckpointsEnabled && (
-                <Checkpoints
-                  lastCheckpoint={lastCheckpoint}
-                  sectors={sectors}
-                  winStreak={winStreak}
-                />
-              )}
-            </div>
-            <SectorConditions
-              title="Next Sector Conditions"
-              sector={sectors[winStreak]}
-            />
-            {/* <SystemsList sector={sectors[winStreak]} /> */}
-            <div className="button-container">
-              <button
-                onClick={() => {
-                  startNewRound();
-                }}
-              >
-                Continue
-              </button>
-            </div>
-          </Modal>
+          <VictoryModal
+            winStreak={winStreak}
+            areCheckpointsEnabled={areCheckpointsEnabled}
+            lastCheckpoint={lastCheckpoint}
+            sectors={sectors}
+            onContinue={() => {
+              startNewRound();
+            }}
+          />
         ) : null}
         {/*winStreak > 0 ? (
           <div className="header">
