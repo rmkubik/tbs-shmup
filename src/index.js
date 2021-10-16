@@ -45,6 +45,7 @@ import GameOverModal from "./components/GameOverModal";
 import VictoryModal from "./components/VictoryModal";
 import EscapedModal from "./components/EscapedModal";
 import GalaxyMapModal from "./components/GalaxyMapModal";
+import SectorHeader from "./components/SectorHeader";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -1226,9 +1227,7 @@ const App = () => {
             <p className="streak">Sector: {winStreak}</p>
           </div>
         ) : null*/}
-        <div className="header">
-          <p className="streak">Sector: {winStreak + 1}</p>
-        </div>
+        <SectorHeader winStreak={winStreak} sector={sectors[winStreak]} />
         <div className="grid-sidebar-container">
           <div>
             <Grid

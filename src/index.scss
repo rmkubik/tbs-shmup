@@ -169,22 +169,22 @@ button {
     text-align: center;
     margin-top: 1rem;
   }
+}
 
-  span.positive {
-    color: #77ff77;
-  }
+span.positive {
+  color: #77ff77;
+}
 
-  span.negative {
-    color: #ff7777;
-  }
+span.negative {
+  color: #ff7777;
+}
 
-  span.caution {
-    color: #faca93;
-  }
+span.caution {
+  color: #faca93;
+}
 
-  span.nebula {
-    color: #ff77ff;
-  }
+span.nebula {
+  color: #ff77ff;
 }
 
 .options-fields {
@@ -251,6 +251,59 @@ button {
   height: 200vh;
 
   z-index: 9;
+}
+
+.sector-conditions {
+  margin: 0.25rem 0;
+  padding: 0;
+
+  font-size: 8px;
+
+  list-style: none;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  li {
+    // Icon
+    height: 16px;
+    width: 16px;
+    position: relative;
+  }
+
+  li > span {
+    // This is the tooltip
+    font-size: 6px;
+    position: absolute;
+    border: 1px solid #f1f2da;
+    background-color: #00303b;
+    padding: 0.25rem;
+    width: max-content;
+
+    // Position tooltip slightly past center of icon
+    top: 10px;
+    left: 10px;
+
+    z-index: 1;
+
+    &.positive {
+      border-color: #77ff77;
+    }
+
+    &.negative {
+      border-color: #ff7777;
+    }
+
+    &.caution {
+      border-color: #faca93;
+    }
+
+    &.nebula {
+      border-color: #ff77ff;
+    }
+  }
 }
 
 @keyframes grain {

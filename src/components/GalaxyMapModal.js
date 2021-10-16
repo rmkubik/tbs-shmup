@@ -22,7 +22,9 @@ const GalaxyMapModal = ({ winStreak, sectors, onResume }) => {
                   position: "relative",
                 }}
               >
-                ✅
+                {sectors[index].conditions.includes("checkpoint")
+                  ? "⭐️"
+                  : "✅"}
               </div>
             );
           }
