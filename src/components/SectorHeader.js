@@ -92,10 +92,7 @@ const ConditionIcon = ({ condition }) => {
   const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
 
   return (
-    <li
-    // onMouseEnter={() => setShouldShowTooltip(true)}
-    // onMouseLeave={() => setShouldShowTooltip(false)}
-    >
+    <li>
       <ConditionImage
         condition={condition}
         setShouldShowTooltip={setShouldShowTooltip}

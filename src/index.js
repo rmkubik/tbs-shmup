@@ -20,6 +20,7 @@ import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
+import { initialDeck, stallCard } from "./data/cards";
 
 import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
@@ -32,6 +33,7 @@ import createArray from "./utils/createArray";
 
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
+import useScaleRef from "./hooks/useScaleRef";
 
 import Bar from "./components/Bar";
 import Grid from "./components/Grid";
@@ -138,83 +140,6 @@ const clearAllTargetEntities = (entities) =>
   entities.map(({ targetIndex, ...entity }) => entity);
 
 const isEntityDoneMoving = (entity) => entity.index === entity.targetIndex;
-
-const moveEntity =
-  (colCount, playerIndex, setPlayerIndex) => (entity, index, entities) => {
-    const newIndex = isEntityDoneMoving(entity)
-      ? entity.index
-      : entity.index + colCount;
-
-    /**
-     * If an entity that is moving will hit us, we should turn into an
-     * explosion.
-     */
-    if (
-      remove(entities, index).some(
-        (otherEntity) =>
-          !isEntityDoneMoving(otherEntity) &&
-          otherEntity.index + colCount === newIndex
-      )
-    ) {
-      playSound("explode_med");
-
-      return {
-        ...entity,
-        name: "💥",
-        index: newIndex,
-        img: explosionIcon,
-        speed: 0,
-        targetIndex: newIndex,
-      };
-    }
-
-    if (isEntityDoneMoving(entity)) {
-      // We're at target index, just return unedited
-      return entity;
-    }
-
-    if (newIndex === playerIndex) {
-      // if we hit player turn into explosion
-      setPlayerIndex(-100);
-      playSound("explode_med");
-
-      return {
-        ...entity,
-        name: "💥",
-        index: newIndex,
-        img: explosionIcon,
-        speed: 0,
-        targetIndex: newIndex,
-      };
-    }
-
-    /**
-     * If another stationary entity is at the location we're moving to
-     * then this is a collision.
-     */
-    if (
-      entities.some(
-        (otherEntity) =>
-          otherEntity.index === newIndex && isEntityDoneMoving(otherEntity)
-      )
-    ) {
-      playSound("explode_med");
-
-      return {
-        ...entity,
-        name: "💥",
-        index: newIndex,
-        img: explosionIcon,
-        speed: 0,
-        targetIndex: newIndex,
-      };
-    }
-
-    return {
-      ...entity,
-      index: entity.index + colCount,
-    };
-  };
 
 const getIndicesInDirection = (
   origin,
@@ -393,73 +318,10 @@ const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
   return nextSpawns;
 };
 
-const scaleToFitWindow = (node) => {
-  if (!node) {
-    // If no node is provided, do nothing
-    return;
-  }
-
-  const { clientWidth, clientHeight } = node;
-  const { innerWidth, innerHeight } = window;
-
-  const scales = [
-    // X scale
-    Math.max(clientWidth, innerWidth) / Math.min(clientWidth, innerWidth),
-    // Y scale
-    Math.max(clientHeight, innerHeight) / Math.min(clientHeight, innerHeight),
-  ];
-
-  node.style.transform = `scale(${Math.min(...scales)})`;
-};
-
-const useScaleRef = () => {
-  const scaleRef = useRef();
-
-  useEffect(() => {
-    const scaleToFitWindowWithRef = () => scaleToFitWindow(scaleRef.current);
-
-    scaleToFitWindowWithRef();
-
-    window.addEventListener("resize", scaleToFitWindowWithRef);
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        scaleToFitWindow(entry.target);
-      }
-    });
-
-    resizeObserver.observe(scaleRef.current);
-
-    return () => {
-      window.removeEventListener("resize", scaleToFitWindowWithRef);
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  return scaleRef;
-};
-
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
 const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
-
-const initialDeck = [
-  { name: "Left", cost: 1, range: 3, directions: ["left"] },
-  { name: "Up", cost: 1, range: 2, directions: ["up"] },
-  { name: "Right", cost: 1, range: 1, directions: ["right"] },
-  { name: "UpRight", cost: 1, range: 2, directions: ["upRight"] },
-  { name: "Down", cost: 1, range: 2, directions: ["down"] },
-  { name: "Up", cost: 1, range: 4, directions: ["up"] },
-  { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
-];
-
-const stallCard = {
-  name: "Stall",
-  cost: 1,
-  range: 0,
-  directions: [],
-};
 
 const App = () => {
   const [sectors, setSectors] = useState(sectorsData);
