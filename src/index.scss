@@ -271,6 +271,7 @@ span.nebula {
     height: 16px;
     width: 16px;
     position: relative;
+    cursor: help;
   }
 
   li > span {
@@ -287,6 +288,8 @@ span.nebula {
     left: 10px;
 
     z-index: 1;
+
+    pointer-events: none;
 
     &.positive {
       border-color: #77ff77;

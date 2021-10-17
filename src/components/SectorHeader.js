@@ -7,41 +7,58 @@ import asteroidIcon from "../../assets/asteroid.png";
 import explosionIcon from "../../assets/explosion.png";
 import bulletIcon from "../../assets/bullet.png";
 
-const renderConditionIcon = (condition) => {
+const ConditionImage = ({ condition, setShouldShowTooltip }) => {
+  let iconSrc;
+
   switch (condition) {
     case "nebula":
-      return <img src={warningIcon} />;
+      iconSrc = warningIcon;
+      break;
     case "stalling":
-      return <img src={shipIcon} />;
+      iconSrc = shipIcon;
+      break;
     case "left-offline":
-      return <img src={shipIcon} />;
+      iconSrc = shipIcon;
+      break;
     case "malfunctioning":
-      return <img src={shipIcon} />;
+      iconSrc = shipIcon;
+      break;
     case "heavyAsteroids":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "mediumAsteroids":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "lightAsteroids":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "patternedAsteroids-slalom":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "patternedAsteroids-kreldfarr":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "patternedAsteroids-hwaranklex":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     case "patternedAsteroids-wildRoids":
-      return <img src={asteroidIcon} />;
+      iconSrc = asteroidIcon;
+      break;
     default:
       console.warn(`Condition "${condition}" has no condition icon.`);
       return null;
   }
+
+  return (
+    <img
+      src={iconSrc}
+      onMouseEnter={() => setShouldShowTooltip(true)}
+      onMouseLeave={() => setShouldShowTooltip(false)}
+    />
+  );
 };
 
-const renderConditionTooltip = (condition) => {
-  switch (condition) {
-    case "mediumAsteroids":
-      return <span className="caution">Medium Asteroids</span>;
-  }
+const ConditionTooltip = ({ condition }) => {
   switch (condition) {
     case "nebula":
       return <span className="nebula">Nebula</span>;
@@ -76,11 +93,14 @@ const ConditionIcon = ({ condition }) => {
 
   return (
     <li
-      onMouseEnter={() => setShouldShowTooltip(true)}
-      onMouseLeave={() => setShouldShowTooltip(false)}
+    // onMouseEnter={() => setShouldShowTooltip(true)}
+    // onMouseLeave={() => setShouldShowTooltip(false)}
     >
-      {renderConditionIcon(condition)}
-      {shouldShowTooltip && renderConditionTooltip(condition)}
+      <ConditionImage
+        condition={condition}
+        setShouldShowTooltip={setShouldShowTooltip}
+      />
+      {shouldShowTooltip && <ConditionTooltip condition={condition} />}
     </li>
   );
 };
