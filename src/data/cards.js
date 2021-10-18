@@ -8,6 +8,22 @@ const initialDeck = [
   { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
 ];
 
+const directionSwappedDeck = [
+  { name: "Right", cost: 1, range: 3, directions: ["right"] },
+  { name: "Up", cost: 1, range: 2, directions: ["up"] },
+  { name: "Left", cost: 1, range: 1, directions: ["left"] },
+  { name: "UpLeft", cost: 1, range: 2, directions: ["upLeft"] },
+  { name: "Down", cost: 1, range: 2, directions: ["down"] },
+  { name: "Up", cost: 1, range: 4, directions: ["up"] },
+  {
+    name: "Shoot",
+    cost: 1,
+    range: 1,
+    directions: ["up"],
+    effect: "shoot",
+  },
+];
+
 const stallCard = {
   name: "Stall",
   cost: 1,
@@ -15,4 +31,4 @@ const stallCard = {
   directions: [],
 };
 
-export { initialDeck, stallCard };
+export { initialDeck, directionSwappedDeck, stallCard };

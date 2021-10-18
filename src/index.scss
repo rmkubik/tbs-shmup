@@ -81,6 +81,26 @@ button {
       padding: 0;
       list-style: none;
 
+      overflow-y: scroll;
+
+      padding-right: 4px;
+
+      // padding + padding + margin + body size * 7 cards
+      max-height: (4px + 4px + 8px + 14px) * 7;
+
+      &::-webkit-scrollbar {
+        width: 4px; /* width of the entire scrollbar */
+      }
+
+      &::-webkit-scrollbar-track {
+        // background: orange; /* color of the tracking area */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: white; /* color of the scroll thumb */
+        border-radius: 20px; /* roundness of the scroll thumb */
+      }
+
       li {
         width: $cardWidth;
         border: 1px dashed #f1f2da;

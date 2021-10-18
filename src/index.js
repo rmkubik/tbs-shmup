@@ -20,7 +20,7 @@ import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
-import { initialDeck, stallCard } from "./data/cards";
+import { directionSwappedDeck, initialDeck, stallCard } from "./data/cards";
 
 import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
@@ -413,21 +413,7 @@ const App = () => {
     if (sectors[winStreak].conditions.includes("malfunctioning")) {
       // Replace old deck manually with left and right cards swapped
       // There is certainly a "smarter" way to do this
-      newDeck = [
-        { name: "Right", cost: 1, range: 3, directions: ["right"] },
-        { name: "Up", cost: 1, range: 2, directions: ["up"] },
-        { name: "Left", cost: 1, range: 1, directions: ["left"] },
-        { name: "UpLeft", cost: 1, range: 2, directions: ["upLeft"] },
-        { name: "Down", cost: 1, range: 2, directions: ["down"] },
-        { name: "Up", cost: 1, range: 4, directions: ["up"] },
-        {
-          name: "Shoot",
-          cost: 1,
-          range: 1,
-          directions: ["up"],
-          effect: "shoot",
-        },
-      ];
+      newDeck = directionSwappedDeck;
     }
 
     const newSector = sectors[winStreak];
