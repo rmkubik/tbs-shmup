@@ -21,6 +21,7 @@ import {
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
 import { directionSwappedDeck, initialDeck, stallCard } from "./data/cards";
+import conditions from "./data/conditions";
 
 import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
@@ -318,6 +319,41 @@ const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
   return nextSpawns;
 };
 
+const getOnShuffleFunction = (sector) => {
+  const conditionsWithOnShuffleFunctions = sector.conditions.filter(
+    (condition) => conditions[condition]?.onShuffle
+  );
+
+  if (conditionsWithOnShuffleFunctions.length === 0) {
+    // Default pass through onShuffle function
+    return (deck) => deck;
+  }
+
+  const [firstCondition] = conditionsWithOnShuffleFunctions;
+
+  if (conditionsWithOnShuffleFunctions.length > 1) {
+    // This sector has multiple onShuffle functions
+    // We're going to only use the first one for now.
+    console.warn(
+      `This sector has more than one onShuffle function. Using only ${
+        conditionsWithOnShuffleFunctions[0]
+      }. Ignoring: ${conditionsWithOnShuffleFunctions.slice(1).join(", ")}.`
+    );
+    return conditions[firstCondition].onShuffle;
+  }
+
+  // We only have one shuffle condition at this point
+  return conditions[firstCondition].onShuffle;
+};
+
+const shuffleCards = (cards, sector) => {
+  const shuffledCards = shuffle(cards);
+
+  const onShuffle = getOnShuffleFunction(sector);
+
+  return onShuffle(shuffledCards);
+};
+
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
@@ -341,7 +377,9 @@ const App = () => {
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
   // TODO: This is a place where we want to onShuffle
-  const [deck, setDeck] = useState(shuffle(initialDeck));
+  const [deck, setDeck] = useState(
+    shuffleCards(initialDeck, sectors[winStreak])
+  );
   const [hand, setHand] = useState([]);
   const [power, setPower] = useState(2);
   const [maxPower, setMaxPower] = useState(2);
@@ -386,17 +424,15 @@ const App = () => {
   const scaleRef = useScaleRef();
 
   const shuffleGraveyardIntoDeck = () => {
-    // get graveyard
-    // shuffle graveyard
-    // treat shuffled grave as new deck
-    // apply onShuffle transform
-    // clear graveyard
-    // set deck
-    //
-    // TODO:
-    // How can I do this and also draw from it in other places?
-    // I'd need to be able to set the deck from this shuffle
-    // And then again i'd need to set it again after I draw
+    shuffleCardsIntoDeck(graveyard);
+    setGraveyard([]);
+  };
+
+  const shuffleCardsIntoDeck = (cards) => {
+    const currentSector = sectors[winStreak];
+    const newDeck = shuffleCards(cards, currentSector);
+
+    setDeck([...deck, ...newDeck]);
   };
 
   const startNewRound = () => {
@@ -434,7 +470,7 @@ const App = () => {
     }
 
     // TODO: This is a place where we want to onShuffle
-    setDeck(shuffle(newDeck));
+    setDeck(shuffleCards(newDeck, newSector));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
     setPower(2);
@@ -970,6 +1006,8 @@ const App = () => {
   const sortedDeck = [...deck].sort((cardA, cardB) =>
     cardA.name.localeCompare(cardB.name)
   );
+
+  console.log({ deck });
 
   return (
     <Fragment>

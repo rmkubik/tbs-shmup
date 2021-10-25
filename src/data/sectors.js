@@ -24,7 +24,6 @@ let sectors = [
     ],
     3
   ),
-
 ];
 
 console.log(sectors);
