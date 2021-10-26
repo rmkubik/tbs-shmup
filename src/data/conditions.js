@@ -1,16 +1,20 @@
 const conditions = {
-  "left-offline": {
-    onShuffle: (deck) => {
-      console.log({ deck });
-      return [deck[0]];
-    },
-  },
-  mediumAsteroids: {
-    onShuffle: (deck) => {
-      console.log("mediumAsteroids", { deck });
-      return deck.slice(0, 2);
-    },
-  },
+  // "left-offline": {
+  //   onShuffle: (deck) => {
+  //     return [deck[0]];
+  //   },
+  // },
+  // mediumAsteroids: {
+  //   onShuffle: (deck) => {
+  //     return [
+  //       {
+  //         ...deck[0],
+  //         name: deck[0].name + "@",
+  //       },
+  //       ...deck.slice(1),
+  //     ];
+  //   },
+  // },
 };
 
 export default conditions;

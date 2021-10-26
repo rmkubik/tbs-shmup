@@ -367,7 +367,7 @@ const App = () => {
   const [turnCount, setTurnCount] = useState(0);
   // const [spawnPattern, setSpawnPattern] = useState(defaultSpawnPattern);
   const spawnPattern = getCurrentSpawnPattern(sectors[winStreak]);
-  const [nextSpawns, setNextSpawns] = useState(
+  const [nextSpawns, setNextSpawns] = useState(() =>
     chooseNextSpawns(colCount, sectors[winStreak], turnCount, spawnPattern)
   );
   const [entities, setEntities] = useState([]);
@@ -376,8 +376,7 @@ const App = () => {
   const [lastSpawned, setLastSpawned] = useState();
   const [selectedCard, setSelectedCard] = useState(0);
   const [graveyard, setGraveyard] = useState([]);
-  // TODO: This is a place where we want to onShuffle
-  const [deck, setDeck] = useState(
+  const [deck, setDeck] = useState(() =>
     shuffleCards(initialDeck, sectors[winStreak])
   );
   const [hand, setHand] = useState([]);
@@ -469,7 +468,6 @@ const App = () => {
       setLastCheckpoint(winStreak);
     }
 
-    // TODO: This is a place where we want to onShuffle
     setDeck(shuffleCards(newDeck, newSector));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
@@ -984,10 +982,9 @@ const App = () => {
 
     const missingCardsFromDraw = count - drawnCards.length;
 
-    // TODO: This is a place where we want to onShuffle
     if (missingCardsFromDraw > 0) {
       // Shuffle graveyard up and use as deck
-      newDeck = shuffle(newGraveyard);
+      newDeck = shuffleCards(newGraveyard, sectors[winStreak]);
       // Draw remaining cards to fill out the rest of the hand
       newHand = [...newHand, ...newDeck.slice(0, missingCardsFromDraw)];
       // Remove drawn cards from deck
@@ -1006,8 +1003,6 @@ const App = () => {
   const sortedDeck = [...deck].sort((cardA, cardB) =>
     cardA.name.localeCompare(cardB.name)
   );
-
-  console.log({ deck });
 
   return (
     <Fragment>
