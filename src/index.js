@@ -326,7 +326,7 @@ const getOnShuffleFunction = (sector) => {
 
   if (conditionsWithOnShuffleFunctions.length === 0) {
     // Default pass through onShuffle function
-    return (deck) => deck;
+    return conditions.default.onShuffle;
   }
 
   const [firstCondition] = conditionsWithOnShuffleFunctions;
@@ -445,11 +445,11 @@ const App = () => {
     // The deck changes depending on the current sector
     let newDeck = initialDeck;
 
-    if (sectors[winStreak].conditions.includes("malfunctioning")) {
-      // Replace old deck manually with left and right cards swapped
-      // There is certainly a "smarter" way to do this
-      newDeck = directionSwappedDeck;
-    }
+    // if (sectors[winStreak].conditions.includes("malfunctioning")) {
+    //   // Replace old deck manually with left and right cards swapped
+    //   // There is certainly a "smarter" way to do this
+    //   newDeck = directionSwappedDeck;
+    // }
 
     const newSector = sectors[winStreak];
 
