@@ -1,12 +1,10 @@
+import randInt from "./randInt";
+
 /**
  * @typedef {Object} WeightedMapConfig
  * Describes values and weights in the map. A weight is an integer describing
  * the percentage likelihood of a value occuring.
  */
-
-const randInt = (low, high) => {
-  return Math.floor(Math.random() * (high - low + 1)) + low;
-};
 
 export default class WeightedMap {
   /**

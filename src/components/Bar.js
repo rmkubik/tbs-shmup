@@ -30,6 +30,11 @@ const Bar = ({
             className={selectedCard === index ? "selected" : ""}
             onClick={() => setSelectedCard(index)}
           >
+            {card.data?.oldCard && (
+              <span className="old-card-name">
+                {card.data?.oldCard.name} <br />
+              </span>
+            )}
             {card.name} <br /> {card.range}
           </li>
         ))}

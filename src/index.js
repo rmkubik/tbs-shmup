@@ -453,10 +453,10 @@ const App = () => {
 
     const newSector = sectors[winStreak];
 
-    if (newSector.conditions.includes("stalling")) {
-      // Add stall card
-      newDeck = [...newDeck, stallCard];
-    }
+    // if (newSector.conditions.includes("stalling")) {
+    //   // Add stall card
+    //   newDeck = [...newDeck, stallCard];
+    // }
 
     if (newSector.conditions.includes("left-offline")) {
       // Remove any card with a left direction
@@ -1154,6 +1154,11 @@ const App = () => {
               ) : (
                 sortedDeck.map((card) => (
                   <li>
+                    {card.data?.oldCard && (
+                      <span className="old-card-name">
+                        {card.data?.oldCard.name} <br />
+                      </span>
+                    )}
                     {card.name} <br /> {card.range}
                   </li>
                 ))
