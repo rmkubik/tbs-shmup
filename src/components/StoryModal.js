@@ -1,4 +1,5 @@
 import { h } from "preact";
+import Button from "./Button";
 import Modal from "./Modal";
 
 const StoryModal = ({ onPlay }) => {
@@ -22,7 +23,7 @@ const StoryModal = ({ onPlay }) => {
       <p>You gun the engine and fly off into the stars.</p>
       <p>Good luck, Captain.</p>
       <div className="button-container">
-        <button onClick={onPlay}>Play</button>
+        <Button onClick={onPlay}>Play</Button>
       </div>
     </Modal>
   );

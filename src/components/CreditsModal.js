@@ -1,4 +1,5 @@
 import { h } from "preact";
+import Button from "./Button";
 import Modal from "./Modal";
 
 const CreditsModal = ({ onBack }) => {
@@ -13,7 +14,7 @@ const CreditsModal = ({ onBack }) => {
       <p>Cpt. Pick-a-Card</p>
       <p>Prof. Flargle</p>
       <div className="button-container">
-        <button onClick={onBack}>Back</button>
+        <Button onClick={onBack}>Back</Button>
       </div>
     </Modal>
   );

@@ -1,4 +1,5 @@
 import { h } from "preact";
+import Button from "./Button";
 import Modal from "./Modal";
 
 const OptionsModal = ({
@@ -76,21 +77,21 @@ const OptionsModal = ({
             }}
           />
         </label>
-        <button
+        <Button
           onClick={() => {
             setShouldShowSectorDetails(true);
           }}
         >
           Current Sector Details
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             setShouldShowGalaxyMap(true);
           }}
         >
           Galaxy Map
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             setShowStory(true);
             setShowOptions(false);
@@ -98,8 +99,8 @@ const OptionsModal = ({
           }}
         >
           Story
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             setWinStreak(0);
             setShowOptions(false);
@@ -107,23 +108,23 @@ const OptionsModal = ({
           }}
         >
           Reset Progress
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => {
             setShowCredits(true);
           }}
         >
           Credits
-        </button>
+        </Button>
       </div>
       <div className="button-container">
-        <button
+        <Button
           onClick={() => {
             setShowOptions(false);
           }}
         >
           Resume
-        </button>
+        </Button>
       </div>
     </Modal>
   );

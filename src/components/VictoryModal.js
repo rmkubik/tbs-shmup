@@ -2,6 +2,7 @@ import { h } from "preact";
 import Modal from "./Modal";
 import Checkpoints from "./Checkpoints";
 import SectorConditions from "./SectorConditions";
+import Button from "./Button";
 
 const VictoryModal = ({
   onContinue,
@@ -31,7 +32,7 @@ const VictoryModal = ({
       />
       {/* <SystemsList sector={sectors[winStreak]} /> */}
       <div className="button-container">
-        <button onClick={onContinue}>Continue</button>
+        <Button onClick={onContinue}>Continue</Button>
       </div>
     </Modal>
   );

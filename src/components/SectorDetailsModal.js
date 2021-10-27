@@ -2,6 +2,7 @@ import { h } from "preact";
 import Modal from "./Modal";
 import Checkpoints from "./Checkpoints";
 import SectorConditions from "./SectorConditions";
+import Button from "./Button";
 
 const SectorDetailsModal = ({
   sectors,
@@ -31,7 +32,7 @@ const SectorDetailsModal = ({
       />
       {/* <SystemsList sector={sectors[winStreak]} /> */}
       <div className="button-container">
-        <button onClick={onBack}>Back</button>
+        <Button onClick={onBack}>Back</Button>
       </div>
     </Modal>
   );

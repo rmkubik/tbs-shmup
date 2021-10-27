@@ -1,4 +1,5 @@
 import { h } from "preact";
+import Button from "./Button";
 import Modal from "./Modal";
 
 const MainMenuModal = ({ onStart }) => {
@@ -10,7 +11,7 @@ const MainMenuModal = ({ onStart }) => {
       <p>Captain Pick-a-Card's Great Escape</p>
 
       <div className="button-container">
-        <button onClick={onStart}>Start</button>
+        <Button onClick={onStart}>Start</Button>
       </div>
     </Modal>
   );

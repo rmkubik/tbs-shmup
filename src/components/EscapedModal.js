@@ -1,4 +1,5 @@
 import { h } from "preact";
+import Button from "./Button";
 import Modal from "./Modal";
 
 const EscapedModal = ({ onMenuClick, winStreak }) => {
@@ -12,7 +13,7 @@ const EscapedModal = ({ onMenuClick, winStreak }) => {
       </div>
       <p>Congratulations, Captain!</p>
       <div className="button-container">
-        <button onClick={onMenuClick}>Menu</button>
+        <Button onClick={onMenuClick}>Menu</Button>
       </div>
     </Modal>
   );

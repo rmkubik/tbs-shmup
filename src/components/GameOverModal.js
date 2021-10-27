@@ -2,6 +2,7 @@ import { h } from "preact";
 import Modal from "./Modal";
 import Checkpoints from "./Checkpoints";
 import SectorConditions from "./SectorConditions";
+import Button from "./Button";
 
 const GameOverModal = ({
   onRestart,
@@ -31,7 +32,7 @@ const GameOverModal = ({
       />
       {/* <SystemsList sector={sectors[winStreak]} /> */}
       <div className="button-container">
-        <button onClick={onRestart}>Restart</button>
+        <Button onClick={onRestart}>Restart</Button>
       </div>
     </Modal>
   );

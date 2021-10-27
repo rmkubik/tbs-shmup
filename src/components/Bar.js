@@ -1,6 +1,8 @@
 import { h } from "preact";
 
 import cogIcon from "../../assets/cog.png";
+import useTheme from "../hooks/useTheme";
+import Button from "./Button";
 
 const Bar = ({
   power,
@@ -13,20 +15,28 @@ const Bar = ({
   onRecycleClick,
   setShowOptions,
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div className="bar">
       <div>
         <p>
           PWR: {power}/{maxPower}
         </p>
-        <button disabled={hasUsedShipPower} onClick={onRecycleClick}>
+        <Button disabled={hasUsedShipPower} onClick={onRecycleClick}>
           {hasUsedShipPower ? "Recharging..." : "Recycle"}
-        </button>
-        {/* <button onClick={onEndClick}>End</button> */}
+        </Button>
+        {/* <Button onClick={onEndClick}>End</Button> */}
       </div>
       <ul>
         {hand.map((card, index) => (
           <li
+            style={{
+              borderColor: theme.primaryColor,
+              backgroundColor:
+                selectedCard === index ? theme.primaryColor : undefined,
+              color: selectedCard === index ? theme.backgroundColor : undefined,
+            }}
             className={selectedCard === index ? "selected" : ""}
             onClick={() => setSelectedCard(index)}
           >
@@ -39,9 +49,9 @@ const Bar = ({
           </li>
         ))}
       </ul>
-      <button className="options" onClick={() => setShowOptions(true)}>
+      <Button className="options" onClick={() => setShowOptions(true)}>
         <img src={cogIcon} />
-      </button>
+      </Button>
     </div>
   );
 };

@@ -50,6 +50,7 @@ import VictoryModal from "./components/VictoryModal";
 import EscapedModal from "./components/EscapedModal";
 import GalaxyMapModal from "./components/GalaxyMapModal";
 import SectorHeader from "./components/SectorHeader";
+import useBodyStyle from "./hooks/useBodyStyle";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -421,6 +422,10 @@ const App = () => {
     ],
   });
   const { theme, setTheme } = useTheme();
+
+  useBodyStyle({
+    backgroundColor: theme.backgroundColor,
+  });
 
   const scaleRef = useScaleRef();
 
@@ -1010,7 +1015,14 @@ const App = () => {
   return (
     <Fragment>
       {enableVfx && <div className="scanLinesH overlay" />}
-      <div id="game" ref={scaleRef} style={{ color: theme.primaryColor }}>
+      <div
+        id="game"
+        ref={scaleRef}
+        style={{
+          color: theme.primaryColor,
+          backgroundColor: theme.backgroundColor,
+        }}
+      >
         {showOptions || gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
         ) : null}
@@ -1112,6 +1124,7 @@ const App = () => {
           </div>
         ) : null*/}
         <SectorHeader winStreak={winStreak} sector={sectors[winStreak]} />
+        {/* TODO: Return to this css className grid-sidebar-container and color the scroll bar using the theme */}
         <div className="grid-sidebar-container">
           <div>
             <Grid
@@ -1156,7 +1169,7 @@ const App = () => {
                 <span>Empty...</span>
               ) : (
                 sortedDeck.map((card) => (
-                  <li>
+                  <li style={{ borderColor: theme.primaryColor }}>
                     {card.data?.oldCard && (
                       <span className="old-card-name">
                         {card.data?.oldCard.name} <br />
@@ -1212,7 +1225,7 @@ const App = () => {
 
 const AppWithProviders = () => {
   return (
-    <ThemeContextProvider initialTheme="default">
+    <ThemeContextProvider initialTheme="test">
       <App />
     </ThemeContextProvider>
   );

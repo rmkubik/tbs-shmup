@@ -2,6 +2,7 @@ import { h } from "preact";
 import Modal from "./Modal";
 import Grid from "./Grid";
 import createArray from "../utils/createArray";
+import Button from "./Button";
 
 const GalaxyMapModal = ({ winStreak, sectors, onResume }) => {
   return (
@@ -59,7 +60,7 @@ const GalaxyMapModal = ({ winStreak, sectors, onResume }) => {
         }}
       />
       <div className="button-container">
-        <button onClick={onResume}>Resume</button>
+        <Button onClick={onResume}>Resume</Button>
       </div>
     </Modal>
   );
