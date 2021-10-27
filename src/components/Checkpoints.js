@@ -13,8 +13,6 @@ const Checkpoints = ({ sectors, lastCheckpoint, winStreak }) => {
     // Add current sector back on
     1;
 
-  console.log({ completedSectors, remainingSectors, nextCheckpoint });
-
   let nextCheckpointComponent = (
     <p className="streak">Victory at Sector: {sectors.length}</p>
   );
