@@ -35,6 +35,7 @@ import createArray from "./utils/createArray";
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
 import useScaleRef from "./hooks/useScaleRef";
+import useTheme, { ThemeContextProvider } from "./hooks/useTheme";
 
 import Bar from "./components/Bar";
 import Grid from "./components/Grid";
@@ -419,6 +420,7 @@ const App = () => {
       ["volume", volume, setVolume],
     ],
   });
+  const { theme, setTheme } = useTheme();
 
   const scaleRef = useScaleRef();
 
@@ -485,6 +487,7 @@ const App = () => {
   window.setGameState = setGameState;
   // window.setSpawnPattern = setSpawnPattern;
   window.setLastCheckpoint = setLastCheckpoint;
+  window.setTheme = setTheme;
   /**
    * End debug stuff
    */
@@ -1007,7 +1010,7 @@ const App = () => {
   return (
     <Fragment>
       {enableVfx && <div className="scanLinesH overlay" />}
-      <div id="game" ref={scaleRef}>
+      <div id="game" ref={scaleRef} style={{ color: theme.primaryColor }}>
         {showOptions || gameState === "gameover" || gameState === "victory" ? (
           <div className="modal-background overlay" />
         ) : null}
@@ -1207,4 +1210,12 @@ const App = () => {
   );
 };
 
-render(<App />, document.getElementById("app"));
+const AppWithProviders = () => {
+  return (
+    <ThemeContextProvider initialTheme="test">
+      <App />
+    </ThemeContextProvider>
+  );
+};
+
+render(<AppWithProviders />, document.getElementById("app"));
