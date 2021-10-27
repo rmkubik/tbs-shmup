@@ -9,7 +9,7 @@ const repeat = (array, count) => {
 };
 
 let sectors = [
-  { conditions: ["malfunctioning", "checkpoint"] },
+  { conditions: ["mediumAsteroids", "checkpoint"] },
   { conditions: ["mediumAsteroids"] },
   { conditions: ["mediumAsteroids"] },
   { conditions: ["mediumAsteroids"] },
