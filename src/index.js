@@ -1212,7 +1212,7 @@ const App = () => {
 
 const AppWithProviders = () => {
   return (
-    <ThemeContextProvider initialTheme="test">
+    <ThemeContextProvider initialTheme="default">
       <App />
     </ThemeContextProvider>
   );
