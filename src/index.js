@@ -51,6 +51,7 @@ import EscapedModal from "./components/EscapedModal";
 import GalaxyMapModal from "./components/GalaxyMapModal";
 import SectorHeader from "./components/SectorHeader";
 import useBodyStyle from "./hooks/useBodyStyle";
+import Sprite from "./components/Sprite";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -234,6 +235,7 @@ const explodeEntity = (entity) => {
   entity.name = "💥";
   entity.img = explosionIcon;
   entity.speed = 0;
+  entity.color = "hazardColor";
   entity.targetIndex = entity.index;
 };
 
@@ -672,6 +674,7 @@ const App = () => {
 
               entities[collidingIndex].name = "💥";
               entities[collidingIndex].img = explosionIcon;
+              entities[collidingIndex].color = "hazardColor";
               entities[collidingIndex].speed = 0;
             });
             return;
@@ -690,6 +693,7 @@ const App = () => {
             speed: spawnSpeed,
             index: spawnIndex,
             img: asteroidIcon,
+            color: "hazardColor",
           });
         });
 
@@ -801,6 +805,7 @@ const App = () => {
             ...entities[collidedEntityIndex],
             name: "💥",
             img: explosionIcon,
+            color: "hazardColor",
             speed: 0,
           };
 
@@ -840,6 +845,7 @@ const App = () => {
             index: newIndex,
             name: "*",
             img: bulletIcon,
+            color: "hazardColor",
             speed: -3,
           };
 
@@ -917,7 +923,7 @@ const App = () => {
 
     // Display player at current index
     if (index === playerIndex) {
-      object = { ...object, name: "🔺", img: shipIcon };
+      object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
     }
 
     return (
@@ -947,7 +953,7 @@ const App = () => {
                 {object.speed}
               </span>
             )}
-            <img src={object.img} />
+            <Sprite src={object.img} color={object.color} />
           </Fragment>
         ) : (
           <span
@@ -1143,7 +1149,7 @@ const App = () => {
                 !sectors[winStreak].conditions.includes("nebula") &&
                 gameState !== "spawning" &&
                 gameState !== "cleanup" ? (
-                  <img src={tile} />
+                  <Sprite src={tile} color={"cautionColor"} />
                 ) : (
                   <div
                     style={{

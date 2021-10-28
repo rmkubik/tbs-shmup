@@ -6,44 +6,57 @@ import shipIcon from "../../assets/ship.png";
 import asteroidIcon from "../../assets/asteroid.png";
 import explosionIcon from "../../assets/explosion.png";
 import bulletIcon from "../../assets/bullet.png";
+import Sprite from "./Sprite";
 import useTheme from "../hooks/useTheme";
 
 const ConditionImage = ({ condition, setShouldShowTooltip }) => {
   let iconSrc;
+  let color;
 
   switch (condition) {
     case "nebula":
       iconSrc = warningIcon;
+      color = "cautionColor";
       break;
     case "stalling":
       iconSrc = shipIcon;
+      color = "cautionColor";
       break;
     case "left-offline":
       iconSrc = shipIcon;
+      color = "hazardColor";
       break;
     case "malfunctioning":
       iconSrc = shipIcon;
+      color = "hazardColor";
       break;
     case "heavyAsteroids":
       iconSrc = asteroidIcon;
+      color = "hazardColor";
       break;
     case "mediumAsteroids":
       iconSrc = asteroidIcon;
+      color = "cautionColor";
       break;
     case "lightAsteroids":
       iconSrc = asteroidIcon;
+      color = "positiveColor";
       break;
     case "patternedAsteroids-slalom":
       iconSrc = asteroidIcon;
+      color = "primaryColor";
       break;
     case "patternedAsteroids-kreldfarr":
       iconSrc = asteroidIcon;
+      color = "primaryColor";
       break;
     case "patternedAsteroids-hwaranklex":
       iconSrc = asteroidIcon;
+      color = "primaryColor";
       break;
     case "patternedAsteroids-wildRoids":
       iconSrc = asteroidIcon;
+      color = "primaryColor";
       break;
     default:
       console.warn(`Condition "${condition}" has no condition icon.`);
@@ -51,8 +64,9 @@ const ConditionImage = ({ condition, setShouldShowTooltip }) => {
   }
 
   return (
-    <img
+    <Sprite
       src={iconSrc}
+      color={color}
       onMouseEnter={() => setShouldShowTooltip(true)}
       onMouseLeave={() => setShouldShowTooltip(false)}
     />

@@ -3,6 +3,7 @@ import { h } from "preact";
 import cogIcon from "../../assets/cog.png";
 import useTheme from "../hooks/useTheme";
 import Button from "./Button";
+import Sprite from "./Sprite";
 
 const Bar = ({
   power,
@@ -50,7 +51,7 @@ const Bar = ({
         ))}
       </ul>
       <Button className="options" onClick={() => setShowOptions(true)}>
-        <img src={cogIcon} />
+        <Sprite src={cogIcon} color={"primaryColor"} />
       </Button>
     </div>
   );
