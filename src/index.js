@@ -940,7 +940,7 @@ const App = () => {
                   textAlign: "center",
                   fontSize: "8px",
                   width: "100%",
-                  color: "#00303b",
+                  color: theme.backgroundColor,
                   fontWeight: "bolder",
                 }}
               >
