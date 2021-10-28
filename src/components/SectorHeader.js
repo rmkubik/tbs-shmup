@@ -6,6 +6,7 @@ import shipIcon from "../../assets/ship.png";
 import asteroidIcon from "../../assets/asteroid.png";
 import explosionIcon from "../../assets/explosion.png";
 import bulletIcon from "../../assets/bullet.png";
+import useTheme from "../hooks/useTheme";
 
 const ConditionImage = ({ condition, setShouldShowTooltip }) => {
   let iconSrc;
@@ -59,29 +60,137 @@ const ConditionImage = ({ condition, setShouldShowTooltip }) => {
 };
 
 const ConditionTooltip = ({ condition }) => {
+  const { theme } = useTheme();
+
   switch (condition) {
     case "nebula":
-      return <span className="nebula">Nebula</span>;
+      return (
+        <span
+          style={{
+            color: theme.cautionColor,
+            borderColor: theme.cautionColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Nebula
+        </span>
+      );
     case "stalling":
-      return <span className="caution">Engine Stalling</span>;
+      return (
+        <span
+          style={{
+            color: theme.cautionColor,
+            borderColor: theme.cautionColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Engine Stalling
+        </span>
+      );
     case "left-offline":
-      return <span className="negative">Left Thruster Offline</span>;
+      return (
+        <span
+          style={{
+            color: theme.hazardColor,
+            borderColor: theme.hazardColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Left Thruster Offline
+        </span>
+      );
     case "malfunctioning":
-      return <span className="caution">Directions Scrambled</span>;
+      return (
+        <span
+          style={{
+            color: theme.cautionColor,
+            borderColor: theme.cautionColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Directions Scrambled
+        </span>
+      );
     case "heavyAsteroids":
-      return <span className="negative">Heavy Asteroids</span>;
+      return (
+        <span
+          style={{
+            color: theme.hazardColor,
+            borderColor: theme.hazardColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Heavy Asteroids
+        </span>
+      );
     case "mediumAsteroids":
-      return <span className="caution">Medium Asteroids</span>;
+      return (
+        <span
+          style={{
+            color: theme.cautionColor,
+            borderColor: theme.cautionColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Medium Asteroids
+        </span>
+      );
     case "lightAsteroids":
-      return <span className="positive">Light Asteroids</span>;
+      return (
+        <span
+          style={{
+            color: theme.positiveColor,
+            borderColor: theme.positiveColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Light Asteroids
+        </span>
+      );
     case "patternedAsteroids-slalom":
-      return <span>Slalom Patterned Asteroids</span>;
+      return (
+        <span
+          style={{
+            borderColor: theme.primaryColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Slalom Patterned Asteroids
+        </span>
+      );
     case "patternedAsteroids-kreldfarr":
-      return <span>Kreldfarr Patterned Asteroids</span>;
+      return (
+        <span
+          style={{
+            borderColor: theme.primaryColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Kreldfarr Patterned Asteroids
+        </span>
+      );
     case "patternedAsteroids-hwaranklex":
-      return <span>Hwaranklex Patterned Asteroids</span>;
+      return (
+        <span
+          style={{
+            borderColor: theme.primaryColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Hwaranklex Patterned Asteroids
+        </span>
+      );
     case "patternedAsteroids-wildRoids":
-      return <span>Wild Patterned Asteroids</span>;
+      return (
+        <span
+          style={{
+            borderColor: theme.primaryColor,
+            backgroundColor: theme.backgroundColor,
+          }}
+        >
+          Wild Patterned Asteroids
+        </span>
+      );
     default:
       console.warn(`Condition "${condition}" has no condition tooltip.`);
       return null;

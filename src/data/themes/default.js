@@ -3,9 +3,7 @@ const defaultTheme = {
   backgroundColor: "#00303b",
   cautionColor: "#faca93",
   hazardColor: "#ff7777",
-
   positiveColor: "#77ff77",
-  nebulaColor: "#ff77ff",
 };
 
 export default defaultTheme;

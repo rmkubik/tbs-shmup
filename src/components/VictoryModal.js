@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import Checkpoints from "./Checkpoints";
 import SectorConditions from "./SectorConditions";
 import Button from "./Button";
+import useTheme from "../hooks/useTheme";
 
 const VictoryModal = ({
   onContinue,
@@ -11,11 +12,13 @@ const VictoryModal = ({
   lastCheckpoint,
   sectors,
 }) => {
+  const { theme } = useTheme();
+
   return (
     <Modal>
       <div className="header">
         <p className="gameover">
-          <span className="positive">VICTORY</span>
+          <span style={{ color: theme.positiveColor }}>VICTORY</span>
         </p>
         <p className="streak">Sector: {winStreak + 1}</p>
         {areCheckpointsEnabled && (

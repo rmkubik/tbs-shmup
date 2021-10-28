@@ -1,13 +1,16 @@
 import { h } from "preact";
+import useTheme from "../hooks/useTheme";
 import Button from "./Button";
 import Modal from "./Modal";
 
 const EscapedModal = ({ onMenuClick, winStreak }) => {
+  const { theme } = useTheme();
+
   return (
     <Modal>
       <div className="header">
         <p className="gameover">
-          <span className="positive">YOU ESCAPED</span>
+          <span style={{ color: theme.positiveColor }}>YOU ESCAPED</span>
         </p>
         <p className="streak">All {winStreak} sectors are behind you now.</p>
       </div>

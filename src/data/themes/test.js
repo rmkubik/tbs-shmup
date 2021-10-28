@@ -4,7 +4,7 @@ const test = {
   ...defaultTheme,
   primaryColor: "pink",
   backgroundColor: "purple",
-  cautionColor: "daffodil",
+  cautionColor: "#ffff31",
   hazardColor: "#a80064",
 };
 
