@@ -16,8 +16,6 @@ const Sprite = ({ src, color, ...props }) => {
       // draw image
       context.drawImage(sprite, 0, 0);
 
-      console.log({ src, color });
-
       if (color) {
         // set composite mode
         context.globalCompositeOperation = "source-in";
