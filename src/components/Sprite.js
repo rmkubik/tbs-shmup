@@ -29,7 +29,7 @@ const Sprite = ({ src, color, ...props }) => {
         context.globalCompositeOperation = "source-over";
       }
     };
-  }, []);
+  }, [theme]);
 
   return <canvas width="16" height="16" ref={canvasRef} {...props} />;
 };
