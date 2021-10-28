@@ -31,6 +31,7 @@ import remove from "./utils/remove";
 import set from "./utils/set";
 import findAllMatchingIndices from "./utils/findAllMatchingIndices";
 import createArray from "./utils/createArray";
+import pickRandomlyFromArray from "./utils/pickRandomlyFromArray";
 
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
@@ -52,6 +53,7 @@ import GalaxyMapModal from "./components/GalaxyMapModal";
 import SectorHeader from "./components/SectorHeader";
 import useBodyStyle from "./hooks/useBodyStyle";
 import Sprite from "./components/Sprite";
+import themes from "./data/themes";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -423,7 +425,7 @@ const App = () => {
       ["volume", volume, setVolume],
     ],
   });
-  const { theme, setTheme } = useTheme();
+  const { theme, currentTheme, setTheme } = useTheme();
 
   useBodyStyle({
     backgroundColor: theme.backgroundColor,
@@ -861,6 +863,14 @@ const App = () => {
       setHand(remove(hand, selectedCard));
 
       if (newPower === 0) {
+        // // TODO: Temp - cycle themes on each move
+        // // Remove themes import too
+        // setTheme(
+        //   pickRandomlyFromArray(
+        //     Object.keys(themes).filter((theme) => theme !== currentTheme)
+        //   )
+        // );
+
         setTurnCount(turnCount + 1);
         setGameState("targeting");
         return;
@@ -1231,7 +1241,7 @@ const App = () => {
 
 const AppWithProviders = () => {
   return (
-    <ThemeContextProvider initialTheme="test">
+    <ThemeContextProvider initialTheme="default">
       <App />
     </ThemeContextProvider>
   );
