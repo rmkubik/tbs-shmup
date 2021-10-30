@@ -11,7 +11,10 @@ import warp from "../assets/audio/warp.ogg";
 
 import warningIcon from "../assets/warning.png";
 import shipIcon from "../assets/ship.png";
-import asteroidIcon from "../assets/asteroid.png";
+import asteroidIcon1 from "../assets/asteroid1.png";
+import asteroidIcon2 from "../assets/asteroid2.png";
+import asteroidIcon3 from "../assets/asteroid3.png";
+import asteroidIcon4 from "../assets/asteroid4.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
@@ -690,11 +693,23 @@ const App = () => {
             return;
           }
 
+          let img;
+
+          if (spawnSpeed <= 2) {
+            img = asteroidIcon1;
+          } else if (spawnSpeed > 2 && spawnSpeed <= 3) {
+            img = asteroidIcon2;
+          } else if (spawnSpeed > 3 && spawnSpeed <= 4) {
+            img = asteroidIcon3;
+          } else if (spawnSpeed >= 5) {
+            img = asteroidIcon4;
+          }
+
           newEntities.push({
             name: "🪨",
             speed: spawnSpeed,
             index: spawnIndex,
-            img: asteroidIcon,
+            img,
             color: "hazardColor",
           });
         });
