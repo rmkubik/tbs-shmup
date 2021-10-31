@@ -237,6 +237,8 @@ const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
 };
 
 const explodeEntity = (entity) => {
+  console.log({ entity: { ...entity }, explosionIcon });
+
   entity.name = "💥";
   entity.img = explosionIcon;
   entity.speed = 0;
@@ -1042,6 +1044,8 @@ const App = () => {
   const sortedDeck = [...deck].sort((cardA, cardB) =>
     cardA.name.localeCompare(cardB.name)
   );
+
+  console.log({ entities: entities.map((entity) => ({ ...entity })) });
 
   return (
     <Fragment>

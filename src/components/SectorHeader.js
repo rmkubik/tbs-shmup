@@ -3,7 +3,10 @@ import { useState } from "preact/hooks";
 
 import warningIcon from "../../assets/warning.png";
 import shipIcon from "../../assets/ship.png";
-import asteroidIcon from "../../assets/asteroid.png";
+import asteroidIcon1 from "../../assets/asteroid1.png";
+import asteroidIcon2 from "../../assets/asteroid2.png";
+import asteroidIcon3 from "../../assets/asteroid3.png";
+import asteroidIcon4 from "../../assets/asteroid4.png";
 import explosionIcon from "../../assets/explosion.png";
 import bulletIcon from "../../assets/bullet.png";
 import Sprite from "./Sprite";
@@ -31,31 +34,31 @@ const ConditionImage = ({ condition, setShouldShowTooltip }) => {
       color = "hazardColor";
       break;
     case "heavyAsteroids":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon4;
       color = "hazardColor";
       break;
     case "mediumAsteroids":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon3;
       color = "cautionColor";
       break;
     case "lightAsteroids":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon1;
       color = "positiveColor";
       break;
     case "patternedAsteroids-slalom":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon2;
       color = "primaryColor";
       break;
     case "patternedAsteroids-kreldfarr":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon3;
       color = "primaryColor";
       break;
     case "patternedAsteroids-hwaranklex":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon2;
       color = "primaryColor";
       break;
     case "patternedAsteroids-wildRoids":
-      iconSrc = asteroidIcon;
+      iconSrc = asteroidIcon4;
       color = "primaryColor";
       break;
     default:

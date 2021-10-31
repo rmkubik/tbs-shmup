@@ -1,33 +1,65 @@
 import { h } from "preact";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useMemo, useRef } from "preact/hooks";
 import useTheme from "../hooks/useTheme";
+
+const drawImageWithColor = ({ canvas, image, color }) => {
+  const context = canvas.getContext("2d");
+
+  // draw image
+  context.drawImage(image, 0, 0);
+
+  if (color) {
+    // set composite mode
+    context.globalCompositeOperation = "source-in";
+
+    // draw color
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.globalCompositeOperation = "source-over";
+  }
+};
 
 const Sprite = ({ src, color, ...props }) => {
   const { theme } = useTheme();
   const canvasRef = useRef();
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
+  const spriteImage = useMemo(() => {
     const sprite = new Image();
     sprite.src = src;
-    sprite.onload = () => {
-      // draw image
-      context.drawImage(sprite, 0, 0);
 
-      if (color) {
-        // set composite mode
-        context.globalCompositeOperation = "source-in";
+    return sprite;
+  }, [src]);
 
-        // draw color
-        context.fillStyle = theme[color];
-        context.fillRect(0, 0, canvas.width, canvas.height);
+  const drawSpriteWhenReady = () => {
+    const canvas = canvasRef.current;
 
-        context.globalCompositeOperation = "source-over";
-      }
+    if (spriteImage.complete) {
+      drawImageWithColor({
+        canvas,
+        image: spriteImage,
+        color: theme[color],
+      });
+    } else {
+      spriteImage.onload = () => {
+        drawImageWithColor({
+          canvas,
+          image: spriteImage,
+          color: theme[color],
+        });
+      };
+    }
+  };
+
+  useEffect(() => {
+    drawSpriteWhenReady();
+
+    return () => {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [theme]);
+  }, [theme, src, color]);
 
   return <canvas width="16" height="16" ref={canvasRef} {...props} />;
 };
