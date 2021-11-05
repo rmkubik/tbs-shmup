@@ -207,6 +207,18 @@ const getIndicesInDirection = (
       .map((_, index) => origin - (index + 1) * colCount + 1)
       .filter(filterIndicesInBoundsOnly);
   }
+
+  if (direction === "downLeft") {
+    return createArray(magnitude)
+      .map((_, index) => origin + (index + 1) * colCount - 1)
+      .filter(filterIndicesInBoundsOnly);
+  }
+
+  if (direction === "downRight") {
+    return createArray(magnitude)
+      .map((_, index) => origin + (index + 1) * colCount + 1)
+      .filter(filterIndicesInBoundsOnly);
+  }
 };
 
 const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
