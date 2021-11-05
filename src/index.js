@@ -19,7 +19,7 @@ import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
 import sectorsData from "./data/sectors";
-import zonesData from "./data/zones";
+import zonesData, { zonesMatrix } from "./data/zones";
 import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
@@ -385,7 +385,7 @@ const App = () => {
   const [unlocked, setUnlocked] = useState({
     C3: { winStreak: 0, unlocked: true },
   });
-  const [zones, setZones] = useState(zonesData);
+  const [zones, setZones] = useState(zonesMatrix);
   const [sectors, setSectors] = useState(sectorsData);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);

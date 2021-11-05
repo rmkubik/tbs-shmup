@@ -341,6 +341,9 @@ span.nebula {
     ". top"
     "left grid";
 
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
   .top {
     grid-area: top;
   }
@@ -351,6 +354,8 @@ span.nebula {
 
   .grid {
     grid-area: grid;
+
+    cursor: pointer;
   }
 }
 
