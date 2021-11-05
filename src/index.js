@@ -19,6 +19,7 @@ import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
 import sectorsData from "./data/sectors";
+import zonesData from "./data/zones";
 import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
@@ -381,6 +382,10 @@ const frameRate = 150;
 const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
 
 const App = () => {
+  const [unlocked, setUnlocked] = useState({
+    C3: { winStreak: 0, unlocked: true },
+  });
+  const [zones, setZones] = useState(zonesData);
   const [sectors, setSectors] = useState(sectorsData);
   const [tiles, setTiles] = useState(initialTiles);
   const [playerIndex, setPlayerIndex] = useState(145);
@@ -1107,7 +1112,9 @@ const App = () => {
             onResume={() => {
               setShouldShowGalaxyMap(false);
             }}
+            zones={zones}
             sectors={sectors}
+            unlocked={unlocked}
             winStreak={winStreak}
           />
         ) : showOptions ? (

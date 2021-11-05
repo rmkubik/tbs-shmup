@@ -1,62 +1,53 @@
 import { h } from "preact";
+import {
+  compareLocations,
+  getNeighbors,
+  getCrossDirections,
+} from "functional-game-utils";
 import Modal from "./Modal";
-import Grid from "./Grid";
-import createArray from "../utils/createArray";
+import convertLetterCoordinatesToLocation from "../utils/convertLetterCoordinatesToLocation";
+import convertLocationToLetterCoordinates from "../utils/convertLocationToLetterCoordinates";
 import Button from "./Button";
+import Grid2D from "./Grid2D";
 
-const GalaxyMapModal = ({ winStreak, sectors, onResume }) => {
+const GalaxyMapModal = ({ unlocked, zones, onResume }) => {
+  const unlockedEntries = Object.entries(unlocked);
+
   return (
     <Modal>
       <div className="header">
         <p className="gameover">GALAXY MAP</p>
       </div>
-      <Grid
-        tiles={createArray(sectors.length)}
-        colCount={10}
-        renderTile={(tile, index) => {
-          if (index < winStreak) {
-            return (
-              <div
-                style={{
-                  height: "16px",
-                  width: "16px",
-                  position: "relative",
-                }}
-              >
-                {sectors[index].conditions.includes("checkpoint")
-                  ? "⭐️"
-                  : "✅"}
-              </div>
-            );
+      <Grid2D
+        tiles={zones}
+        renderTile={(tile, location) => {
+          if (
+            unlockedEntries.some(([letterCoordinates]) => {
+              const otherLocation =
+                convertLetterCoordinatesToLocation(letterCoordinates);
+
+              return compareLocations(location, otherLocation);
+            })
+          ) {
+            // If we're unlocked, show our icon
+            return <div>▶️</div>;
           }
 
-          if (index === winStreak) {
-            return (
-              <div
-                style={{
-                  height: "16px",
-                  width: "16px",
-                  position: "relative",
-                }}
-              >
-                🚀
-              </div>
-            );
+          const neighbors = getNeighbors(getCrossDirections, zones, location);
+
+          if (
+            neighbors.some((neighbor) => {
+              const letterCoordinates =
+                convertLocationToLetterCoordinates(neighbor);
+
+              return Boolean(unlocked[letterCoordinates]?.unlocked);
+            })
+          ) {
+            // If we neighbor an unlocked zone, show a lock with our unlock cost
+            return <div>🔒</div>;
           }
 
-          if (index > winStreak) {
-            return (
-              <div
-                style={{
-                  height: "16px",
-                  width: "16px",
-                  position: "relative",
-                }}
-              >
-                🔒
-              </div>
-            );
-          }
+          return <div>❓</div>;
         }}
       />
       <div className="button-container">
