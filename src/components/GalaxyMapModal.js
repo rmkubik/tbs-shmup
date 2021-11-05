@@ -15,8 +15,8 @@ import Grid2D from "./Grid2D";
 const getLetterComponentFromLocation = (location) =>
   String.fromCharCode(location.col + 97).toUpperCase();
 
-const GalaxyMapModal = ({ unlocked, zones, onResume }) => {
-  const { width, height } = getDimensions(zones);
+const GalaxyMapModal = ({ unlocked, zones, zonesMatrix, onResume }) => {
+  const { width, height } = getDimensions(zonesMatrix);
   const unlockedEntries = Object.entries(unlocked);
 
   return (
@@ -47,7 +47,7 @@ const GalaxyMapModal = ({ unlocked, zones, onResume }) => {
           />
           <Grid2D
             className="grid"
-            tiles={zones}
+            tiles={zonesMatrix}
             renderTile={(tile, location) => {
               if (
                 unlockedEntries.some(([letterCoordinates]) => {
@@ -58,12 +58,23 @@ const GalaxyMapModal = ({ unlocked, zones, onResume }) => {
                 })
               ) {
                 // If we're unlocked, show our icon
-                return <div>▶️</div>;
+                return (
+                  <div
+                    onClick={() => {
+                      const letterCoordinates =
+                        convertLocationToLetterCoordinates(location);
+                      console.log({ letterCoordinates, zones });
+                      console.log(zones[letterCoordinates]);
+                    }}
+                  >
+                    ▶️
+                  </div>
+                );
               }
 
               const neighbors = getNeighbors(
                 getCrossDirections,
-                zones,
+                zonesMatrix,
                 location
               );
 

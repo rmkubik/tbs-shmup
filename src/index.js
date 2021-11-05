@@ -385,6 +385,7 @@ const App = () => {
   const [unlocked, setUnlocked] = useState({
     C3: { winStreak: 0, unlocked: true },
   });
+  const [currentZone, setCurrentZone] = useState("C3");
   const [zones, setZones] = useState(zonesMatrix);
   const [sectors, setSectors] = useState(sectorsData);
   const [tiles, setTiles] = useState(initialTiles);
@@ -443,6 +444,7 @@ const App = () => {
         setAreCheckpointsEnabled,
       ],
       ["volume", volume, setVolume],
+      ["unlocked", setUnlocked],
     ],
   });
   const { theme, currentTheme, setTheme } = useTheme();
@@ -1112,7 +1114,8 @@ const App = () => {
             onResume={() => {
               setShouldShowGalaxyMap(false);
             }}
-            zones={zones}
+            zones={zonesData}
+            zonesMatrix={zones}
             sectors={sectors}
             unlocked={unlocked}
             winStreak={winStreak}
