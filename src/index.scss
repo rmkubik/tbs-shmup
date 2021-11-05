@@ -333,6 +333,33 @@ span.nebula {
   }
 }
 
+.galaxy-map {
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: min-content auto;
+  grid-template-areas:
+    ". top"
+    "left grid";
+
+  .top {
+    grid-area: top;
+  }
+
+  .left {
+    grid-area: left;
+  }
+
+  .grid {
+    grid-area: grid;
+  }
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @keyframes grain {
   0%,
   100% {
