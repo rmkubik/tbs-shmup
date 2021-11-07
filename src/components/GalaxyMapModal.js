@@ -1,23 +1,33 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import {
   compareLocations,
   getNeighbors,
   getCrossDirections,
   constructMatrix,
   getDimensions,
+  getLocation,
 } from "functional-game-utils";
 import Modal from "./Modal";
 import convertLetterCoordinatesToLocation from "../utils/convertLetterCoordinatesToLocation";
 import convertLocationToLetterCoordinates from "../utils/convertLocationToLetterCoordinates";
 import Button from "./Button";
 import Grid2D from "./Grid2D";
+import Sprite from "./Sprite";
+import lockIcon from "../../assets/lock.png";
+import useTheme from "../hooks/useTheme";
 
 const getLetterComponentFromLocation = (location) =>
   String.fromCharCode(location.col + 97).toUpperCase();
 
-const GalaxyMapModal = ({ unlocked, zones, zonesMatrix, onResume }) => {
+const GalaxyMapModal = ({
+  unlocked,
+  zonesMatrix,
+  onResume,
+  onSectorSelect,
+}) => {
   const { width, height } = getDimensions(zonesMatrix);
   const unlockedEntries = Object.entries(unlocked);
+  const { theme } = useTheme();
 
   return (
     <Modal>
@@ -63,11 +73,14 @@ const GalaxyMapModal = ({ unlocked, zones, zonesMatrix, onResume }) => {
                     onClick={() => {
                       const letterCoordinates =
                         convertLocationToLetterCoordinates(location);
-                      console.log({ letterCoordinates, zones });
-                      console.log(zones[letterCoordinates]);
+
+                      onSectorSelect(letterCoordinates);
                     }}
                   >
-                    ▶️
+                    <Sprite
+                      src={getLocation(zonesMatrix, location).ship.icon}
+                      color="white"
+                    />
                   </div>
                 );
               }
@@ -87,7 +100,25 @@ const GalaxyMapModal = ({ unlocked, zones, zonesMatrix, onResume }) => {
                 })
               ) {
                 // If we neighbor an unlocked zone, show a lock with our unlock cost
-                return <div>🔒</div>;
+                return (
+                  <div style={{ width: "fit-content", position: "relative" }}>
+                    {
+                      <span
+                        style={{
+                          position: "absolute",
+                          textAlign: "center",
+                          fontSize: "8px",
+                          width: "100%",
+                          color: theme.backgroundColor,
+                          fontWeight: "bolder",
+                        }}
+                      >
+                        {3}
+                      </span>
+                    }
+                    <Sprite src={lockIcon} color="white" />
+                  </div>
+                );
               }
 
               return <div>❓</div>;

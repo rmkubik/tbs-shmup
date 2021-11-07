@@ -228,9 +228,10 @@ const ConditionIcon = ({ condition }) => {
   );
 };
 
-const SectorHeader = ({ winStreak, sector }) => {
+const SectorHeader = ({ zone, winStreak, sector }) => {
   return (
     <div className="header">
+      <p>{zone.name}</p>
       <p className="streak">Sector: {winStreak + 1}</p>
       <ul className="sector-conditions">
         {sector.conditions

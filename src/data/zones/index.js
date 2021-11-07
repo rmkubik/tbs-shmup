@@ -1,8 +1,11 @@
 import { constructMatrix } from "functional-game-utils";
-import convertLetterCoordinatesToLocation from "../utils/convertLetterCoordinatesToLocation";
-import convertLocationToLetterCoordinates from "../utils/convertLocationToLetterCoordinates";
+import convertLetterCoordinatesToLocation from "../../utils/convertLetterCoordinatesToLocation";
+import convertLocationToLetterCoordinates from "../../utils/convertLocationToLetterCoordinates";
+import omitKey from "../../utils/omitKey.js";
+import reduceEntries from "../../utils/reduceEntries.js";
+import currentDirectoryModules from "./*.js";
 
-const zones = {
+const defaultZones = {
   A1: {
     name: "Default Name",
     ship: "Speed Racer",
@@ -128,6 +131,16 @@ const zones = {
     ship: "Speed Racer",
     palette: "default",
   },
+};
+
+const zoneModules = omitKey("index")(currentDirectoryModules);
+const zoneEntries = Object.entries(zoneModules).map(
+  ([zoneModuleKey, zoneModuleValue]) => [zoneModuleKey, zoneModuleValue.default]
+);
+const importedZones = reduceEntries(zoneEntries);
+const zones = {
+  ...defaultZones,
+  ...importedZones,
 };
 
 const getDimensionsFromZones = (zones) => {

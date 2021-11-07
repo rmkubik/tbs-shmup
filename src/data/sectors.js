@@ -1,11 +1,8 @@
-const concat = (arrays) => {
-  return [].concat.apply([], arrays);
-};
+import concatMany from "../utils/concatMany";
+import repeat from "../utils/repeat";
 
-const repeat = (array, count) => {
-  const arrays = new Array(count).fill("").map(() => array);
-
-  return concat(arrays);
+const repeatSectors = (sectors, times) => {
+  return concatMany(repeat(sectors, times));
 };
 
 let sectors = [
@@ -14,7 +11,7 @@ let sectors = [
   { conditions: ["mediumAsteroids"] },
   { conditions: ["mediumAsteroids"] },
   { conditions: ["heavyAsteroids"] },
-  ...repeat(
+  ...repeatSectors(
     [
       { conditions: ["mediumAsteroids"] },
       { conditions: ["mediumAsteroids"] },
@@ -25,7 +22,5 @@ let sectors = [
     3
   ),
 ];
-
-console.log(sectors);
 
 export default sectors;

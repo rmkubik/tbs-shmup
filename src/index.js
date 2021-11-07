@@ -10,7 +10,6 @@ import uiSelect from "../assets/audio/ui_select.ogg";
 import warp from "../assets/audio/warp.ogg";
 
 import warningIcon from "../assets/warning.png";
-import shipIcon from "../assets/ship.png";
 import asteroidIcon1 from "../assets/asteroid1.png";
 import asteroidIcon2 from "../assets/asteroid2.png";
 import asteroidIcon3 from "../assets/asteroid3.png";
@@ -966,6 +965,7 @@ const App = () => {
     }
 
     // Display player at current index
+    const shipIcon = zonesData[currentZone].ship.icon;
     if (index === playerIndex) {
       object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
     }
@@ -1114,7 +1114,22 @@ const App = () => {
             onResume={() => {
               setShouldShowGalaxyMap(false);
             }}
-            zones={zonesData}
+            onSectorSelect={(letterCoordinates) => {
+              const newZone = zonesData[letterCoordinates];
+
+              setCurrentZone(letterCoordinates);
+              setShouldShowGalaxyMap(false);
+              setTheme(newZone.theme);
+              setSectors(newZone.sectors);
+              // setTiles(TODO: use new dimensions to calculate tiles again);
+              setPlayerIndex(newZone.playerIndex);
+              setDeck(newZone.deck);
+              setPower(2);
+              setMaxPower(2);
+              setDrawSize(3);
+
+              startNewRound();
+            }}
             zonesMatrix={zones}
             sectors={sectors}
             unlocked={unlocked}
@@ -1176,7 +1191,11 @@ const App = () => {
             <p className="streak">Sector: {winStreak}</p>
           </div>
         ) : null*/}
-        <SectorHeader winStreak={winStreak} sector={sectors[winStreak]} />
+        <SectorHeader
+          winStreak={winStreak}
+          sector={sectors[winStreak]}
+          zone={zonesData[currentZone]}
+        />
         {/* TODO: Return to this css className grid-sidebar-container and color the scroll bar using the theme */}
         <div className="grid-sidebar-container">
           <div>
