@@ -50,16 +50,57 @@ const getZoneName = ({ zonesMatrix, unlocked, location }) => {
   return "???";
 };
 
+const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
+  if (!location) {
+    // No location is selected
+    return;
+  }
+
+  const letterCoordinates = convertLocationToLetterCoordinates(location);
+
+  if (unlocked[letterCoordinates]) {
+    // Get description of the Zone's mission if unlocked
+    return getLocation(zonesMatrix, location).mission?.description;
+  }
+
+  if (isNeighborUnlocked({ zonesMatrix, unlocked, location })) {
+    return "???";
+  }
+
+  return;
+};
+
+const ZoneDescription = ({ zonesMatrix, unlocked, location }) => {
+  /** Use a br to keep the space filled if there's no Zone selected. */
+  return (
+    <Fragment>
+      <p>{getZoneName({ zonesMatrix, unlocked, location }) ?? <br />}</p>
+      <p>{getZoneDescription({ zonesMatrix, unlocked, location }) ?? <br />}</p>
+    </Fragment>
+  );
+};
+
 const GalaxyMapModal = ({
   unlocked,
   zonesMatrix,
   onResume,
   onSectorSelect,
 }) => {
-  const [hoveredZone, setHoveredZone] = useState(undefined);
+  const [hovered, setHovered] = useState(undefined);
+  const [selected, setSelected] = useState(undefined);
   const { width, height } = getDimensions(zonesMatrix);
   const unlockedEntries = Object.entries(unlocked);
   const { theme } = useTheme();
+
+  // TODO:
+  // We should add a selected zone instead of a hovered zone
+  // Instead of displaying hovered zone data, display
+  // selected zone data.
+  // On hover over a zone, we could display a tool tip with it's
+  // name if we wanted. Maybe a different "shortname/tooltip" prop?
+  // On hover we should add a little selector indicator (dashed border)
+  // around the zone we'll select upon clicking.
+  // locks should shake on click
 
   return (
     <Modal>
@@ -91,6 +132,11 @@ const GalaxyMapModal = ({
             className="grid"
             tiles={zonesMatrix}
             renderTile={(tile, location) => {
+              const isLocationSelected = selected
+                ? compareLocations(location, selected)
+                : false;
+              let zoneContents = ".";
+
               if (
                 unlockedEntries.some(([letterCoordinates]) => {
                   const otherLocation =
@@ -100,22 +146,11 @@ const GalaxyMapModal = ({
                 })
               ) {
                 // If we're unlocked, show our icon
-                return (
-                  <div
-                    onClick={() => {
-                      const letterCoordinates =
-                        convertLocationToLetterCoordinates(location);
-
-                      onSectorSelect(letterCoordinates);
-                    }}
-                    onMouseEnter={() => setHoveredZone(location)}
-                    onMouseLeave={() => setHoveredZone(undefined)}
-                  >
-                    <Sprite
-                      src={getLocation(zonesMatrix, location).ship.icon}
-                      color="white"
-                    />
-                  </div>
+                zoneContents = (
+                  <Sprite
+                    src={getLocation(zonesMatrix, location).ship.icon}
+                    color="white"
+                  />
                 );
               }
 
@@ -134,28 +169,23 @@ const GalaxyMapModal = ({
                 })
               ) {
                 // If we neighbor an unlocked zone, show a lock with our unlock cost
-                return (
-                  <div
-                    style={{ width: "fit-content", position: "relative" }}
-                    onMouseEnter={() => setHoveredZone(location)}
-                    onMouseLeave={() => setHoveredZone(undefined)}
-                  >
-                    {
-                      <span
-                        style={{
-                          position: "absolute",
-                          textAlign: "center",
-                          fontSize: "8px",
-                          width: "100%",
-                          color: theme.backgroundColor,
-                          fontWeight: "bolder",
-                        }}
-                      >
-                        {getLocation(zonesMatrix, location).unlock?.cost}
-                      </span>
-                    }
+                zoneContents = (
+                  <Fragment>
+                    <span
+                      style={{
+                        position: "absolute",
+                        textAlign: "center",
+                        fontSize: "8px",
+                        width: "100%",
+                        color: theme.backgroundColor,
+                        fontWeight: "bolder",
+                      }}
+                    >
+                      {getLocation(zonesMatrix, location).unlock?.cost}
+                    </span>
+
                     <Sprite src={lockIcon} color="white" />
-                  </div>
+                  </Fragment>
                 );
               }
 
@@ -165,22 +195,39 @@ const GalaxyMapModal = ({
                     height: "16px",
                     width: "16px",
                     position: "relative",
+                    border: isLocationSelected
+                      ? `1px dashed ${theme.primaryColor}`
+                      : "",
                   }}
-                  onMouseEnter={() => setHoveredZone(location)}
-                  onMouseLeave={() => setHoveredZone(undefined)}
+                  onClick={() => {
+                    setSelected(location);
+                  }}
+                  onMouseEnter={() => setHovered(location)}
+                  onMouseLeave={() => setHovered(undefined)}
                 >
-                  .
+                  {zoneContents}
                 </div>
               );
             }}
           />
         </div>
       </div>
-      <p>
-        Sector: {getZoneName({ zonesMatrix, unlocked, location: hoveredZone })}
-      </p>
+      <ZoneDescription
+        location={selected}
+        zonesMatrix={zonesMatrix}
+        unlocked={unlocked}
+      />
       <div className="button-container">
-        <Button onClick={onResume}>Resume</Button>
+        <Button
+          onClick={() => {
+            const letterCoordinates =
+              convertLocationToLetterCoordinates(selected);
+            onSectorSelect(letterCoordinates);
+          }}
+        >
+          Start
+        </Button>
+        <Button onClick={onResume}>Back</Button>
       </div>
     </Modal>
   );

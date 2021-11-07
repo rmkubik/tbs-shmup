@@ -791,6 +791,14 @@ const App = () => {
 
     if (gameState === "victory") {
       playSound("warp");
+      // If you have not unlocked the mission
+      // check if this is a win condition
+      // if the win condition is satisfied,
+      // set this as unlocked
+      // How do we terminate the ongoing mission
+      // and return to the galaxy map screen?
+      // I think the map might need to be promoted
+      // to a main thing instead of a modal?
     }
   }, [gameState]);
 
