@@ -15,9 +15,40 @@ import Grid2D from "./Grid2D";
 import Sprite from "./Sprite";
 import lockIcon from "../../assets/lock.png";
 import useTheme from "../hooks/useTheme";
+import { useState } from "preact/hooks";
 
 const getLetterComponentFromLocation = (location) =>
   String.fromCharCode(location.col + 97).toUpperCase();
+
+const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
+  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+
+  return neighbors.some((neighbor) => {
+    const letterCoordinates = convertLocationToLetterCoordinates(neighbor);
+
+    return Boolean(unlocked[letterCoordinates]?.unlocked);
+  });
+};
+
+const getZoneName = ({ zonesMatrix, unlocked, location }) => {
+  if (!location) {
+    // No location is selected
+    return;
+  }
+
+  const letterCoordinates = convertLocationToLetterCoordinates(location);
+
+  if (unlocked[letterCoordinates]) {
+    // Show name of Zone if it's unlocked
+    return getLocation(zonesMatrix, location).name;
+  }
+
+  if (isNeighborUnlocked({ zonesMatrix, unlocked, location })) {
+    return `Unlock ${getLocation(zonesMatrix, location).unlock?.cost}`;
+  }
+
+  return "???";
+};
 
 const GalaxyMapModal = ({
   unlocked,
@@ -25,6 +56,7 @@ const GalaxyMapModal = ({
   onResume,
   onSectorSelect,
 }) => {
+  const [hoveredZone, setHoveredZone] = useState(undefined);
   const { width, height } = getDimensions(zonesMatrix);
   const unlockedEntries = Object.entries(unlocked);
   const { theme } = useTheme();
@@ -76,6 +108,8 @@ const GalaxyMapModal = ({
 
                       onSectorSelect(letterCoordinates);
                     }}
+                    onMouseEnter={() => setHoveredZone(location)}
+                    onMouseLeave={() => setHoveredZone(undefined)}
                   >
                     <Sprite
                       src={getLocation(zonesMatrix, location).ship.icon}
@@ -101,7 +135,11 @@ const GalaxyMapModal = ({
               ) {
                 // If we neighbor an unlocked zone, show a lock with our unlock cost
                 return (
-                  <div style={{ width: "fit-content", position: "relative" }}>
+                  <div
+                    style={{ width: "fit-content", position: "relative" }}
+                    onMouseEnter={() => setHoveredZone(location)}
+                    onMouseLeave={() => setHoveredZone(undefined)}
+                  >
                     {
                       <span
                         style={{
@@ -113,7 +151,7 @@ const GalaxyMapModal = ({
                           fontWeight: "bolder",
                         }}
                       >
-                        {3}
+                        {getLocation(zonesMatrix, location).unlock?.cost}
                       </span>
                     }
                     <Sprite src={lockIcon} color="white" />
@@ -121,11 +159,26 @@ const GalaxyMapModal = ({
                 );
               }
 
-              return <div>❓</div>;
+              return (
+                <div
+                  style={{
+                    height: "16px",
+                    width: "16px",
+                    position: "relative",
+                  }}
+                  onMouseEnter={() => setHoveredZone(location)}
+                  onMouseLeave={() => setHoveredZone(undefined)}
+                >
+                  .
+                </div>
+              );
             }}
           />
         </div>
       </div>
+      <p>
+        Sector: {getZoneName({ zonesMatrix, unlocked, location: hoveredZone })}
+      </p>
       <div className="button-container">
         <Button onClick={onResume}>Resume</Button>
       </div>

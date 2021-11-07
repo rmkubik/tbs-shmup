@@ -1118,7 +1118,6 @@ const App = () => {
               const newZone = zonesData[letterCoordinates];
 
               setCurrentZone(letterCoordinates);
-              setShouldShowGalaxyMap(false);
               setTheme(newZone.theme);
               setSectors(newZone.sectors);
               // setTiles(TODO: use new dimensions to calculate tiles again);
@@ -1128,6 +1127,8 @@ const App = () => {
               setMaxPower(2);
               setDrawSize(3);
 
+              setShowOptions(false);
+              setShouldShowGalaxyMap(false);
               startNewRound();
             }}
             zonesMatrix={zones}
