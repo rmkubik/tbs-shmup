@@ -93,13 +93,12 @@ const GalaxyMapModal = ({
   const { theme } = useTheme();
 
   // TODO:
-  // We should add a selected zone instead of a hovered zone
-  // Instead of displaying hovered zone data, display
-  // selected zone data.
   // On hover over a zone, we could display a tool tip with it's
   // name if we wanted. Maybe a different "shortname/tooltip" prop?
+  //
   // On hover we should add a little selector indicator (dashed border)
   // around the zone we'll select upon clicking.
+  //
   // locks should shake on click
 
   return (
@@ -132,9 +131,6 @@ const GalaxyMapModal = ({
             className="grid"
             tiles={zonesMatrix}
             renderTile={(tile, location) => {
-              const isLocationSelected = selected
-                ? compareLocations(location, selected)
-                : false;
               let zoneContents = ".";
 
               if (
@@ -189,15 +185,32 @@ const GalaxyMapModal = ({
                 );
               }
 
+              const getBorder = () => {
+                const isLocationSelected = selected
+                  ? compareLocations(location, selected)
+                  : false;
+                const isLocationHovered = hovered
+                  ? compareLocations(location, hovered)
+                  : false;
+
+                if (isLocationSelected) {
+                  return `1px solid ${theme.primaryColor}`;
+                }
+
+                if (isLocationHovered) {
+                  return `1px dashed ${theme.primaryColor}`;
+                }
+
+                return "";
+              };
+
               return (
                 <div
                   style={{
                     height: "16px",
                     width: "16px",
                     position: "relative",
-                    border: isLocationSelected
-                      ? `1px dashed ${theme.primaryColor}`
-                      : "",
+                    border: getBorder(),
                   }}
                   onClick={() => {
                     setSelected(location);
@@ -222,6 +235,7 @@ const GalaxyMapModal = ({
           onClick={() => {
             const letterCoordinates =
               convertLocationToLetterCoordinates(selected);
+
             onSectorSelect(letterCoordinates);
           }}
         >
