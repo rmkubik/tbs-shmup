@@ -385,6 +385,7 @@ const App = () => {
     C3: { winStreak: 0, unlocked: true },
   });
   const [currentZone, setCurrentZone] = useState("C3");
+  const [currentRunType, setCurrentRunType] = useState("mission");
   const [zones, setZones] = useState(zonesMatrix);
   const [sectors, setSectors] = useState(sectorsData);
   const [tiles, setTiles] = useState(initialTiles);
@@ -799,6 +800,31 @@ const App = () => {
       // and return to the galaxy map screen?
       // I think the map might need to be promoted
       // to a main thing instead of a modal?
+
+      // What are the various new states that we can be in?
+      // What modals do we need to support this?
+
+      // - There's now a "Mission Complete" screen once
+      //   you satisfy a sector's win condition in the
+      //   victory state.
+      //    - Once the victory state is reached and the
+      //      win condition is met, then we set the
+      //      zone as unlocked. And we launch the mission
+      //      complete modal.
+      //    - This state has a button to return you to
+      //      the Galaxy Map.
+      // - The Galaxy Map with modal is the default
+      //   state that you're launched into.
+      // - You can no longer launch the Galaxy Map via
+      //   the Options modal.
+      // - The Galaxy Map has a Mission button and a
+      //   Dare button.
+      //    - The Dare button is disabled until the
+      //      mission has been unlocked.
+      // - A zone can be entered in Dare mode or Mission
+      //   mode?
+      //    - Can a Dare have different sector patterns
+      //      or even a different ship or deck.
     }
   }, [gameState]);
 
@@ -973,7 +999,7 @@ const App = () => {
     }
 
     // Display player at current index
-    const shipIcon = zonesData[currentZone].ship.icon;
+    const shipIcon = zonesData[currentZone][currentRunType].ship.icon;
     if (index === playerIndex) {
       object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
     }
@@ -1122,10 +1148,12 @@ const App = () => {
             onResume={() => {
               setShouldShowGalaxyMap(false);
             }}
-            onSectorSelect={(letterCoordinates) => {
-              const newZone = zonesData[letterCoordinates];
+            onSectorSelect={(letterCoordinates, runType) => {
+              const newZone = zonesData[letterCoordinates][runType];
 
               setCurrentZone(letterCoordinates);
+              setCurrentRunType(runType);
+
               setTheme(newZone.theme);
               setSectors(newZone.sectors);
               // setTiles(TODO: use new dimensions to calculate tiles again);

@@ -141,11 +141,18 @@ const GalaxyMapModal = ({
                   return compareLocations(location, otherLocation);
                 })
               ) {
-                // If we're unlocked, show our icon
+                // If we're unlocked, show our icon.
+                const zone = getLocation(zonesMatrix, location);
+
+                console.log({
+                  src: zone.icon.src ?? zone.mission.ship.icon,
+                  color: theme[zone.icon?.color ?? zone.mission.ship.color],
+                });
+
                 zoneContents = (
                   <Sprite
-                    src={getLocation(zonesMatrix, location).ship.icon}
-                    color="white"
+                    src={zone.icon.src ?? zone.mission.ship.icon}
+                    color={theme[zone.icon?.color ?? zone.mission.ship.color]}
                   />
                 );
               }
@@ -180,7 +187,7 @@ const GalaxyMapModal = ({
                       {getLocation(zonesMatrix, location).unlock?.cost}
                     </span>
 
-                    <Sprite src={lockIcon} color="white" />
+                    <Sprite src={lockIcon} color={theme["primaryColor"]} />
                   </Fragment>
                 );
               }
@@ -201,7 +208,7 @@ const GalaxyMapModal = ({
                   return `1px dashed ${theme.primaryColor}`;
                 }
 
-                return "";
+                return "1px solid transparent";
               };
 
               return (
@@ -209,8 +216,10 @@ const GalaxyMapModal = ({
                   style={{
                     height: "16px",
                     width: "16px",
+                    padding: "2px",
                     position: "relative",
                     border: getBorder(),
+                    boxSizing: "border-box",
                   }}
                   onClick={() => {
                     setSelected(location);
@@ -236,10 +245,21 @@ const GalaxyMapModal = ({
             const letterCoordinates =
               convertLocationToLetterCoordinates(selected);
 
-            onSectorSelect(letterCoordinates);
+            onSectorSelect(letterCoordinates, "mission");
           }}
         >
-          Start
+          Mission
+        </Button>
+        <Button
+          disabled={true}
+          onClick={() => {
+            const letterCoordinates =
+              convertLocationToLetterCoordinates(selected);
+
+            onSectorSelect(letterCoordinates, "dare");
+          }}
+        >
+          Dare
         </Button>
         <Button onClick={onResume}>Back</Button>
       </div>

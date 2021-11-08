@@ -39,8 +39,6 @@ const weaverDeck = [
   { name: "Shoot", cost: 1, range: 1, directions: ["up"], effect: "shoot" },
 ];
 
-const initialDeck = weaverDeck;
-
 const defaultDeck = [
   { name: "Left", cost: 1, range: 3, directions: ["left"] },
   { name: "Up", cost: 1, range: 2, directions: ["up"] },
@@ -73,6 +71,8 @@ const stallCard = {
   range: 0,
   directions: [],
 };
+
+const initialDeck = defaultDeck;
 
 export {
   initialDeck,
