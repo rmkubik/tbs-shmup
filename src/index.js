@@ -1,5 +1,5 @@
 import { Fragment, h, render } from "preact";
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 
 import alarmSound from "../assets/audio/alarm.ogg";
 import clickSound from "../assets/audio/click.ogg";
@@ -23,7 +23,7 @@ import {
   doesSectorHavePatternedAsteroids,
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
-import { directionSwappedDeck, initialDeck, stallCard } from "./data/cards";
+import { initialDeck } from "./data/cards";
 import conditions from "./data/conditions";
 
 import WeightedMap from "./utils/WeightedMap";
@@ -34,7 +34,6 @@ import remove from "./utils/remove";
 import set from "./utils/set";
 import findAllMatchingIndices from "./utils/findAllMatchingIndices";
 import createArray from "./utils/createArray";
-import pickRandomlyFromArray from "./utils/pickRandomlyFromArray";
 
 import useSaveState from "./hooks/useSaveState";
 import useAudio from "./hooks/useAudio";
@@ -56,7 +55,6 @@ import GalaxyMapModal from "./components/GalaxyMapModal";
 import SectorHeader from "./components/SectorHeader";
 import useBodyStyle from "./hooks/useBodyStyle";
 import Sprite from "./components/Sprite";
-import themes from "./data/themes";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -811,6 +809,8 @@ const App = () => {
       //      win condition is met, then we set the
       //      zone as unlocked. And we launch the mission
       //      complete modal.
+      //    - We should track the highScore in every
+      //      Mission and Dare in the unlocked object.
       //    - This state has a button to return you to
       //      the Galaxy Map.
       // - The Galaxy Map with modal is the default
@@ -822,9 +822,16 @@ const App = () => {
       //    - The Dare button is disabled until the
       //      mission has been unlocked.
       // - A zone can be entered in Dare mode or Mission
-      //   mode?
-      //    - Can a Dare have different sector patterns
-      //      or even a different ship or deck.
+      //   mode
+      //    - A Mission can specify any properties like deck
+      //      or theme.
+      //    - A Dare will use the same settings as a mission
+      //      unless they're explicitly overridden.
+      //       - Usually, the winCondition at least will be
+      //         overridden. The usual value we will set is
+      //         "highScore". This will enable the infinite
+      //         mode.
+      // -
     }
   }, [gameState]);
 

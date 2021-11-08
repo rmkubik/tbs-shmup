@@ -32,5 +32,6 @@ export default {
   },
   dare: {
     deck: directionSwappedDeck,
+    winCondition: "highScore",
   },
 };

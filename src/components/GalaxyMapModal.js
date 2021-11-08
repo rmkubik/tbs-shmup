@@ -144,11 +144,6 @@ const GalaxyMapModal = ({
                 // If we're unlocked, show our icon.
                 const zone = getLocation(zonesMatrix, location);
 
-                console.log({
-                  src: zone.icon.src ?? zone.mission.ship.icon,
-                  color: theme[zone.icon?.color ?? zone.mission.ship.color],
-                });
-
                 zoneContents = (
                   <Sprite
                     src={zone.icon.src ?? zone.mission.ship.icon}
