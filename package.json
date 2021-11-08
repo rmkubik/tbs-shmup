@@ -6,8 +6,9 @@
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html  --public-url .  --no-source-maps && npm run compress",
+    "serve": "http-server dist -so",
     "pruneBuild": "node tasks/prune-js.js",
-    "compress": "npm run pruneBuild && rm -f build.zip && cd dist && zip -r ../build.zip * -x *.map report.html && cd .. && npm run showBundleSize",
+    "compress": "rm -f build.zip && cd dist && zip -r ../build.zip * -x *.map report.html && cd .. && npm run showBundleSize",
     "showBundleSize": "node tasks/count-bytes.js"
   },
   "author": "",
@@ -24,6 +25,7 @@
     "babel-core": "^6.26.3",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "common-tags": "^1.8.0",
+    "http-server": "^14.0.0",
     "intl": "^1.2.5",
     "parcel-bundler": "^1.12.5",
     "parcel-plugin-clean-dist": "0.0.6",
