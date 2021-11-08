@@ -473,8 +473,10 @@ const App = () => {
     setSelectedCard(0);
     setGraveyard([]);
 
+    console.log({ zonesData, currentRunType, currentZone });
+
     // The deck changes depending on the current sector
-    let newDeck = initialDeck;
+    let newDeck = zonesData[currentZone]?.[currentRunType]?.deck ?? initialDeck;
 
     // if (sectors[winStreak].conditions.includes("malfunctioning")) {
     //   // Replace old deck manually with left and right cards swapped
@@ -1103,6 +1105,17 @@ const App = () => {
     cardA.name.localeCompare(cardB.name)
   );
 
+  // TODO: hack to make sure the above settings
+  // take effect before we actually start the new
+  // round.
+  useEffect(() => {
+    if (!shouldShowGalaxyMap) {
+      startNewRound();
+    }
+  }, [shouldShowGalaxyMap]);
+
+  console.log({ deck });
+
   return (
     <Fragment>
       {enableVfx && <div className="scanLinesH overlay" />}
@@ -1158,6 +1171,8 @@ const App = () => {
             onSectorSelect={(letterCoordinates, runType) => {
               const newZone = zonesData[letterCoordinates][runType];
 
+              console.log({ letterCoordinates, newZone });
+
               setCurrentZone(letterCoordinates);
               setCurrentRunType(runType);
 
@@ -1172,7 +1187,6 @@ const App = () => {
 
               setShowOptions(false);
               setShouldShowGalaxyMap(false);
-              startNewRound();
             }}
             zonesMatrix={zones}
             sectors={sectors}
