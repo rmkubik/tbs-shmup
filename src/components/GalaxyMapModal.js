@@ -20,16 +20,6 @@ import { useState } from "preact/hooks";
 const getLetterComponentFromLocation = (location) =>
   String.fromCharCode(location.col + 97).toUpperCase();
 
-const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
-  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
-
-  return neighbors.some((neighbor) => {
-    const letterCoordinates = convertLocationToLetterCoordinates(neighbor);
-
-    return Boolean(unlocked[letterCoordinates]?.unlocked);
-  });
-};
-
 const isSomeNeighbor = ({ zonesMatrix, location }, comparisonFn) => {
   const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
 
@@ -60,15 +50,21 @@ const isZoneUnlocked = ({ zonesMatrix, location, unlocked }) => {
   );
 };
 
+const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
+  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+
+  return neighbors.some((neighbor) => {
+    return isZoneUnlocked({ zonesMatrix, location: neighbor, unlocked });
+  });
+};
+
 const getZoneName = ({ zonesMatrix, unlocked, location }) => {
   if (!location) {
     // No location is selected
     return;
   }
 
-  const letterCoordinates = convertLocationToLetterCoordinates(location);
-
-  if (unlocked[letterCoordinates]) {
+  if (isZoneUnlocked({ zonesMatrix, unlocked, location })) {
     // Show name of Zone if it's unlocked
     return getLocation(zonesMatrix, location).name;
   }
@@ -86,9 +82,7 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
     return;
   }
 
-  const letterCoordinates = convertLocationToLetterCoordinates(location);
-
-  if (unlocked[letterCoordinates]) {
+  if (isZoneUnlocked({ zonesMatrix, unlocked, location })) {
     // Get description of the Zone's mission if unlocked
     return getLocation(zonesMatrix, location).mission?.description;
   }
