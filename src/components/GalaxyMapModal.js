@@ -40,6 +40,26 @@ const isSomeNeighbor = ({ zonesMatrix, location }, comparisonFn) => {
   });
 };
 
+const isZoneUnlocked = ({ zonesMatrix, location, unlocked }) => {
+  const zone = getLocation(zonesMatrix, location);
+
+  return (
+    zone.unlock?.cost === 0 ||
+    isSomeNeighbor({ zonesMatrix, location }, (neighbor, neighborLocation) => {
+      const neighborCoordinates =
+        convertLocationToLetterCoordinates(neighborLocation);
+
+      if (!unlocked[neighborCoordinates]) {
+        return false;
+      }
+
+      return (
+        unlocked[neighborCoordinates].highScore >= zone.unlock?.cost ?? Infinity
+      );
+    })
+  );
+};
+
 const getZoneName = ({ zonesMatrix, unlocked, location }) => {
   if (!location) {
     // No location is selected
@@ -80,22 +100,8 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
   return;
 };
 
-const getZoneContents = ({ tile, zonesMatrix, location, unlocked, theme }) => {
-  if (
-    tile.unlock?.cost === 0 ||
-    isSomeNeighbor({ zonesMatrix, location }, (neighbor, neighborLocation) => {
-      const neighborCoordinates =
-        convertLocationToLetterCoordinates(neighborLocation);
-
-      if (!unlocked[neighborCoordinates]) {
-        return false;
-      }
-
-      return (
-        unlocked[neighborCoordinates].highScore >= tile.unlock?.cost ?? Infinity
-      );
-    })
-  ) {
+const getZoneContents = ({ zonesMatrix, location, unlocked, theme }) => {
+  if (isZoneUnlocked({ zonesMatrix, location, unlocked })) {
     // If we're unlocked, show our icon.
     const zone = getLocation(zonesMatrix, location);
 
@@ -111,9 +117,8 @@ const getZoneContents = ({ tile, zonesMatrix, location, unlocked, theme }) => {
 
   if (
     neighbors.some((neighbor) => {
-      const letterCoordinates = convertLocationToLetterCoordinates(neighbor);
-
-      return Boolean(unlocked[letterCoordinates]?.unlocked);
+      // const getTile
+      return isZoneUnlocked({ zonesMatrix, location: neighbor, unlocked });
     })
   ) {
     // If we neighbor an unlocked zone, show a lock with our unlock cost
@@ -202,7 +207,6 @@ const GalaxyMapModal = ({
             tiles={zonesMatrix}
             renderTile={(tile, location) => {
               let zoneContents = getZoneContents({
-                tile,
                 zonesMatrix,
                 location,
                 unlocked,
