@@ -8,10 +8,6 @@ export default {
   unlock: {
     cost: 0,
   },
-  icon: {
-    src: powerIcon,
-    color: "cautionColor",
-  },
   mission: {
     winCondition: 3,
     description:
@@ -24,10 +20,11 @@ export default {
     theme: "default",
     sectors,
     dimensions: { width: 10, height: 15 },
-    playerIndex: 145,
+    playerIndex: 22, // 145,
     deck: defaultDeck,
     action: "default", // This should import a function directly, maybe?
     power: 2,
+    maxPower: 2,
     drawSize: 3,
   },
   dare: {

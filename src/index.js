@@ -380,7 +380,7 @@ const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
 
 const App = () => {
   const [unlocked, setUnlocked] = useState({
-    C3: { winStreak: 0, unlocked: true },
+    C3: { unlocked: true, mission: {}, dare: {} },
   });
   const [currentZone, setCurrentZone] = useState("C3");
   const [currentRunType, setCurrentRunType] = useState("mission");
@@ -442,7 +442,7 @@ const App = () => {
         setAreCheckpointsEnabled,
       ],
       ["volume", volume, setVolume],
-      ["unlocked", setUnlocked],
+      ["unlocked", unlocked, setUnlocked],
     ],
   });
   const { theme, currentTheme, setTheme } = useTheme();
@@ -465,31 +465,34 @@ const App = () => {
     setDeck([...deck, ...newDeck]);
   };
 
-  const startNewRound = () => {
-    setPlayerIndex(145);
+  const startNewRound = (newZoneCoordinates, newRunType) => {
+    const zoneCoordinates = newZoneCoordinates ?? currentZone;
+    const runType = newRunType ?? currentRunType;
+
+    if (!zonesData[zoneCoordinates]) {
+      throw new Error(
+        `Tried to start a new round with zone ${zoneCoordinates}, but that zone does not exist.`
+      );
+    }
+
+    if (!zonesData[zoneCoordinates][runType]) {
+      throw new Error(
+        `Tried to start a new round with zone "${zoneCoordinates}" and run type "${runType}", but that run type does not exist for that zone.`
+      );
+    }
+
+    const newZone = zonesData[zoneCoordinates][runType];
+
+    setPlayerIndex(newZone.playerIndex);
     setEntities([]);
     setTurnCount(0);
     setLastSpawned(undefined);
     setSelectedCard(0);
     setGraveyard([]);
 
-    console.log({ zonesData, currentRunType, currentZone });
+    let newDeck = newZone.deck ?? initialDeck;
 
-    // The deck changes depending on the current sector
-    let newDeck = zonesData[currentZone]?.[currentRunType]?.deck ?? initialDeck;
-
-    // if (sectors[winStreak].conditions.includes("malfunctioning")) {
-    //   // Replace old deck manually with left and right cards swapped
-    //   // There is certainly a "smarter" way to do this
-    //   newDeck = directionSwappedDeck;
-    // }
-
-    const newSector = sectors[winStreak];
-
-    // if (newSector.conditions.includes("stalling")) {
-    //   // Add stall card
-    //   newDeck = [...newDeck, stallCard];
-    // }
+    const newSector = newZone.sectors[winStreak];
 
     if (newSector.conditions.includes("left-offline")) {
       // Remove any card with a left direction
@@ -504,8 +507,8 @@ const App = () => {
     setDeck(shuffleCards(newDeck, newSector));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
-    setPower(2);
-    setMaxPower(2);
+    setPower(newZone.power);
+    setMaxPower(newZone.maxPower);
     setHasUsedShipPower(false);
     setGameState("spawning");
   };
@@ -792,17 +795,48 @@ const App = () => {
 
     if (gameState === "victory") {
       playSound("warp");
-      // If you have not unlocked the mission
-      // check if this is a win condition
-      // if the win condition is satisfied,
-      // set this as unlocked
-      // How do we terminate the ongoing mission
-      // and return to the galaxy map screen?
-      // I think the map might need to be promoted
-      // to a main thing instead of a modal?
 
-      // What are the various new states that we can be in?
-      // What modals do we need to support this?
+      const zone = zonesData[currentZone][currentRunType];
+
+      if (typeof zone.winCondition === "number") {
+        // This is the default win condition. Compare current
+        // winStreak against this value.
+
+        if (winStreak >= zone.winCondition) {
+          const newUnlocked = { ...unlocked };
+
+          if (!newUnlocked[currentZone]) {
+            newUnlocked[currentZone] = {};
+          }
+
+          const newHighScore = Math.max(
+            newUnlocked[currentZone].highScore ?? 0,
+            winStreak
+          );
+
+          newUnlocked[currentZone] = {
+            ...newUnlocked[currentZone],
+            highScore: newHighScore,
+            [currentRunType]: {
+              completed: true,
+            },
+          };
+
+          // When we complete a mission:
+          // - return to galaxy map
+          // - we can duplicate data at this point
+          //    - A zone currently has an unlocked
+          //      property. However, this property
+          //      is really a derivative of it's
+          //      unlock requirements and the state
+          //      of every other zone's status.
+          //      To replace this, we'd need to
+          //      recursively check every sector on
+          //      the map?
+
+          setUnlocked(newUnlocked);
+        }
+      }
 
       // - There's now a "Mission Complete" screen once
       //   you satisfy a sector's win condition in the
@@ -1114,7 +1148,7 @@ const App = () => {
     }
   }, [shouldShowGalaxyMap]);
 
-  console.log({ deck });
+  console.log({ unlocked });
 
   return (
     <Fragment>
@@ -1170,8 +1204,6 @@ const App = () => {
             }}
             onSectorSelect={(letterCoordinates, runType) => {
               const newZone = zonesData[letterCoordinates][runType];
-
-              console.log({ letterCoordinates, newZone });
 
               setCurrentZone(letterCoordinates);
               setCurrentRunType(runType);

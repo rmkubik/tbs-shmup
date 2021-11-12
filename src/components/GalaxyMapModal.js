@@ -30,6 +30,16 @@ const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
   });
 };
 
+const isSomeNeighbor = ({ zonesMatrix, location }, comparisonFn) => {
+  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+
+  return neighbors.some((neighborLocation) => {
+    const neighbor = getLocation(zonesMatrix, neighborLocation);
+
+    return comparisonFn(neighbor, neighborLocation);
+  });
+};
+
 const getZoneName = ({ zonesMatrix, unlocked, location }) => {
   if (!location) {
     // No location is selected
@@ -68,6 +78,66 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
   }
 
   return;
+};
+
+const getZoneContents = ({ tile, zonesMatrix, location, unlocked, theme }) => {
+  if (
+    tile.unlock?.cost === 0 ||
+    isSomeNeighbor({ zonesMatrix, location }, (neighbor, neighborLocation) => {
+      const neighborCoordinates =
+        convertLocationToLetterCoordinates(neighborLocation);
+
+      if (!unlocked[neighborCoordinates]) {
+        return false;
+      }
+
+      return (
+        unlocked[neighborCoordinates].highScore >= tile.unlock?.cost ?? Infinity
+      );
+    })
+  ) {
+    // If we're unlocked, show our icon.
+    const zone = getLocation(zonesMatrix, location);
+
+    return (
+      <Sprite
+        src={zone.icon?.src ?? zone.mission.ship.icon}
+        color={theme[zone.icon?.color ?? zone.mission.ship.color]}
+      />
+    );
+  }
+
+  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+
+  if (
+    neighbors.some((neighbor) => {
+      const letterCoordinates = convertLocationToLetterCoordinates(neighbor);
+
+      return Boolean(unlocked[letterCoordinates]?.unlocked);
+    })
+  ) {
+    // If we neighbor an unlocked zone, show a lock with our unlock cost
+    return (
+      <Fragment>
+        <span
+          style={{
+            position: "absolute",
+            textAlign: "center",
+            fontSize: "8px",
+            width: "100%",
+            color: theme.backgroundColor,
+            fontWeight: "bolder",
+          }}
+        >
+          {getLocation(zonesMatrix, location).unlock?.cost}
+        </span>
+
+        <Sprite src={lockIcon} color={theme["primaryColor"]} />
+      </Fragment>
+    );
+  }
+
+  return ".";
 };
 
 const ZoneDescription = ({ zonesMatrix, unlocked, location }) => {
@@ -131,61 +201,13 @@ const GalaxyMapModal = ({
             className="grid"
             tiles={zonesMatrix}
             renderTile={(tile, location) => {
-              let zoneContents = ".";
-
-              if (
-                unlockedEntries.some(([letterCoordinates]) => {
-                  const otherLocation =
-                    convertLetterCoordinatesToLocation(letterCoordinates);
-
-                  return compareLocations(location, otherLocation);
-                })
-              ) {
-                // If we're unlocked, show our icon.
-                const zone = getLocation(zonesMatrix, location);
-
-                zoneContents = (
-                  <Sprite
-                    src={zone.icon.src ?? zone.mission.ship.icon}
-                    color={theme[zone.icon?.color ?? zone.mission.ship.color]}
-                  />
-                );
-              }
-
-              const neighbors = getNeighbors(
-                getCrossDirections,
+              let zoneContents = getZoneContents({
+                tile,
                 zonesMatrix,
-                location
-              );
-
-              if (
-                neighbors.some((neighbor) => {
-                  const letterCoordinates =
-                    convertLocationToLetterCoordinates(neighbor);
-
-                  return Boolean(unlocked[letterCoordinates]?.unlocked);
-                })
-              ) {
-                // If we neighbor an unlocked zone, show a lock with our unlock cost
-                zoneContents = (
-                  <Fragment>
-                    <span
-                      style={{
-                        position: "absolute",
-                        textAlign: "center",
-                        fontSize: "8px",
-                        width: "100%",
-                        color: theme.backgroundColor,
-                        fontWeight: "bolder",
-                      }}
-                    >
-                      {getLocation(zonesMatrix, location).unlock?.cost}
-                    </span>
-
-                    <Sprite src={lockIcon} color={theme["primaryColor"]} />
-                  </Fragment>
-                );
-              }
+                location,
+                unlocked,
+                theme,
+              });
 
               const getBorder = () => {
                 const isLocationSelected = selected
