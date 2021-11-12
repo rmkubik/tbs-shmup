@@ -1,38 +1,34 @@
-import { defaultDeck, directionSwappedDeck } from "../cards";
-import sectors from "../sectors";
+import { defaultDeck } from "../cards";
+import sectors, { repeatSectors } from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
-import powerIcon from "../../../assets/power.png";
+import asteroidIcon from "../../../assets/asteroid4.png";
 
 export default {
-  name: "Unimplemented",
+  name: "HEAVY Zone",
   unlock: {
-    cost: 7,
+    cost: 4,
   },
   icon: {
-    src: powerIcon,
-    color: "cautionColor",
+    src: asteroidIcon,
+    color: "hazardColor",
   },
   mission: {
     winCondition: 3,
-    description:
-      "Transport a derelict ISPS standard issue star ship out of a dangerous asteroid field.",
+    description: "Are you a bad enough dude to get to the end?",
     ship: {
       name: "Speed Racer",
       icon: shipIcon,
       color: "primaryColor",
     },
     theme: "default",
-    sectors,
+    sectors: repeatSectors([{ conditions: ["heavyAsteroids"] }], 100),
     dimensions: { width: 10, height: 15 },
-    playerIndex: 22, // 145,
+    playerIndex: 145,
     deck: defaultDeck,
     action: "default", // This should import a function directly, maybe?
     power: 2,
     maxPower: 2,
     drawSize: 3,
   },
-  dare: {
-    deck: directionSwappedDeck,
-    winCondition: "highScore",
-  },
+  dare: {},
 };

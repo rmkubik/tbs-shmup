@@ -24,3 +24,4 @@ let sectors = [
 ];
 
 export default sectors;
+export { repeatSectors };
