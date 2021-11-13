@@ -795,8 +795,12 @@ const App = () => {
 
     if (gameState === "gameover") {
       window.goatcounter.count({
-        path: `gameover-zone:${currentZone}-run:${currentRunType}-sector:${winStreak}`,
-        title: `Player lost ${currentZone} ${currentRunType} at sector ${winStreak}.`,
+        path: `gameover-zone:${currentZone}-run:${currentRunType}-sector:${
+          winStreak + 1
+        }`,
+        title: `Player lost ${currentZone} ${currentRunType} on sector ${
+          winStreak + 1
+        }.`,
         event: true,
       });
     }
@@ -806,7 +810,7 @@ const App = () => {
 
       window.goatcounter.count({
         path: `victory-zone:${currentZone}-run:${currentRunType}-sector:${winStreak}`,
-        title: `Player beat ${currentZone} ${currentRunType} at sector ${winStreak}.`,
+        title: `Player beat ${currentZone} ${currentRunType} on sector ${winStreak}.`,
         event: true,
       });
 
