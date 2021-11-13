@@ -20,6 +20,7 @@ export default {
     deck: weaverDeck,
     action: "default",
     power: 2,
+    maxPower: 2,
     drawSize: 3,
   },
   dare: {},

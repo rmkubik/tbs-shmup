@@ -793,8 +793,22 @@ const App = () => {
       setGameState("waiting");
     }
 
+    if (gameState === "gameover") {
+      window.goatcounter.count({
+        path: `gameover-zone:${currentZone}-run:${currentRunType}-sector:${winStreak}`,
+        title: `Player lost ${currentZone} ${currentRunType} at sector ${winStreak}.`,
+        event: true,
+      });
+    }
+
     if (gameState === "victory") {
       playSound("warp");
+
+      window.goatcounter.count({
+        path: `victory-zone:${currentZone}-run:${currentRunType}-sector:${winStreak}`,
+        title: `Player beat ${currentZone} ${currentRunType} at sector ${winStreak}.`,
+        event: true,
+      });
 
       const zone = zonesData[currentZone][currentRunType];
 
