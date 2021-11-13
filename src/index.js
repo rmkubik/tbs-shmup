@@ -118,7 +118,7 @@ const getIndicesInRange = (entity, colCount) => {
     );
 
     return (
-      createArray(rowsBetweenCurrentAndDestination)
+      createArray(Math.abs(rowsBetweenCurrentAndDestination))
         // Start at the row _after_ the entity's current position
         .map(
           (_, row) =>
@@ -250,6 +250,30 @@ const getIndicesInActionRange = (action, colCount, origin, rowCount) => {
   });
 
   return indices;
+};
+
+const getIndicesInDirectionUpToTarget = ({
+  playerIndex,
+  hand,
+  direction,
+  colCount,
+  rowCount,
+  selectedCard,
+  newIndex,
+}) => {
+  const allMoveIndices = getIndicesInDirection(
+    playerIndex,
+    hand[selectedCard].range,
+    direction,
+    colCount,
+    rowCount
+  );
+
+  const newMoveIndexInAllMoveIndices = allMoveIndices.findIndex(
+    (index) => index === newIndex
+  );
+
+  return allMoveIndices.slice(0, newMoveIndexInAllMoveIndices + 1);
 };
 
 const explodeEntity = (entity) => {
@@ -921,13 +945,15 @@ const App = () => {
 
         const direction = getDirection(playerIndex, newIndex, colCount);
 
-        const indices = getIndicesInDirection(
+        const indices = getIndicesInDirectionUpToTarget({
           playerIndex,
-          hand[selectedCard].range,
+          hand,
           direction,
           colCount,
-          rowCount
-        );
+          rowCount,
+          selectedCard,
+          newIndex,
+        });
 
         const collidedEntityIndex = entities.findIndex((entity) =>
           indices.includes(entity.index)
@@ -1023,15 +1049,16 @@ const App = () => {
   // If an index is being hovered, and it is a targetable index
   if (hoveredIndex >= 0 && indicesInActionRange.includes(hoveredIndex)) {
     const direction = getDirection(playerIndex, hoveredIndex, colCount);
-    const indicesInDirection = getIndicesInDirection(
+
+    hoveredIndices = getIndicesInDirectionUpToTarget({
       playerIndex,
-      hand[selectedCard].range,
+      hand,
       direction,
       colCount,
-      rowCount
-    );
-
-    hoveredIndices = indicesInDirection;
+      rowCount,
+      selectedCard,
+      newIndex: hoveredIndex,
+    });
   }
 
   const renderTile = (tile, index) => {
