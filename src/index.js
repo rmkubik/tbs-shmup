@@ -1166,8 +1166,6 @@ const App = () => {
     }
   }, [shouldShowGalaxyMap]);
 
-  console.log({ unlocked });
-
   return (
     <Fragment>
       {enableVfx && <div className="scanLinesH overlay" />}
