@@ -269,6 +269,10 @@ const getIndicesInDirectionUpToTarget = ({
     rowCount
   );
 
+  if (hand[selectedCard].selectionStyle !== "precise") {
+    return allMoveIndices;
+  }
+
   const newMoveIndexInAllMoveIndices = allMoveIndices.findIndex(
     (index) => index === newIndex
   );

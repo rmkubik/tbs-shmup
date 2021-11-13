@@ -45,7 +45,6 @@ const defaultDeck = [
     cost: 1,
     range: 3,
     directions: ["left"],
-    selectionStyle: "precise",
   },
   {
     name: "Up",
