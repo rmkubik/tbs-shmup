@@ -120,14 +120,20 @@ const getIndicesInRange = (entity, colCount) => {
     return (
       createArray(rowsBetweenCurrentAndDestination)
         // Start at the row _after_ the entity's current position
-        .map((_, row) => entity.index + (row + 1) * colCount)
+        .map(
+          (_, row) =>
+            entity.index + Math.sign(entity.speed) * ((row + 1) * colCount)
+        )
     );
   }
 
   return (
-    createArray(entity.speed)
+    createArray(Math.abs(entity.speed))
       // Start at the row _after_ the entity's current position
-      .map((_, row) => entity.index + (row + 1) * colCount)
+      .map(
+        (_, row) =>
+          entity.index + Math.sign(entity.speed) * ((row + 1) * colCount)
+      )
   );
 };
 
@@ -1031,6 +1037,16 @@ const App = () => {
   const renderTile = (tile, index) => {
     let object = { ...tile };
     delete object.bg; // remove old bg from tile
+
+    const hoveredEntity = entities.find(
+      (entity) => hoveredIndex === entity.index
+    );
+    if (
+      hoveredEntity &&
+      getIndicesInRange(hoveredEntity, colCount).includes(index)
+    ) {
+      object = { name: "⚠️", img: warningIcon, color: "cautionColor" };
+    }
 
     // Display warning icons for entity movement
     // if (
