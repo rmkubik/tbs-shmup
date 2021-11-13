@@ -173,7 +173,7 @@ const GalaxyMapModal = ({
   // locks should shake on click
 
   return (
-    <Modal>
+    <Modal containerStyles={{ width: "7vw" }}>
       <div className="header">
         <p className="gameover">GALAXY MAP</p>
       </div>

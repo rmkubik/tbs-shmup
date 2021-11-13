@@ -8,6 +8,7 @@ export default {
     cost: 3,
   },
   mission: {
+    description: "If you can dodge a rock, you can dodge a ball.",
     winCondition: 3,
     ship: {
       name: "The Weaver",

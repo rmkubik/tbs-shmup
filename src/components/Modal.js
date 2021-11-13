@@ -1,7 +1,7 @@
 import { h } from "preact";
 import useTheme from "../hooks/useTheme";
 
-const Modal = ({ children }) => {
+const Modal = ({ children, containerStyles }) => {
   const { theme } = useTheme();
 
   return (
@@ -10,6 +10,7 @@ const Modal = ({ children }) => {
         style={{
           borderColor: theme.primaryColor,
           backgroundColor: theme.backgroundColor,
+          ...containerStyles,
         }}
       >
         {children}
