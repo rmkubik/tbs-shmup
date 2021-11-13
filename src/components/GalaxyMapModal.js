@@ -99,8 +99,6 @@ const getZoneContents = ({ zonesMatrix, location, unlocked, theme }) => {
     // If we're unlocked, show our icon.
     const zone = getLocation(zonesMatrix, location);
 
-    if (location.row === 2 && location.col === 3) console.log({ zone });
-
     return (
       <Sprite
         src={zone.icon?.src ?? zone.mission.ship.icon}
