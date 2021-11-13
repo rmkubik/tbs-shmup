@@ -180,6 +180,7 @@ const GalaxyMapModal = ({
       <div className="center">
         <div className="galaxy-map">
           <Grid2D
+            tileSize={18}
             className="top"
             tiles={constructMatrix(
               (location) => getLetterComponentFromLocation(location),
@@ -191,6 +192,7 @@ const GalaxyMapModal = ({
             renderTile={(tile) => <div>{tile}</div>}
           />
           <Grid2D
+            tileSize={18}
             className="left"
             tiles={constructMatrix((location) => location.row + 1, {
               width: 1,
@@ -199,6 +201,7 @@ const GalaxyMapModal = ({
             renderTile={(tile) => <div>{tile}</div>}
           />
           <Grid2D
+            tileSize={18}
             className="grid"
             tiles={zonesMatrix}
             renderTile={(tile, location) => {
@@ -231,9 +234,9 @@ const GalaxyMapModal = ({
               return (
                 <div
                   style={{
-                    height: "16px",
-                    width: "16px",
-                    padding: "2px",
+                    height: "18px",
+                    width: "18px",
+                    // padding: "2px",
                     position: "relative",
                     border: getBorder(),
                     boxSizing: "border-box",

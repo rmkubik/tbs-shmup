@@ -1,15 +1,15 @@
 import { h } from "preact";
 import { getDimensions, mapMatrix } from "functional-game-utils";
 
-const Grid2D = ({ tiles, renderTile, ...props }) => {
+const Grid2D = ({ tiles, tileSize, renderTile, ...props }) => {
   const { width, height } = getDimensions(tiles);
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "16px ".repeat(width),
-        lineHeight: "16px",
+        gridTemplateColumns: `${tileSize}px `.repeat(width),
+        lineHeight: `${tileSize}px`,
         textAlign: "center",
       }}
       {...props}

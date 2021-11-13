@@ -20,7 +20,7 @@ const drawImageWithColor = ({ canvas, image, color }) => {
   }
 };
 
-const Sprite = ({ src, color, ...props }) => {
+const Sprite = ({ src, color, tileSize = 16, ...props }) => {
   const { theme } = useTheme();
   const canvasRef = useRef();
   const spriteImage = useMemo(() => {
@@ -61,7 +61,9 @@ const Sprite = ({ src, color, ...props }) => {
     };
   }, [theme, src, color]);
 
-  return <canvas width="16" height="16" ref={canvasRef} {...props} />;
+  return (
+    <canvas width={tileSize} height={tileSize} ref={canvasRef} {...props} />
+  );
 };
 
 export default Sprite;
