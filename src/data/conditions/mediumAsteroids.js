@@ -1,7 +1,10 @@
+import randInt from "../../utils/randInt";
 import {
   pickNextSpawnsWithWeightedMap,
   spawnEntitiesWithRandomSpeed,
 } from "./utils";
+import { update } from "ramda";
+import { createMetalCube } from "../entities";
 
 const mediumAsteroids = {
   chooseNextSpawns: (colCount, sector, turnCount, spawnPattern) => {
@@ -16,7 +19,15 @@ const mediumAsteroids = {
     );
   },
   spawnEntities: (nextSpawns) => {
-    return spawnEntitiesWithRandomSpeed(nextSpawns);
+    const newEntities = spawnEntitiesWithRandomSpeed(nextSpawns);
+
+    const metalCubeIndex = randInt(0, newEntities.length);
+
+    return update(
+      metalCubeIndex,
+      createMetalCube({ index: newEntities[metalCubeIndex].index }),
+      newEntities
+    );
   },
 };
 

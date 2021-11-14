@@ -22,6 +22,8 @@ function createAsteroid({ speed, index }) {
     index,
     img,
     color: "hazardColor",
+    isCollisionImmune: false,
+    isExplosive: false,
   };
 }
 

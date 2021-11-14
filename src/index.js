@@ -544,8 +544,11 @@ const App = () => {
       if (entity.index === playerIndex) {
         playSound("explode_med");
 
+        if (!entity.isCollisionImmune) {
+          explodeEntity(entity);
+        }
+
         setPlayerIndex(-100);
-        explodeEntity(entity);
       }
 
       const otherEntities = remove(entities, index);
@@ -556,15 +559,29 @@ const App = () => {
       if (collidingEntities.length > 0) {
         // Mark each collided entity as exploded
         collidingEntities.forEach((otherEntity) => {
-          playSound("explode_med");
+          // If both are collision immune, they both blow up
+          // If the other one isn't collision immune, it blows
+          // up.
+          if (
+            (otherEntity.isCollisionImmune && entity.isCollisionImmune) ||
+            !otherEntity.isCollisionImmune
+          ) {
+            playSound("explode_med");
 
-          explodeEntity(otherEntity);
+            explodeEntity(otherEntity);
+          }
         });
 
-        playSound("explode_med");
+        const isAnyOtherEntityCollisionImmune = collidingEntities.some(
+          (otherEntity) => otherEntity.isCollisionImmune
+        );
 
-        // Blow ourselves up
-        explodeEntity(entity);
+        if (isAnyOtherEntityCollisionImmune || !entity.isCollisionImmune) {
+          playSound("explode_med");
+
+          // Blow ourselves up
+          explodeEntity(entity);
+        }
       }
     }
 
@@ -627,11 +644,6 @@ const App = () => {
       // Spawn new entities every X turns if we haven't already spawned
       // at this current turn count.
       if (turnCount % 1 === 0 && lastSpawned !== turnCount) {
-        // TODO: Use the current sector's spawningCondition to
-        // populate this newEntities array.
-        // Then keep some of the filter checks below to take account
-        // for entities spawning on top of each other or in player
-        // shots.
         const sector = sectors[winStreak];
         const spawningCondition = findFirstConditionWithSpawns(sector);
 
@@ -640,6 +652,9 @@ const App = () => {
           .filter((newEntity) => {
             // If we would spawn on top of a bullet, blow it up and
             // then don't spawn a new asteroid.
+            //
+            // TODO: How do isExplosionImmune asteroids and bullets
+            // interact when spawning new entities?
             const collidingBulletIndices = findAllMatchingIndices(
               entities,
               (entity) =>
@@ -649,16 +664,13 @@ const App = () => {
               collidingBulletIndices.forEach((collidingIndex) => {
                 playSound("explode_med");
 
-                entities[collidingIndex].name = "💥";
-                entities[collidingIndex].img = explosionIcon;
-                entities[collidingIndex].color = "hazardColor";
-                entities[collidingIndex].speed = 0;
+                explodeEntity(entities[collidingIndex]);
               });
               return false;
             }
 
+            // Don't spawn entities on top of other entities
             if (entities.some((entity) => entity.index === newEntity.index)) {
-              // Don't spawn entities on top of other entities
               return false;
             }
 
@@ -936,6 +948,9 @@ const App = () => {
         );
 
         if (collidedEntityIndex >= 0) {
+          // This section should ignore isCollisionImmune. We don't
+          // care if the asteroid shouldn't have exploded or not
+          // because the player is now dead.
           playSound("explode_med");
 
           // Kill player if they move into an entity
@@ -969,15 +984,29 @@ const App = () => {
       }
 
       if (hand[selectedCard].effect === "shoot") {
+        // TODO: Perhaps we should add a "collision resolution"
+        // phase that happens before we move on to the movement
+        // phase.
+        // I think this one-off exists here because entities
+        // will spawn on top of each other and then move
+        // out of each other's way before movement collision
+        // code can tell they should've exploded.
+        //
         // is some other entity at this location?
         const collidingEntities = entities.filter(
           (entity) => entity.index === newIndex
         );
         if (collidingEntities.length > 0) {
+          // TODO: This does not support bullets being
+          // collision immune right now.
           playSound("explode_med");
 
           // don't create a bullet, blow up entities instead
-          collidingEntities.forEach((entity) => explodeEntity(entity));
+          collidingEntities.forEach((entity) => {
+            if (!entity.isCollisionImmune) {
+              explodeEntity(entity);
+            }
+          });
         } else {
           const newEntity = {
             index: newIndex,
