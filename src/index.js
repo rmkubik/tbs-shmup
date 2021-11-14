@@ -14,6 +14,8 @@ import asteroidIcon1 from "../assets/asteroid1.png";
 import asteroidIcon2 from "../assets/asteroid2.png";
 import asteroidIcon3 from "../assets/asteroid3.png";
 import asteroidIcon4 from "../assets/asteroid4.png";
+import explosiveAsteroidIcon from "../assets/asteroid5.png";
+import cubeIcon from "../assets/cube.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
@@ -24,7 +26,7 @@ import {
   getCurrentSpawnPattern,
 } from "./data/asteroidPatterns";
 import { initialDeck } from "./data/cards";
-import conditions from "./data/conditions";
+import conditions, { findFirstConditionWithSpawns } from "./data/conditions";
 
 import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
@@ -288,75 +290,10 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
-const pickRandomSpawnIndices = (colCount, sector, turnCount, spawnPattern) => {
-  const spawnMaps = {
-    light: new WeightedMap({
-      3: 40,
-      4: 30,
-      5: 25,
-      6: 5,
-    }),
-    medium: new WeightedMap({
-      4: 5,
-      5: 45,
-      6: 35,
-      7: 15,
-    }),
-    heavy: new WeightedMap({
-      6: 10,
-      7: 20,
-      8: 40,
-      9: 20,
-      10: 10,
-    }),
-  };
-
-  let spawnType = "light";
-
-  if (sector?.conditions.includes("heavyAsteroids")) {
-    spawnType = "heavy";
-  }
-
-  if (sector?.conditions.includes("mediumAsteroids")) {
-    spawnType = "medium";
-  }
-
-  if (doesSectorHavePatternedAsteroids(sector)) {
-    const pattern = spawnPattern
-      .split("\n")
-      .map((string) => string.trim().split(""));
-
-    const currentPattern = pattern[turnCount % pattern.length];
-
-    return findAllMatchingIndices(currentPattern, (val) => val !== ".");
-  }
-
-  const spawnCountMap = spawnMaps[spawnType];
-
-  const spawnCount = parseInt(spawnCountMap.pickRandom());
-
-  const indices = [];
-
-  let iterationCount = 0;
-
-  while (indices.length < spawnCount && iterationCount < 100) {
-    iterationCount += 1;
-
-    const spawnIndex = randInt(0, colCount - 1);
-
-    if (indices.some((index) => index === spawnIndex)) {
-      // Skip indices we've already chosen
-      continue;
-    }
-
-    indices.push(spawnIndex);
-  }
-
-  return indices;
-};
-
 const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
-  const initialIndices = pickRandomSpawnIndices(
+  const spawningCondition = findFirstConditionWithSpawns(sector);
+
+  const initialIndices = conditions[spawningCondition].chooseNextSpawns(
     colCount,
     sector,
     turnCount,
