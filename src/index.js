@@ -10,10 +10,7 @@ import uiSelect from "../assets/audio/ui_select.ogg";
 import warp from "../assets/audio/warp.ogg";
 
 import warningIcon from "../assets/warning.png";
-import asteroidIcon1 from "../assets/asteroid1.png";
-import asteroidIcon2 from "../assets/asteroid2.png";
-import asteroidIcon3 from "../assets/asteroid3.png";
-import asteroidIcon4 from "../assets/asteroid4.png";
+
 import explosiveAsteroidIcon from "../assets/asteroid5.png";
 import cubeIcon from "../assets/cube.png";
 import explosionIcon from "../assets/explosion.png";
@@ -630,82 +627,120 @@ const App = () => {
       // Spawn new entities every X turns if we haven't already spawned
       // at this current turn count.
       if (turnCount % 1 === 0 && lastSpawned !== turnCount) {
-        const newEntities = [];
+        // TODO: Use the current sector's spawningCondition to
+        // populate this newEntities array.
+        // Then keep some of the filter checks below to take account
+        // for entities spawning on top of each other or in player
+        // shots.
+        const sector = sectors[winStreak];
+        const spawningCondition = findFirstConditionWithSpawns(sector);
 
-        nextSpawns.forEach((spawn, spawnIndex) => {
-          if (!spawn) {
-            // This index isn't a spawn location
-            return;
-          }
+        const newEntities = conditions[spawningCondition]
+          .spawnEntities(nextSpawns)
+          .filter((newEntity) => {
+            // If we would spawn on top of a bullet, blow it up and
+            // then don't spawn a new asteroid.
+            const collidingBulletIndices = findAllMatchingIndices(
+              entities,
+              (entity) =>
+                entity.index === newEntity.index && entity.name === "*"
+            );
+            if (collidingBulletIndices.length > 0) {
+              collidingBulletIndices.forEach((collidingIndex) => {
+                playSound("explode_med");
 
-          let spawnSpeed = randInt(2, 5);
-
-          if (doesSectorHavePatternedAsteroids(sectors[winStreak])) {
-            const pattern = spawnPattern
-              .split("\n")
-              .map((string) => string.trim().split(""));
-
-            // Turn has advanced since we set nextSpawns, check previous turn
-            // in the pattern for spawn speeds
-            const currentPattern = pattern[turnCount % pattern.length];
-
-            // ? should be left as random speed
-            // . shouldn't be here, as it isn't marked as a spawn
-            if (
-              currentPattern[spawnIndex] !== "?" &&
-              currentPattern[spawnIndex] !== "."
-            ) {
-              // Otherwise, we use the default speed
-              spawnSpeed = parseInt(currentPattern[spawnIndex]);
+                entities[collidingIndex].name = "💥";
+                entities[collidingIndex].img = explosionIcon;
+                entities[collidingIndex].color = "hazardColor";
+                entities[collidingIndex].speed = 0;
+              });
+              return false;
             }
-          }
 
-          // If we would spawn on top of a bullet, blow it up and
-          // then don't spawn a new asteroid.
-          const collidingBulletIndices = findAllMatchingIndices(
-            entities,
-            (entity) => entity.index === spawnIndex && entity.name === "*"
-          );
-          if (collidingBulletIndices.length > 0) {
-            collidingBulletIndices.forEach((collidingIndex) => {
-              playSound("explode_med");
+            if (entities.some((entity) => entity.index === newEntity.index)) {
+              // Don't spawn entities on top of other entities
+              return false;
+            }
 
-              entities[collidingIndex].name = "💥";
-              entities[collidingIndex].img = explosionIcon;
-              entities[collidingIndex].color = "hazardColor";
-              entities[collidingIndex].speed = 0;
-            });
-            return;
-          }
-
-          if (
-            entities.some((entity) => entity.index === spawnIndex) ||
-            newEntities.some((entity) => entity.index === spawnIndex)
-          ) {
-            // Don't spawn entities on top of other entities
-            return;
-          }
-
-          let img;
-
-          if (spawnSpeed <= 2) {
-            img = asteroidIcon1;
-          } else if (spawnSpeed > 2 && spawnSpeed <= 3) {
-            img = asteroidIcon2;
-          } else if (spawnSpeed > 3 && spawnSpeed <= 4) {
-            img = asteroidIcon3;
-          } else if (spawnSpeed >= 5) {
-            img = asteroidIcon4;
-          }
-
-          newEntities.push({
-            name: "🪨",
-            speed: spawnSpeed,
-            index: spawnIndex,
-            img,
-            color: "hazardColor",
+            return true;
           });
-        });
+
+        console.log({ newEntities });
+
+        // nextSpawns.forEach((spawn, spawnIndex) => {
+        // if (!spawn) {
+        //   // This index isn't a spawn location
+        //   return;
+        // }
+
+        // let spawnSpeed = randInt(2, 5);
+
+        // if (doesSectorHavePatternedAsteroids(sectors[winStreak])) {
+        //   const pattern = spawnPattern
+        //     .split("\n")
+        //     .map((string) => string.trim().split(""));
+
+        //   // Turn has advanced since we set nextSpawns, check previous turn
+        //   // in the pattern for spawn speeds
+        //   const currentPattern = pattern[turnCount % pattern.length];
+
+        //   // ? should be left as random speed
+        //   // . shouldn't be here, as it isn't marked as a spawn
+        //   if (
+        //     currentPattern[spawnIndex] !== "?" &&
+        //     currentPattern[spawnIndex] !== "."
+        //   ) {
+        //     // Otherwise, we use the default speed
+        //     spawnSpeed = parseInt(currentPattern[spawnIndex]);
+        //   }
+        // }
+
+        // If we would spawn on top of a bullet, blow it up and
+        // then don't spawn a new asteroid.
+        // const collidingBulletIndices = findAllMatchingIndices(
+        //   entities,
+        //   (entity) => entity.index === spawnIndex && entity.name === "*"
+        // );
+        // if (collidingBulletIndices.length > 0) {
+        //   collidingBulletIndices.forEach((collidingIndex) => {
+        //     playSound("explode_med");
+
+        //     entities[collidingIndex].name = "💥";
+        //     entities[collidingIndex].img = explosionIcon;
+        //     entities[collidingIndex].color = "hazardColor";
+        //     entities[collidingIndex].speed = 0;
+        //   });
+        //   return;
+        // }
+
+        // if (
+        //   entities.some((entity) => entity.index === spawnIndex) ||
+        //   newEntities.some((entity) => entity.index === spawnIndex)
+        // ) {
+        //   // Don't spawn entities on top of other entities
+        //   return;
+        // }
+
+        // let img;
+
+        // if (spawnSpeed <= 2) {
+        //   img = asteroidIcon1;
+        // } else if (spawnSpeed > 2 && spawnSpeed <= 3) {
+        //   img = asteroidIcon2;
+        // } else if (spawnSpeed > 3 && spawnSpeed <= 4) {
+        //   img = asteroidIcon3;
+        // } else if (spawnSpeed >= 5) {
+        //   img = asteroidIcon4;
+        // }
+
+        // newEntities.push({
+        //   name: "🪨",
+        //   speed: spawnSpeed,
+        //   index: spawnIndex,
+        //   img,
+        //   color: "hazardColor",
+        // });
+        // });
 
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
