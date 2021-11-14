@@ -306,6 +306,19 @@ const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
   return nextSpawns;
 };
 
+/**
+ * I think it is time to make th player also just an entity.
+ * I think it should just have a special isPlayer: true property.
+ *
+ * All instances of playerIndex should be replaced with a
+ * getPlayer().index function call.
+ *
+ * Any movement calls will no longer use setPlayerIndex
+ * they will instead getPlayer(), adjust player.index, and then
+ * setEntities().
+ */
+const resolveCollisions = (entities) => {};
+
 const getOnShuffleFunction = (sector) => {
   const conditionsWithOnShuffleFunctions = sector.conditions.filter(
     (condition) => conditions[condition]?.onShuffle
@@ -421,6 +434,22 @@ const App = () => {
 
   const scaleRef = useScaleRef();
 
+  const createPlayer = (newIndex) => {
+    setPlayerIndex(newIndex);
+  };
+  const getPlayer = () => {
+    return { index: playerIndex };
+  };
+  const movePlayer = (newIndex) => {
+    setPlayerIndex(newIndex);
+  };
+  const killPlayer = () => {
+    setPlayerIndex(-100);
+  };
+  const isPlayerDead = () => {
+    return getPlayer().index < 0;
+  };
+
   const shuffleGraveyardIntoDeck = () => {
     shuffleCardsIntoDeck(graveyard);
     setGraveyard([]);
@@ -451,7 +480,7 @@ const App = () => {
 
     const newZone = zonesData[zoneCoordinates][runType];
 
-    setPlayerIndex(newZone.playerIndex);
+    createPlayer(newZone.playerIndex);
     setEntities([]);
     setTurnCount(0);
     setLastSpawned(undefined);
@@ -541,14 +570,14 @@ const App = () => {
       // Move ourselves to the new index
       entity.index = newIndex;
 
-      if (entity.index === playerIndex) {
+      if (entity.index === getPlayer().index) {
         playSound("explode_med");
 
         if (!entity.isCollisionImmune) {
           explodeEntity(entity);
         }
 
-        setPlayerIndex(-100);
+        killPlayer();
       }
 
       const otherEntities = remove(entities, index);
@@ -779,13 +808,13 @@ const App = () => {
 
   useEffect(() => {
     if (gameState === "cleanup") {
-      if (playerIndex < 0) {
+      if (isPlayerDead()) {
         // Player is dead
         setGameState("gameover");
         return;
       }
 
-      if (playerIndex < colCount) {
+      if (getPlayer().index < colCount) {
         // Player made it to the end
         setWinStreak(winStreak + 1);
         setGameState("victory");
@@ -803,7 +832,7 @@ const App = () => {
       setEntities(newEntities);
       setGameState("drawing");
     }
-  }, [playerIndex, gameState, entities, tiles]);
+  }, [gameState, entities, tiles]);
 
   useEffect(() => {
     if (gameState === "drawing") {
@@ -923,7 +952,7 @@ const App = () => {
       getIndicesInActionRange(
         hand[selectedCard],
         colCount,
-        playerIndex,
+        getPlayer().index,
         rowCount
       ).includes(newIndex)
     ) {
@@ -931,10 +960,10 @@ const App = () => {
       if (!hand[selectedCard].effect) {
         playSound("move");
 
-        const direction = getDirection(playerIndex, newIndex, colCount);
+        const direction = getDirection(getPlayer().index, newIndex, colCount);
 
         const indices = getIndicesInDirectionUpToTarget({
-          playerIndex,
+          playerIndex: getPlayer().index,
           hand,
           direction,
           colCount,
@@ -963,13 +992,13 @@ const App = () => {
           };
 
           setEntities(set(entities, collidedEntityIndex, newEntity));
-          setPlayerIndex(-100);
+          killPlayer();
           setGameState("gameover");
           return;
         }
 
         const movedIndex = last(indices);
-        setPlayerIndex(movedIndex);
+        movePlayer(movedIndex);
 
         if (movedIndex < colCount) {
           // Player made it to the end
@@ -1046,17 +1075,17 @@ const App = () => {
   const indicesInActionRange = getIndicesInActionRange(
     hand[selectedCard],
     colCount,
-    playerIndex,
+    getPlayer().index,
     rowCount
   );
   let hoveredIndices = [];
 
   // If an index is being hovered, and it is a targetable index
   if (hoveredIndex >= 0 && indicesInActionRange.includes(hoveredIndex)) {
-    const direction = getDirection(playerIndex, hoveredIndex, colCount);
+    const direction = getDirection(getPlayer().index, hoveredIndex, colCount);
 
     hoveredIndices = getIndicesInDirectionUpToTarget({
-      playerIndex,
+      playerIndex: getPlayer().index,
       hand,
       direction,
       colCount,
@@ -1109,7 +1138,7 @@ const App = () => {
 
     // Display player at current index
     const shipIcon = zonesData[currentZone][currentRunType].ship.icon;
-    if (index === playerIndex) {
+    if (index === getPlayer().index) {
       object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
     }
 
@@ -1275,7 +1304,7 @@ const App = () => {
               setTheme(newZone.theme);
               setSectors(newZone.sectors);
               // setTiles(TODO: use new dimensions to calculate tiles again);
-              setPlayerIndex(newZone.playerIndex);
+              createPlayer(newZone.playerIndex);
               setDeck(newZone.deck);
               setPower(2);
               setMaxPower(2);
