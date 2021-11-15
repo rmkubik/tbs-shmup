@@ -4,7 +4,7 @@ import {
   spawnEntitiesWithRandomSpeed,
 } from "./utils";
 import { update } from "ramda";
-import { createMetalCube } from "../entities";
+import { createExplodingTriangle, createMetalCube } from "../entities";
 
 const mediumAsteroids = {
   chooseNextSpawns: (colCount, sector, turnCount, spawnPattern) => {
@@ -21,13 +21,17 @@ const mediumAsteroids = {
   spawnEntities: (nextSpawns) => {
     const newEntities = spawnEntitiesWithRandomSpeed(nextSpawns);
 
-    const metalCubeIndex = randInt(0, newEntities.length - 1);
+    return newEntities.map((entity) => {
+      if (entity.speed === 3) {
+        return createExplodingTriangle({ index: entity.index });
+      }
 
-    return update(
-      metalCubeIndex,
-      createMetalCube({ index: newEntities[metalCubeIndex].index }),
-      newEntities
-    );
+      if (entity.speed === 4) {
+        return createMetalCube({ index: entity.index });
+      }
+
+      return entity;
+    });
   },
 };
 

@@ -14,6 +14,7 @@ import warningIcon from "../assets/warning.png";
 import explosiveAsteroidIcon from "../assets/asteroid5.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
+import starDotIcon from "../assets/star-dot.png";
 
 import sectorsData from "./data/sectors";
 import zonesData, { zonesMatrix } from "./data/zones";
@@ -469,7 +470,11 @@ const shuffleCards = (cards, sector) => {
 const colCount = 10;
 const rowCount = 15;
 const frameRate = 150;
-const initialTiles = new Array(colCount * rowCount).fill({ name: "." });
+const initialTiles = new Array(colCount * rowCount).fill({
+  name: ".",
+  img: starDotIcon,
+  color: "starColor",
+});
 
 const App = () => {
   const [unlocked, setUnlocked] = useState({
@@ -942,11 +947,6 @@ const App = () => {
 
   useEffect(() => {
     if (gameState === "cleanup") {
-      console.log("in cleanup state", {
-        isPlayerDead: isPlayerDead(),
-        entities,
-      });
-
       if (isPlayerDead()) {
         // Player is dead
         setGameState("gameover");
@@ -1269,6 +1269,7 @@ const App = () => {
     if (indicesInActionRange.includes(index)) {
       if (object.name === ".") {
         object.name = "";
+        object.img = undefined;
       }
       object.bg = "◌";
 
