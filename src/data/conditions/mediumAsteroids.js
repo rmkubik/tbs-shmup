@@ -21,7 +21,7 @@ const mediumAsteroids = {
   spawnEntities: (nextSpawns) => {
     const newEntities = spawnEntitiesWithRandomSpeed(nextSpawns);
 
-    const metalCubeIndex = randInt(0, newEntities.length);
+    const metalCubeIndex = randInt(0, newEntities.length - 1);
 
     return update(
       metalCubeIndex,

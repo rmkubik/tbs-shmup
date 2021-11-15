@@ -1,5 +1,6 @@
 import { Fragment, h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
+import { update } from "ramda";
 
 import alarmSound from "../assets/audio/alarm.ogg";
 import clickSound from "../assets/audio/click.ogg";
@@ -10,25 +11,19 @@ import uiSelect from "../assets/audio/ui_select.ogg";
 import warp from "../assets/audio/warp.ogg";
 
 import warningIcon from "../assets/warning.png";
-
 import explosiveAsteroidIcon from "../assets/asteroid5.png";
-import cubeIcon from "../assets/cube.png";
 import explosionIcon from "../assets/explosion.png";
 import bulletIcon from "../assets/bullet.png";
 
 import sectorsData from "./data/sectors";
 import zonesData, { zonesMatrix } from "./data/zones";
-import {
-  doesSectorHavePatternedAsteroids,
-  getCurrentSpawnPattern,
-} from "./data/asteroidPatterns";
+import { getCurrentSpawnPattern } from "./data/asteroidPatterns";
 import { initialDeck } from "./data/cards";
 import conditions, { findFirstConditionWithSpawns } from "./data/conditions";
+import { createPlayer } from "./data/entities";
 
-import WeightedMap from "./utils/WeightedMap";
 import shuffle from "./utils/shuffle";
 import last from "./utils/last";
-import randInt from "./utils/randInt";
 import remove from "./utils/remove";
 import set from "./utils/set";
 import findAllMatchingIndices from "./utils/findAllMatchingIndices";
@@ -287,6 +282,17 @@ const explodeEntity = (entity) => {
   entity.targetIndex = entity.index;
 };
 
+const createExplosion = (entity) => {
+  return {
+    ...entity,
+    name: "💥",
+    img: explosionIcon,
+    speed: 0,
+    color: "hazardColor",
+    targetIndex: entity.index,
+  };
+};
+
 const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
   const spawningCondition = findFirstConditionWithSpawns(sector);
 
@@ -307,17 +313,123 @@ const chooseNextSpawns = (colCount, sector, turnCount, spawnPattern) => {
 };
 
 /**
- * I think it is time to make th player also just an entity.
- * I think it should just have a special isPlayer: true property.
+ * The just passing scenario doesn't work if everyone moves.
  *
- * All instances of playerIndex should be replaced with a
- * getPlayer().index function call.
+ * . . .
+ * . 1 .
+ * . -1 .
+ * . . .
  *
- * Any movement calls will no longer use setPlayerIndex
- * they will instead getPlayer(), adjust player.index, and then
- * setEntities().
+ * . . .
+ * . -1 .
+ * . 1 .
+ * . . .
+ *
+ * We could track where we just moved from on each entity as a prevIndex.
+ *
+ * If we now overlap an entity, or the prevIndex of an entity
+ * then we have a collision.
+ *
+ * Do we explode in the current index or the prevIndex?
+ * We need to explode in only one location.
+ * If we explode in our prevIndex, we should not affect our
+ * newIndex because we never actually made it there.
+ *
+ *
+ * Maybe resolveCollisions should just only be used
+ * on static entities. Not moved entities.
+ * - we could use this just for placing a shot
+ * - and spawning new asteroids
+ * - i guess after any time we spawn an entity
+ *
+ *
+ * Ideally, fresh spawned entities and moving entities
+ * would use the same collision system so I can reduce
+ * my surface area for bugs.
+ *
+ *
+ * I guess, I could move a single entity. Then run
+ * resolveCollisions. Then move the next unmoved entity
+ * then run resolveCollisions. ETC.
+ *
+ * This would mean my update loop is O(n^2) instead of
+ * the current O(n)... But do I care?
  */
-const resolveCollisions = (entities) => {};
+
+const moveEntitiesOneStep = ({ entities, onExplode }) => {
+  let newEntities = [...entities];
+
+  for (
+    let movingEntityIndex = 0;
+    movingEntityIndex < newEntities.length;
+    movingEntityIndex++
+  ) {
+    // Move currently moving entity
+    // resolve all collisions
+    // try to move next entity
+
+    const entity = newEntities[movingEntityIndex];
+
+    if (entity.name === "💥") {
+      // This entity is already destroyed, skip it
+      continue;
+    }
+
+    let newIndex = entity.index;
+
+    if (!isEntityDoneMoving(entity)) {
+      const isEntityMovingUp = entity.speed < 0;
+
+      newIndex = isEntityMovingUp
+        ? entity.index - colCount
+        : entity.index + colCount;
+    }
+
+    // Move ourselves to the new index
+    entity.index = newIndex;
+
+    newEntities = resolveCollisions({ entities: newEntities, onExplode });
+  }
+
+  return newEntities;
+};
+
+const resolveCollisions = ({ entities, onExplode }) => {
+  const newEntities = entities.map((entity, index) => {
+    const otherEntities = remove(entities, index);
+    const collidingEntities = otherEntities.filter(
+      (otherEntity) => otherEntity.index === entity.index
+    );
+
+    if (collidingEntities.length > 0) {
+      // A collision happens
+      const shouldEntityExplode = collidingEntities.some((otherEntity) => {
+        switch (true) {
+          case Boolean(
+            entity.isCollisionImmune && otherEntity.isCollisionImmune
+          ):
+          case Boolean(!entity.isCollisionImmune):
+            // destroy current entity
+            return true;
+          case Boolean(entity.isCollisionImmune):
+          default:
+            // this entity survives
+            return false;
+        }
+      });
+
+      if (shouldEntityExplode) {
+        onExplode(entity, index);
+
+        return createExplosion(entity);
+      }
+    }
+
+    return entity;
+  });
+
+  return newEntities;
+};
 
 const getOnShuffleFunction = (sector) => {
   const conditionsWithOnShuffleFunctions = sector.conditions.filter(
@@ -376,7 +488,12 @@ const App = () => {
   const [nextSpawns, setNextSpawns] = useState(() =>
     chooseNextSpawns(colCount, sectors[winStreak], turnCount, spawnPattern)
   );
-  const [entities, setEntities] = useState([]);
+  const [entities, setEntities] = useState([
+    createPlayer({
+      index: zonesData[currentZone][currentRunType].playerIndex,
+      ship: zonesData[currentZone][currentRunType].ship,
+    }),
+  ]);
   // loading, drawing, waiting, targeting, animating, spawning, cleanup, gameover, victory
   const [gameState, setGameState] = useState("loading");
   const [lastSpawned, setLastSpawned] = useState();
@@ -434,20 +551,31 @@ const App = () => {
 
   const scaleRef = useScaleRef();
 
-  const createPlayer = (newIndex) => {
-    setPlayerIndex(newIndex);
-  };
   const getPlayer = () => {
-    return { index: playerIndex };
+    const player = entities.find((entity) => entity.isPlayer);
+
+    return player;
   };
   const movePlayer = (newIndex) => {
-    setPlayerIndex(newIndex);
+    const playerIndex = entities.findIndex((entity) => entity.isPlayer);
+    const newEntities = update(
+      playerIndex,
+      {
+        ...entities[playerIndex],
+        index: newIndex,
+      },
+      entities
+    );
+    setEntities(newEntities);
   };
   const killPlayer = () => {
-    setPlayerIndex(-100);
+    // Eventually, killing player will be no different
+    // from killing any other entity.
+    movePlayer(-100);
   };
   const isPlayerDead = () => {
-    return getPlayer().index < 0;
+    // Is there no player or is player an explosion?
+    return !Boolean(getPlayer()) || getPlayer().name === "💥";
   };
 
   const shuffleGraveyardIntoDeck = () => {
@@ -480,8 +608,11 @@ const App = () => {
 
     const newZone = zonesData[zoneCoordinates][runType];
 
-    createPlayer(newZone.playerIndex);
-    setEntities([]);
+    const newPlayer = createPlayer({
+      index: newZone.playerIndex,
+      ship: newZone.ship,
+    });
+    setEntities([newPlayer]);
     setTurnCount(0);
     setLastSpawned(undefined);
     setSelectedCard(0);
@@ -547,72 +678,77 @@ const App = () => {
   }, [playSound]);
 
   const moveEntities = () => {
-    let newEntities = [...entities];
+    // let newEntities = [...entities];
 
-    for (let index = 0; index < newEntities.length; index += 1) {
-      const entity = newEntities[index];
+    // for (let index = 0; index < newEntities.length; index += 1) {
+    //   const entity = newEntities[index];
 
-      if (entity.name === "💥") {
-        // This entity is already destroyed, skip it
-        continue;
-      }
+    //   if (entity.name === "💥") {
+    //     // This entity is already destroyed, skip it
+    //     continue;
+    //   }
 
-      let newIndex = entity.index;
+    //   let newIndex = entity.index;
 
-      if (!isEntityDoneMoving(entity)) {
-        const isEntityMovingUp = entity.speed < 0;
+    //   if (!isEntityDoneMoving(entity)) {
+    //     const isEntityMovingUp = entity.speed < 0;
 
-        newIndex = isEntityMovingUp
-          ? entity.index - colCount
-          : entity.index + colCount;
-      }
+    //     newIndex = isEntityMovingUp
+    //       ? entity.index - colCount
+    //       : entity.index + colCount;
+    //   }
 
-      // Move ourselves to the new index
-      entity.index = newIndex;
+    //   // Move ourselves to the new index
+    //   entity.index = newIndex;
 
-      if (entity.index === getPlayer().index) {
-        playSound("explode_med");
+    // if (entity.index === getPlayer().index) {
+    //   playSound("explode_med");
 
-        if (!entity.isCollisionImmune) {
-          explodeEntity(entity);
-        }
+    //   if (!entity.isCollisionImmune) {
+    //     explodeEntity(entity);
+    //   }
 
-        killPlayer();
-      }
+    //   killPlayer();
+    // }
 
-      const otherEntities = remove(entities, index);
-      const collidingEntities = otherEntities.filter(
-        (otherEntity) => otherEntity.index === entity.index
-      );
+    // const otherEntities = remove(entities, index);
+    // const collidingEntities = otherEntities.filter(
+    //   (otherEntity) => otherEntity.index === entity.index
+    // );
 
-      if (collidingEntities.length > 0) {
-        // Mark each collided entity as exploded
-        collidingEntities.forEach((otherEntity) => {
-          // If both are collision immune, they both blow up
-          // If the other one isn't collision immune, it blows
-          // up.
-          if (
-            (otherEntity.isCollisionImmune && entity.isCollisionImmune) ||
-            !otherEntity.isCollisionImmune
-          ) {
-            playSound("explode_med");
+    // if (collidingEntities.length > 0) {
+    //   // Mark each collided entity as exploded
+    //   collidingEntities.forEach((otherEntity) => {
+    //     // If both are collision immune, they both blow up
+    //     // If the other one isn't collision immune, it blows
+    //     // up.
+    //     if (
+    //       (otherEntity.isCollisionImmune && entity.isCollisionImmune) ||
+    //       !otherEntity.isCollisionImmune
+    //     ) {
+    //       playSound("explode_med");
 
-            explodeEntity(otherEntity);
-          }
-        });
+    //       explodeEntity(otherEntity);
+    //     }
+    //   });
 
-        const isAnyOtherEntityCollisionImmune = collidingEntities.some(
-          (otherEntity) => otherEntity.isCollisionImmune
-        );
+    //   const isAnyOtherEntityCollisionImmune = collidingEntities.some(
+    //     (otherEntity) => otherEntity.isCollisionImmune
+    //   );
 
-        if (isAnyOtherEntityCollisionImmune || !entity.isCollisionImmune) {
-          playSound("explode_med");
+    //   if (isAnyOtherEntityCollisionImmune || !entity.isCollisionImmune) {
+    //     playSound("explode_med");
 
-          // Blow ourselves up
-          explodeEntity(entity);
-        }
-      }
-    }
+    //     // Blow ourselves up
+    //     explodeEntity(entity);
+    //   }
+    // }
+    // }
+
+    let newEntities = moveEntitiesOneStep({
+      entities,
+      onExplode: () => playSound("explode_med"),
+    });
 
     const isNegativeIndexBullet = (entity) =>
       entity.name === "*" && entity.index < 0;
@@ -705,8 +841,6 @@ const App = () => {
 
             return true;
           });
-
-        console.log({ newEntities });
 
         // nextSpawns.forEach((spawn, spawnIndex) => {
         // if (!spawn) {
@@ -808,6 +942,11 @@ const App = () => {
 
   useEffect(() => {
     if (gameState === "cleanup") {
+      console.log("in cleanup state", {
+        isPlayerDead: isPlayerDead(),
+        entities,
+      });
+
       if (isPlayerDead()) {
         // Player is dead
         setGameState("gameover");
@@ -824,8 +963,14 @@ const App = () => {
       const newEntities = entities
         // Remove entities off bottom of screen
         .filter((entity) => entity.index < tiles.length)
-        // Remove explosions
-        .filter((entity) => entity.name !== "💥");
+        // Remove explosions, except for isPlayer
+        .filter((entity) => {
+          // if (entity.isPlayer) {
+          //   return true;
+          // }
+
+          return entity.name !== "💥";
+        });
 
       setPower(maxPower);
       setHasUsedShipPower(false);
@@ -1072,12 +1217,14 @@ const App = () => {
     }
   };
 
-  const indicesInActionRange = getIndicesInActionRange(
-    hand[selectedCard],
-    colCount,
-    getPlayer().index,
-    rowCount
-  );
+  const indicesInActionRange = isPlayerDead()
+    ? []
+    : getIndicesInActionRange(
+        hand[selectedCard],
+        colCount,
+        getPlayer().index,
+        rowCount
+      );
   let hoveredIndices = [];
 
   // If an index is being hovered, and it is a targetable index
@@ -1137,10 +1284,10 @@ const App = () => {
     }
 
     // Display player at current index
-    const shipIcon = zonesData[currentZone][currentRunType].ship.icon;
-    if (index === getPlayer().index) {
-      object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
-    }
+    // const shipIcon = zonesData[currentZone][currentRunType].ship.icon;
+    // if (index === getPlayer().index) {
+    //   object = { ...object, name: "🔺", img: shipIcon, color: "primaryColor" };
+    // }
 
     return (
       <div
@@ -1304,7 +1451,6 @@ const App = () => {
               setTheme(newZone.theme);
               setSectors(newZone.sectors);
               // setTiles(TODO: use new dimensions to calculate tiles again);
-              createPlayer(newZone.playerIndex);
               setDeck(newZone.deck);
               setPower(2);
               setMaxPower(2);
