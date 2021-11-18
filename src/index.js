@@ -104,6 +104,10 @@ const getDirection = (origin, target, colCount) => {
   }
 };
 
+const isEntityDone = (entity) => {
+  return entity.targetIndex === entity.index && entity.isDone;
+};
+
 const getIndicesInRange = (entity, colCount) => {
   if (entity.targetIndex) {
     // Only return subsection of indices between current and target while animating
@@ -365,10 +369,6 @@ const moveEntitiesOneStep = ({ entities, onExplode }) => {
     movingEntityIndex < newEntities.length;
     movingEntityIndex++
   ) {
-    // Move currently moving entity
-    // resolve all collisions
-    // try to move next entity
-
     const entity = newEntities[movingEntityIndex];
 
     if (entity.name === "💥") {
@@ -394,6 +394,104 @@ const moveEntitiesOneStep = ({ entities, onExplode }) => {
 
   return newEntities;
 };
+
+/**
+ * . .  . .
+ * . .  - -
+ * . 1> - -
+ * . .  - -
+ * . .  . .
+ */
+
+/** frame 1
+ * . . .  2 .
+ * . . 2  . .
+ * . . 1> . .
+ * . . .  . .
+ * . . .  . .
+ * . . .  . .
+ * . . .  . .
+ */
+
+/**
+ * . . .  2 .
+ * . . 2  . .
+ * . . .  . .
+ * . . 1> . .
+ * . . .  . .
+ * . . .  . .
+ * . . .  . .
+ */
+
+/**
+ * . . .  2 .
+ * . . .  . .
+ * . . 2  . .
+ * . . 1> . .
+ * . . .  . .
+ * . . .  . .
+ * . . .  . .
+ */
+
+/** frame 2
+ * . . .  . .
+ * . . .  2 .
+ * . . 2  . .
+ * . . 1> . .
+ * . . .  . .
+ * . . .  . .
+ * . . .  . .
+ */
+
+/**
+ * . . .   . .
+ * . . .   2 .
+ * . . .   . .
+ * . . 21> . .
+ * . . .   . .
+ * . . .   . .
+ * . . .   . .
+ */
+
+/**
+ * . . . . .
+ * . . . 2 .
+ * . . . x x
+ * . . x x x
+ * . . . x x
+ * . . . . .
+ * . . . . .
+ */
+
+/**
+ * . . . .  .
+ * . . . .  .
+ * . . . 2x x
+ * . . x x  x
+ * . . . x  x
+ * . . . .  .
+ * . . . .  .
+ */
+
+/** (this happens 7 times, once for each explosion)
+ * . . . . .
+ * . . . . .
+ * . . . x x
+ * . . x x x
+ * . . . x x
+ * . . . . .
+ * . . . . .
+ */
+
+/** frame 3
+ * . . . . .
+ * . . . . .
+ * . . . x x
+ * . . x x x
+ * . . . x x
+ * . . . . .
+ * . . . . .
+ */
 
 const resolveCollisions = ({ entities, onExplode }) => {
   const newEntities = entities.map((entity, index) => {
@@ -421,6 +519,12 @@ const resolveCollisions = ({ entities, onExplode }) => {
 
       if (shouldEntityExplode) {
         onExplode(entity, index);
+
+        // if i'm a trnagle
+        // blow up in my direction
+        // a bunch
+
+        // now i need to resolvecollisions again
 
         return createExplosion(entity);
       }
@@ -683,73 +787,6 @@ const App = () => {
   }, [playSound]);
 
   const moveEntities = () => {
-    // let newEntities = [...entities];
-
-    // for (let index = 0; index < newEntities.length; index += 1) {
-    //   const entity = newEntities[index];
-
-    //   if (entity.name === "💥") {
-    //     // This entity is already destroyed, skip it
-    //     continue;
-    //   }
-
-    //   let newIndex = entity.index;
-
-    //   if (!isEntityDoneMoving(entity)) {
-    //     const isEntityMovingUp = entity.speed < 0;
-
-    //     newIndex = isEntityMovingUp
-    //       ? entity.index - colCount
-    //       : entity.index + colCount;
-    //   }
-
-    //   // Move ourselves to the new index
-    //   entity.index = newIndex;
-
-    // if (entity.index === getPlayer().index) {
-    //   playSound("explode_med");
-
-    //   if (!entity.isCollisionImmune) {
-    //     explodeEntity(entity);
-    //   }
-
-    //   killPlayer();
-    // }
-
-    // const otherEntities = remove(entities, index);
-    // const collidingEntities = otherEntities.filter(
-    //   (otherEntity) => otherEntity.index === entity.index
-    // );
-
-    // if (collidingEntities.length > 0) {
-    //   // Mark each collided entity as exploded
-    //   collidingEntities.forEach((otherEntity) => {
-    //     // If both are collision immune, they both blow up
-    //     // If the other one isn't collision immune, it blows
-    //     // up.
-    //     if (
-    //       (otherEntity.isCollisionImmune && entity.isCollisionImmune) ||
-    //       !otherEntity.isCollisionImmune
-    //     ) {
-    //       playSound("explode_med");
-
-    //       explodeEntity(otherEntity);
-    //     }
-    //   });
-
-    //   const isAnyOtherEntityCollisionImmune = collidingEntities.some(
-    //     (otherEntity) => otherEntity.isCollisionImmune
-    //   );
-
-    //   if (isAnyOtherEntityCollisionImmune || !entity.isCollisionImmune) {
-    //     playSound("explode_med");
-
-    //     // Blow ourselves up
-    //     explodeEntity(entity);
-    //   }
-    // }
-    // }
-
     let newEntities = moveEntitiesOneStep({
       entities,
       onExplode: () => playSound("explode_med"),

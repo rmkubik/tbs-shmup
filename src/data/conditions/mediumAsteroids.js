@@ -22,9 +22,9 @@ const mediumAsteroids = {
     const newEntities = spawnEntitiesWithRandomSpeed(nextSpawns);
 
     return newEntities.map((entity) => {
-      if (entity.speed === 3) {
-        return createExplodingTriangle({ index: entity.index });
-      }
+      //   if (entity.speed === 3) {
+      //     return createExplodingTriangle({ index: entity.index });
+      //   }
 
       if (entity.speed === 4) {
         return createMetalCube({ index: entity.index });
