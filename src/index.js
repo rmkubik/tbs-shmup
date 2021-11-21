@@ -896,81 +896,6 @@ const App = () => {
             return true;
           });
 
-        // nextSpawns.forEach((spawn, spawnIndex) => {
-        // if (!spawn) {
-        //   // This index isn't a spawn location
-        //   return;
-        // }
-
-        // let spawnSpeed = randInt(2, 5);
-
-        // if (doesSectorHavePatternedAsteroids(sectors[winStreak])) {
-        //   const pattern = spawnPattern
-        //     .split("\n")
-        //     .map((string) => string.trim().split(""));
-
-        //   // Turn has advanced since we set nextSpawns, check previous turn
-        //   // in the pattern for spawn speeds
-        //   const currentPattern = pattern[turnCount % pattern.length];
-
-        //   // ? should be left as random speed
-        //   // . shouldn't be here, as it isn't marked as a spawn
-        //   if (
-        //     currentPattern[spawnIndex] !== "?" &&
-        //     currentPattern[spawnIndex] !== "."
-        //   ) {
-        //     // Otherwise, we use the default speed
-        //     spawnSpeed = parseInt(currentPattern[spawnIndex]);
-        //   }
-        // }
-
-        // If we would spawn on top of a bullet, blow it up and
-        // then don't spawn a new asteroid.
-        // const collidingBulletIndices = findAllMatchingIndices(
-        //   entities,
-        //   (entity) => entity.index === spawnIndex && entity.name === "*"
-        // );
-        // if (collidingBulletIndices.length > 0) {
-        //   collidingBulletIndices.forEach((collidingIndex) => {
-        //     playSound("explode_med");
-
-        //     entities[collidingIndex].name = "💥";
-        //     entities[collidingIndex].img = explosionIcon;
-        //     entities[collidingIndex].color = "hazardColor";
-        //     entities[collidingIndex].speed = 0;
-        //   });
-        //   return;
-        // }
-
-        // if (
-        //   entities.some((entity) => entity.index === spawnIndex) ||
-        //   newEntities.some((entity) => entity.index === spawnIndex)
-        // ) {
-        //   // Don't spawn entities on top of other entities
-        //   return;
-        // }
-
-        // let img;
-
-        // if (spawnSpeed <= 2) {
-        //   img = asteroidIcon1;
-        // } else if (spawnSpeed > 2 && spawnSpeed <= 3) {
-        //   img = asteroidIcon2;
-        // } else if (spawnSpeed > 3 && spawnSpeed <= 4) {
-        //   img = asteroidIcon3;
-        // } else if (spawnSpeed >= 5) {
-        //   img = asteroidIcon4;
-        // }
-
-        // newEntities.push({
-        //   name: "🪨",
-        //   speed: spawnSpeed,
-        //   index: spawnIndex,
-        //   img,
-        //   color: "hazardColor",
-        // });
-        // });
-
         setLastSpawned(turnCount);
         setEntities([...entities, ...newEntities]);
         setNextSpawns(
@@ -984,7 +909,6 @@ const App = () => {
       }
 
       setGameState("cleanup");
-      // setGameState("drawing");
     }
   }, [gameState, lastSpawned, entities, turnCount]);
 
@@ -1620,7 +1544,12 @@ const App = () => {
                 <span>Empty...</span>
               ) : (
                 sortedDeck.map((card) => (
-                  <li style={{ borderColor: theme.primaryColor }}>
+                  <li
+                    style={{
+                      borderColor: theme.disabledPrimaryColor,
+                      color: theme.disabledPrimaryColor,
+                    }}
+                  >
                     {card.data?.oldCard && (
                       <span className="old-card-name">
                         {card.data?.oldCard.name} <br />

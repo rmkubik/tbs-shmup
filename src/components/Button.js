@@ -8,8 +8,10 @@ const Button = ({ children, ref, ...props }) => {
     <button
       ref={ref}
       style={{
-        color: theme.primaryColor,
-        borderColor: theme.primaryColor,
+        color: props.disabled ? theme.disabledPrimaryColor : theme.primaryColor,
+        borderColor: props.disabled
+          ? theme.disabledPrimaryColor
+          : theme.primaryColor,
       }}
       {...props}
     >

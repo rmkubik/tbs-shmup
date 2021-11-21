@@ -1,5 +1,6 @@
 const defaultTheme = {
   primaryColor: "#f1f2da",
+  disabledPrimaryColor: "#a3a38f",
   backgroundColor: "#00303b",
   starColor: "#2e5b60",
   metallicColor: "#bfbdbb",
