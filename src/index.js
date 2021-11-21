@@ -520,11 +520,23 @@ const resolveCollisions = ({ entities, onExplode }) => {
       if (shouldEntityExplode) {
         onExplode(entity, index);
 
-        // if i'm a trnagle
-        // blow up in my direction
-        // a bunch
-
-        // now i need to resolvecollisions again
+        // TODO:
+        // onExplode my entity might want to spawn new entities.
+        // This will be true of the pitch we have for the
+        // Triangle explosive asteroid.
+        //
+        // At this time, we'd want to resolve these new collisions
+        // before we "render a new frame".
+        //
+        // I think this will lead to marking new explosions and
+        // entities with a "hasBeenResolvedThisFrame" type thing.
+        //
+        // We should continue looping through resolveCollisions
+        // recursively until all objects have "hasBeenResolvedThisFrame"
+        // set to true.
+        //
+        // Then every new frame calculation, we can reset this flag
+        // to false.
 
         return createExplosion(entity);
       }
