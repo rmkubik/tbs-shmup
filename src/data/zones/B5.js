@@ -8,6 +8,7 @@ export default {
   unlock: {
     cost: 99,
   },
+  hidden: true,
   icon: {
     src: powerIcon,
     color: "cautionColor",

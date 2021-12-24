@@ -50,6 +50,19 @@ const isZoneUnlocked = ({ zonesMatrix, location, unlocked }) => {
   );
 };
 
+const isZoneHidden = ({ zonesMatrix, location }) => {
+  const zone = getLocation(zonesMatrix, location);
+
+  return zone.hidden;
+};
+
+const isZoneLaunchable = ({ zonesMatrix, location, unlocked }) => {
+  return (
+    isZoneUnlocked({ zonesMatrix, location, unlocked }) &&
+    !isZoneHidden({ zonesMatrix, location })
+  );
+};
+
 const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
   const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
 
@@ -61,6 +74,10 @@ const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
 const getZoneName = ({ zonesMatrix, unlocked, location }) => {
   if (!location) {
     // No location is selected
+    return;
+  }
+
+  if (isZoneHidden({ zonesMatrix, location })) {
     return;
   }
 
@@ -82,6 +99,10 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
     return;
   }
 
+  if (isZoneHidden({ zonesMatrix, location })) {
+    return;
+  }
+
   if (isZoneUnlocked({ zonesMatrix, unlocked, location })) {
     // Get description of the Zone's mission if unlocked
     return getLocation(zonesMatrix, location).mission?.description;
@@ -95,6 +116,10 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
 };
 
 const getZoneContents = ({ zonesMatrix, location, unlocked, theme }) => {
+  if (isZoneHidden({ zonesMatrix, location })) {
+    return null;
+  }
+
   if (isZoneUnlocked({ zonesMatrix, location, unlocked })) {
     // If we're unlocked, show our icon.
     const zone = getLocation(zonesMatrix, location);
@@ -169,6 +194,14 @@ const GalaxyMapModal = ({
   // around the zone we'll select upon clicking.
   //
   // locks should shake on click
+
+  const isSelectedZoneLaunchable =
+    selected &&
+    isZoneLaunchable({
+      zonesMatrix,
+      location: selected,
+      unlocked,
+    });
 
   return (
     <Modal containerStyles={{ width: "7vw" }}>
@@ -260,15 +293,20 @@ const GalaxyMapModal = ({
       <div className="button-container">
         <Button
           onClick={() => {
+            if (!isSelectedZoneLaunchable) {
+              return;
+            }
+
             const letterCoordinates =
               convertLocationToLetterCoordinates(selected);
 
             onSectorSelect(letterCoordinates, "mission");
           }}
+          disabled={!isSelectedZoneLaunchable}
         >
-          Mission
+          Launch
         </Button>
-        <Button
+        {/* <Button
           disabled={true}
           onClick={() => {
             const letterCoordinates =
@@ -278,7 +316,7 @@ const GalaxyMapModal = ({
           }}
         >
           Dare
-        </Button>
+        </Button> */}
         <Button onClick={onResume}>Back</Button>
       </div>
     </Modal>

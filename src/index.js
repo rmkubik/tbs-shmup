@@ -1563,6 +1563,7 @@ const App = () => {
           </div>
         </div>
         <Bar
+          currentZone={zonesData[currentZone][currentRunType]}
           power={power}
           maxPower={maxPower}
           hand={hand}
@@ -1579,6 +1580,11 @@ const App = () => {
             if (hasUsedShipPower) {
               return;
             }
+
+            // TODO:
+            // check what current action is
+            // perform specified
+            // including no-action
 
             playSound("ui_select");
 

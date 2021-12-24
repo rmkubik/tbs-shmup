@@ -15,6 +15,7 @@ const Bar = ({
   onEndClick,
   onRecycleClick,
   setShowOptions,
+  currentZone,
 }) => {
   const { theme } = useTheme();
 
@@ -24,9 +25,11 @@ const Bar = ({
         <p>
           PWR: {power}/{maxPower}
         </p>
-        <Button disabled={hasUsedShipPower} onClick={onRecycleClick}>
-          {hasUsedShipPower ? "Recharging..." : "Recycle"}
-        </Button>
+        {currentZone.action === "none" ? null : (
+          <Button disabled={hasUsedShipPower} onClick={onRecycleClick}>
+            {hasUsedShipPower ? "Recharging..." : "Recycle"}
+          </Button>
+        )}
         {/* <Button onClick={onEndClick}>End</Button> */}
       </div>
       <ul>
