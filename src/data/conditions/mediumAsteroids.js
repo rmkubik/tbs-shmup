@@ -26,9 +26,9 @@ const mediumAsteroids = {
       //     return createExplodingTriangle({ index: entity.index });
       //   }
 
-      if (entity.speed === 4) {
-        return createMetalCube({ index: entity.index });
-      }
+      // if (entity.speed === 4) {
+      //   return createMetalCube({ index: entity.index });
+      // }
 
       return entity;
     });

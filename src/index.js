@@ -1,6 +1,6 @@
 import { Fragment, h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
-import { update } from "ramda";
+import { pipe, update } from "ramda";
 
 import alarmSound from "../assets/audio/alarm.ogg";
 import clickSound from "../assets/audio/click.ogg";
@@ -558,21 +558,29 @@ const getOnShuffleFunction = (sector) => {
     return conditions.default.onShuffle;
   }
 
-  const [firstCondition] = conditionsWithOnShuffleFunctions;
+  const onShuffles = pipe(
+    ...conditionsWithOnShuffleFunctions.map(
+      (conditionName) => conditions[conditionName].onShuffle
+    )
+  );
 
-  if (conditionsWithOnShuffleFunctions.length > 1) {
-    // This sector has multiple onShuffle functions
-    // We're going to only use the first one for now.
-    console.warn(
-      `This sector has more than one onShuffle function. Using only ${
-        conditionsWithOnShuffleFunctions[0]
-      }. Ignoring: ${conditionsWithOnShuffleFunctions.slice(1).join(", ")}.`
-    );
-    return conditions[firstCondition].onShuffle;
-  }
+  return onShuffles;
+
+  // const [firstCondition] = conditionsWithOnShuffleFunctions;
+
+  // if (conditionsWithOnShuffleFunctions.length > 1) {
+  //   // This sector has multiple onShuffle functions
+  //   // We're going to only use the first one for now.
+  //   console.warn(
+  //     `This sector has more than one onShuffle function. Using only ${
+  //       conditionsWithOnShuffleFunctions[0]
+  //     }. Ignoring: ${conditionsWithOnShuffleFunctions.slice(1).join(", ")}.`
+  //   );
+  //   return conditions[firstCondition].onShuffle;
+  // }
 
   // We only have one shuffle condition at this point
-  return conditions[firstCondition].onShuffle;
+  // return conditions[firstCondition].onShuffle;
 };
 
 const shuffleCards = (cards, sector) => {

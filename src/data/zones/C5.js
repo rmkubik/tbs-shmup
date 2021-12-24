@@ -1,7 +1,12 @@
 import { defaultDeck, directionSwappedDeck } from "../cards";
-import sectors from "../sectors";
+import { repeatSectors } from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
+
+const sectors = [
+  { conditions: ["noAsteroids", "tutorialDeck1"] },
+  { conditions: ["lightAsteroids", "checkpoint"] },
+];
 
 export default {
   name: "Tutorial",

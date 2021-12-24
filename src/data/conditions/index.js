@@ -4,6 +4,10 @@ import mediumAsteroids from "./mediumAsteroids";
 import heavyAsteroids from "./heavyAsteroids";
 import lightAsteroids from "./lightAsteroids";
 import patternedAsteroidsSlalom from "./patternedAsteroids-slalom";
+import noAsteroids from "./noAsteroids";
+import noShoot from "./noShoot";
+import upOnly from "./upOnly";
+import { tutorialDeck1 } from "./tutorialDecks";
 
 const conditions = {
   default: { onShuffle: (deck) => deck },
@@ -13,6 +17,10 @@ const conditions = {
   heavyAsteroids,
   lightAsteroids,
   "patternedAsteroids-slalom": patternedAsteroidsSlalom,
+  noAsteroids,
+  noShoot,
+  upOnly,
+  tutorialDeck1,
 };
 
 const findFirstConditionWithSpawns = (sector) => {
