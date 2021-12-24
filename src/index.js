@@ -594,9 +594,9 @@ const initialTiles = new Array(colCount * rowCount).fill({
 
 const App = () => {
   const [unlocked, setUnlocked] = useState({
-    C3: { unlocked: true, mission: {}, dare: {} },
+    C5: { unlocked: true, mission: {}, dare: {} },
   });
-  const [currentZone, setCurrentZone] = useState("C3");
+  const [currentZone, setCurrentZone] = useState("C5");
   const [currentRunType, setCurrentRunType] = useState("mission");
   const [zones, setZones] = useState(zonesMatrix);
   const [sectors, setSectors] = useState(sectorsData);

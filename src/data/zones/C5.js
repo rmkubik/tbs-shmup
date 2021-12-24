@@ -4,13 +4,9 @@ import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
 
 export default {
-  name: "Unimplemented",
+  name: "ISPS Postal Zone 130-01",
   unlock: {
-    cost: 99,
-  },
-  icon: {
-    src: powerIcon,
-    color: "cautionColor",
+    cost: 0,
   },
   mission: {
     winCondition: 3,
@@ -24,7 +20,7 @@ export default {
     theme: "default",
     sectors,
     dimensions: { width: 10, height: 15 },
-    playerIndex: 22, // 145,
+    playerIndex: 145, // 22
     deck: defaultDeck,
     action: "default", // This should import a function directly, maybe?
     power: 2,
