@@ -646,7 +646,7 @@ const App = () => {
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
   const [shouldShowSectorDetails, setShouldShowSectorDetails] = useState(false);
-  const [shouldShowGalaxyMap, setShouldShowGalaxyMap] = useState(false);
+  const [shouldShowGalaxyMap, setShouldShowGalaxyMap] = useState(true);
   const { isAudioLoaded, playSound, stopSound, volume, setVolume } = useAudio([
     alarmSound,
     clickSound,
@@ -747,7 +747,8 @@ const App = () => {
     setSelectedCard(0);
     setGraveyard([]);
 
-    let newDeck = newZone.deck ?? initialDeck;
+    let newDeck =
+      newZone.sectors[winStreak].deck ?? newZone.deck ?? initialDeck;
 
     const newSector = newZone.sectors[winStreak];
 

@@ -4,7 +4,25 @@ import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
 
 const sectors = [
-  { conditions: ["noAsteroids", "tutorialDeck1"] },
+  {
+    conditions: ["noAsteroids"],
+    deck: [
+      {
+        name: "Up",
+        cost: 1,
+        range: 4,
+        directions: ["up"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "UpRight",
+        cost: 1,
+        range: 2,
+        directions: ["upRight"],
+        selectionStyle: "precise",
+      },
+    ],
+  },
   { conditions: ["lightAsteroids", "checkpoint"] },
 ];
 
