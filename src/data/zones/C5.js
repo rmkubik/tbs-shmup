@@ -31,7 +31,7 @@ const sectors = [
     ],
   },
   {
-    conditions: ["lightAsteroids"],
+    conditions: ["lighterAsteroids"],
     deck: [
       {
         name: "Left",

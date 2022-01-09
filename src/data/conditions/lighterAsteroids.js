@@ -3,14 +3,13 @@ import {
   spawnEntitiesWithRandomSpeed,
 } from "./utils";
 
-const lightAsteroids = {
+const lighterAsteroids = {
   chooseNextSpawns: (colCount, sector, turnCount, spawnPattern) => {
     return pickNextSpawnsWithWeightedMap(
       {
-        3: 40,
-        4: 30,
-        5: 25,
-        6: 5,
+        3: 64,
+        4: 35,
+        5: 1,
       },
       colCount
     );
@@ -20,4 +19,4 @@ const lightAsteroids = {
   },
 };
 
-export default lightAsteroids;
+export default lighterAsteroids;

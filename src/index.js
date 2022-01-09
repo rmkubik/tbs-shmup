@@ -802,6 +802,10 @@ const App = () => {
   window.setWinStreak = setWinStreak;
   window.startNewRound = startNewRound;
   window.setGameState = setGameState;
+  // window.startRound = (roundNumber) => {
+  //   setWinStreak(roundNumber);
+  //   setTimeout(() => startNewRound(), 1000);
+  // };
   // window.setSpawnPattern = setSpawnPattern;
   window.setLastCheckpoint = setLastCheckpoint;
   window.setTheme = setTheme;

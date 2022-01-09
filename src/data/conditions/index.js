@@ -8,6 +8,7 @@ import noAsteroids from "./noAsteroids";
 import noShoot from "./noShoot";
 import upOnly from "./upOnly";
 import singleAsteroid from "./singleAsteroid";
+import lighterAsteroids from "./lighterAsteroids";
 
 const conditions = {
   default: { onShuffle: (deck) => deck },
@@ -21,6 +22,7 @@ const conditions = {
   noShoot,
   upOnly,
   singleAsteroid,
+  lighterAsteroids,
 };
 
 const findFirstConditionWithSpawns = (sector) => {
