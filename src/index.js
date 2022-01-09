@@ -735,6 +735,11 @@ const App = () => {
       );
     }
 
+    if (newZoneCoordinates !== currentZone) {
+      // This is a new zone, our old checkpoints are irrelevant now
+      setLastCheckpoint(0);
+    }
+
     const newZone = zonesData[zoneCoordinates][runType];
 
     const newPlayer = createPlayer({
@@ -1466,6 +1471,7 @@ const App = () => {
             setWinStreak={setWinStreak}
             setShowCredits={setShowCredits}
             setShouldShowGalaxyMap={setShouldShowGalaxyMap}
+            setLastCheckpoint={setLastCheckpoint}
           />
         ) : gameState === "gameover" ? (
           <GameOverModal

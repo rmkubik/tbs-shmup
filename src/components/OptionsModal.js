@@ -19,6 +19,7 @@ const OptionsModal = ({
   setWinStreak,
   setShowCredits,
   setShouldShowGalaxyMap,
+  setLastCheckpoint,
 }) => {
   return (
     <Modal>
@@ -104,6 +105,7 @@ const OptionsModal = ({
           onClick={() => {
             setWinStreak(0);
             setShowOptions(false);
+            setLastCheckpoint(0);
             startNewRound();
           }}
         >
