@@ -735,6 +735,18 @@ const App = () => {
       );
     }
 
+    let newWinStreak = winStreak;
+
+    if (gameState === "gameover") {
+      if (areCheckpointsEnabled) {
+        newWinStreak = lastCheckpoint;
+      } else {
+        newWinStreak = 0;
+      }
+    }
+
+    setWinStreak(newWinStreak);
+
     if (newZoneCoordinates !== currentZone) {
       // This is a new zone, our old checkpoints are irrelevant now
       setLastCheckpoint(0);
@@ -753,9 +765,9 @@ const App = () => {
     setGraveyard([]);
 
     let newDeck =
-      newZone.sectors[winStreak].deck ?? newZone.deck ?? initialDeck;
+      newZone.sectors[newWinStreak].deck ?? newZone.deck ?? initialDeck;
 
-    const newSector = newZone.sectors[winStreak];
+    const newSector = newZone.sectors[newWinStreak];
 
     if (newSector.conditions.includes("left-offline")) {
       // Remove any card with a left direction
@@ -764,7 +776,7 @@ const App = () => {
 
     // If this new sector is a checkpoint, set it as our last checkpoint
     if (newSector.conditions.includes("checkpoint")) {
-      setLastCheckpoint(winStreak);
+      setLastCheckpoint(newWinStreak);
     }
 
     setDeck(shuffleCards(newDeck, newSector));
@@ -1480,9 +1492,6 @@ const App = () => {
             lastCheckpoint={lastCheckpoint}
             sectors={sectors}
             onRestart={() => {
-              if (areCheckpointsEnabled) {
-                setWinStreak(lastCheckpoint);
-              }
               startNewRound();
             }}
           />
