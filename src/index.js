@@ -765,6 +765,7 @@ const App = () => {
     setDeck(shuffleCards(newDeck, newSector));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
+    setSectors(newZone.sectors);
     setPower(newZone.power);
     setMaxPower(newZone.maxPower);
     setHasUsedShipPower(false);
