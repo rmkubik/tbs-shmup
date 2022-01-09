@@ -5,12 +5,12 @@ import powerIcon from "../../../assets/power.png";
 
 const sectors = [
   {
-    conditions: ["noAsteroids"],
+    conditions: ["singleAsteroid"],
     deck: [
       {
         name: "Up",
         cost: 1,
-        range: 4,
+        range: 2,
         directions: ["up"],
         selectionStyle: "precise",
       },
@@ -19,6 +19,13 @@ const sectors = [
         cost: 1,
         range: 2,
         directions: ["upRight"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "Left",
+        cost: 1,
+        range: 3,
+        directions: ["left"],
         selectionStyle: "precise",
       },
     ],

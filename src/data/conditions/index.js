@@ -7,6 +7,7 @@ import patternedAsteroidsSlalom from "./patternedAsteroids-slalom";
 import noAsteroids from "./noAsteroids";
 import noShoot from "./noShoot";
 import upOnly from "./upOnly";
+import singleAsteroid from "./singleAsteroid";
 
 const conditions = {
   default: { onShuffle: (deck) => deck },
@@ -19,6 +20,7 @@ const conditions = {
   noAsteroids,
   noShoot,
   upOnly,
+  singleAsteroid,
 };
 
 const findFirstConditionWithSpawns = (sector) => {
