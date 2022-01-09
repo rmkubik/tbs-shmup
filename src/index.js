@@ -646,7 +646,7 @@ const App = () => {
   const [lastCheckpoint, setLastCheckpoint] = useState(0);
   const [areCheckpointsEnabled, setAreCheckpointsEnabled] = useState(true);
   const [shouldShowSectorDetails, setShouldShowSectorDetails] = useState(false);
-  const [shouldShowGalaxyMap, setShouldShowGalaxyMap] = useState(true);
+  const [shouldShowGalaxyMap, setShouldShowGalaxyMap] = useState(false);
   const { isAudioLoaded, playSound, stopSound, volume, setVolume } = useAudio([
     alarmSound,
     clickSound,
