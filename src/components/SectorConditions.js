@@ -2,8 +2,8 @@ import { h, Fragment } from "preact";
 
 import Condition from "./Condition";
 
-const SectorConditions = ({ sector, title }) => {
-  const { conditions = {} } = sector;
+const SectorConditions = ({ sector = {}, title }) => {
+  const { conditions = [] } = sector;
 
   return (
     <Fragment>

@@ -719,9 +719,12 @@ const App = () => {
     setDeck([...deck, ...newDeck]);
   };
 
-  const startNewRound = (newZoneCoordinates, newRunType) => {
+  const startNewRound = (newZoneCoordinates, newRunType, isRestart) => {
     const zoneCoordinates = newZoneCoordinates ?? currentZone;
     const runType = newRunType ?? currentRunType;
+
+    setCurrentZone(zoneCoordinates);
+    setCurrentRunType(runType);
 
     if (!zonesData[zoneCoordinates]) {
       throw new Error(
@@ -743,14 +746,16 @@ const App = () => {
       } else {
         newWinStreak = 0;
       }
+    } else if (gameState === "victory") {
+      newWinStreak += 1;
+    }
+
+    if (isRestart) {
+      newWinStreak = 0;
+      setLastCheckpoint(0);
     }
 
     setWinStreak(newWinStreak);
-
-    if (newZoneCoordinates !== currentZone) {
-      // This is a new zone, our old checkpoints are irrelevant now
-      setLastCheckpoint(0);
-    }
 
     const newZone = zonesData[zoneCoordinates][runType];
 
@@ -779,9 +784,11 @@ const App = () => {
       setLastCheckpoint(newWinStreak);
     }
 
+    setTheme(newZone.theme);
     setDeck(shuffleCards(newDeck, newSector));
     setNextSpawns(chooseNextSpawns(colCount, newSector, 0, spawnPattern));
     setHand([]);
+    setDrawSize(3);
     setSectors(newZone.sectors);
     setPower(newZone.power);
     setMaxPower(newZone.maxPower);
@@ -955,7 +962,6 @@ const App = () => {
 
       if (getPlayer().index < colCount) {
         // Player made it to the end
-        setWinStreak(winStreak + 1);
         setGameState("victory");
         return;
       }
@@ -1147,7 +1153,6 @@ const App = () => {
 
         if (movedIndex < colCount) {
           // Player made it to the end
-          setWinStreak(winStreak + 1);
           setGameState("victory");
           return;
         }
@@ -1382,15 +1387,6 @@ const App = () => {
     cardA.name.localeCompare(cardB.name)
   );
 
-  // TODO: hack to make sure the above settings
-  // take effect before we actually start the new
-  // round.
-  useEffect(() => {
-    if (!shouldShowGalaxyMap) {
-      startNewRound();
-    }
-  }, [shouldShowGalaxyMap]);
-
   return (
     <Fragment>
       {enableVfx && <div className="scanLinesH overlay" />}
@@ -1444,18 +1440,7 @@ const App = () => {
               setShouldShowGalaxyMap(false);
             }}
             onSectorSelect={(letterCoordinates, runType) => {
-              const newZone = zonesData[letterCoordinates][runType];
-
-              setCurrentZone(letterCoordinates);
-              setCurrentRunType(runType);
-
-              setTheme(newZone.theme);
-              setSectors(newZone.sectors);
-              // setTiles(TODO: use new dimensions to calculate tiles again);
-              setDeck(newZone.deck);
-              setPower(2);
-              setMaxPower(2);
-              setDrawSize(3);
+              startNewRound(letterCoordinates, runType, true);
 
               setShowOptions(false);
               setShouldShowGalaxyMap(false);
@@ -1505,12 +1490,15 @@ const App = () => {
           />
         ) : gameState === "victory" ? (
           <VictoryModal
-            winStreak={winStreak}
+            winStreak={winStreak + 1}
             areCheckpointsEnabled={areCheckpointsEnabled}
             lastCheckpoint={lastCheckpoint}
             sectors={sectors}
             onContinue={() => {
               startNewRound();
+            }}
+            onReturnToGalaxyMap={() => {
+              setShouldShowGalaxyMap(true);
             }}
           />
         ) : null}
