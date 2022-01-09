@@ -2,6 +2,8 @@ import { defaultDeck, directionSwappedDeck } from "../cards";
 import { repeatSectors } from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
+import { createAsteroid } from "../entities";
+import randInt from "../../utils/randInt";
 
 const sectors = [
   {
@@ -29,6 +31,21 @@ const sectors = [
         selectionStyle: "precise",
       },
     ],
+    getStartingEntities: ({ colCount }) => {
+      let asteroids = [];
+
+      for (let row = 3; row < 10; row += 3) {
+        const colIndex = randInt(0, colCount - 1);
+        const asteroid = createAsteroid({
+          speed: 3,
+          index: row * colCount + colIndex,
+        });
+
+        asteroids.push(asteroid);
+      }
+
+      return asteroids;
+    },
   },
   {
     conditions: ["lighterAsteroids"],

@@ -758,21 +758,22 @@ const App = () => {
     setWinStreak(newWinStreak);
 
     const newZone = zonesData[zoneCoordinates][runType];
+    const newSector = newZone.sectors[newWinStreak];
 
     const newPlayer = createPlayer({
       index: newZone.playerIndex,
       ship: newZone.ship,
     });
-    setEntities([newPlayer]);
+    const additionalSectorEntities =
+      newSector.getStartingEntities?.({ colCount }) ?? [];
+    setEntities([newPlayer, ...additionalSectorEntities]);
+
     setTurnCount(0);
     setLastSpawned(undefined);
     setSelectedCard(0);
     setGraveyard([]);
 
-    let newDeck =
-      newZone.sectors[newWinStreak].deck ?? newZone.deck ?? initialDeck;
-
-    const newSector = newZone.sectors[newWinStreak];
+    let newDeck = newSector.deck ?? newZone.deck ?? initialDeck;
 
     if (newSector.conditions.includes("left-offline")) {
       // Remove any card with a left direction
