@@ -30,7 +30,56 @@ const sectors = [
       },
     ],
   },
-  { conditions: ["lightAsteroids", "checkpoint"] },
+  {
+    conditions: ["lightAsteroids"],
+    deck: [
+      {
+        name: "Left",
+        cost: 1,
+        range: 3,
+        directions: ["left"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "Up",
+        cost: 1,
+        range: 2,
+        directions: ["up"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "Right",
+        cost: 1,
+        range: 1,
+        directions: ["right"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "UpRight",
+        cost: 1,
+        range: 2,
+        directions: ["upRight"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "Down",
+        cost: 1,
+        range: 2,
+        directions: ["down"],
+        selectionStyle: "precise",
+      },
+      {
+        name: "Up",
+        cost: 1,
+        range: 4,
+        directions: ["up"],
+        selectionStyle: "precise",
+      },
+    ],
+  },
+  {
+    conditions: ["lightAsteroids"],
+  },
 ];
 
 export default {
