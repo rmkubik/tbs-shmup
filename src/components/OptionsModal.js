@@ -103,10 +103,8 @@ const OptionsModal = ({
         </Button>
         <Button
           onClick={() => {
-            setWinStreak(0);
             setShowOptions(false);
-            setLastCheckpoint(0);
-            startNewRound();
+            startNewRound(undefined, undefined, true);
           }}
         >
           Reset Progress
