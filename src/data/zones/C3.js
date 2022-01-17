@@ -1,21 +1,20 @@
 import { defaultDeck, directionSwappedDeck } from "../cards";
 import sectors from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
-import powerIcon from "../../../assets/power.png";
+import ship2 from "../../../assets/ship2.png";
 
 export default {
-  name: "Unimplemented",
+  name: "Spider Space Gateway",
   unlock: {
     cost: 5,
   },
   icon: {
-    src: powerIcon,
-    color: "cautionColor",
+    src: ship2,
+    color: "bombColor",
   },
   mission: {
     winCondition: 3,
-    description:
-      "Transport a derelict ISPS standard issue star ship out of a dangerous asteroid field.",
+    description: "Welcome to the World Wide Web.",
     ship: {
       name: "Speed Racer",
       icon: shipIcon,

@@ -4,7 +4,7 @@ import shipIcon from "../../../assets/ship1.png";
 import planetIcon from "../../../assets/asteroid5.png";
 
 export default {
-  name: "The Recyclotron",
+  name: "The Recyclone",
   unlock: {
     cost: 3,
   },
@@ -24,7 +24,7 @@ export default {
     theme: "default",
     sectors,
     dimensions: { width: 10, height: 15 },
-    playerIndex: 22, // 145,
+    playerIndex: 145,
     deck: defaultDeck,
     action: "default", // This should import a function directly, maybe?
     power: 2,
