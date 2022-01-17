@@ -50,6 +50,9 @@ import GalaxyMapModal from "./components/GalaxyMapModal";
 import SectorHeader from "./components/SectorHeader";
 import useBodyStyle from "./hooks/useBodyStyle";
 import Sprite from "./components/Sprite";
+import convertLetterCoordinatesToLocation from "./utils/convertLetterCoordinatesToLocation";
+import { getCrossDirections, getNeighbors } from "functional-game-utils";
+import convertLocationToLetterCoordinates from "./utils/convertLocationToLetterCoordinates";
 
 const areIndicesAdjacent = (a, b, colCount) => {
   return a - 1 === b || a + 1 === b || a - colCount === b || a + colCount === b;
@@ -1023,8 +1026,30 @@ const App = () => {
         // This is the default win condition. Compare current
         // winStreak against this value.
 
+        // If I won the whole zone
         if (winStreak >= zone.winCondition - 1) {
           const newUnlocked = { ...unlocked };
+
+          // I should unlock all of my neighbors
+          const location = convertLetterCoordinatesToLocation(currentZone);
+          const neighbors = getNeighbors(
+            getCrossDirections,
+            zonesMatrix,
+            location
+          );
+          neighbors.forEach((neighbor) => {
+            const letterCoordinates =
+              convertLocationToLetterCoordinates(neighbor);
+
+            if (!newUnlocked[letterCoordinates]) {
+              newUnlocked[letterCoordinates] = {};
+            }
+
+            newUnlocked[letterCoordinates] = {
+              ...newUnlocked[letterCoordinates],
+              unlocked: true,
+            };
+          });
 
           if (!newUnlocked[currentZone]) {
             newUnlocked[currentZone] = {};

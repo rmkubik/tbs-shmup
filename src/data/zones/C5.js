@@ -4,15 +4,16 @@ import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
 import { createAsteroid } from "../entities";
 import randInt from "../../utils/randInt";
+import planetIcon from "../../../assets/asteroid5.png";
 
 const sectors = [
   {
     conditions: ["singleAsteroid"],
     deck: [
       {
-        name: "Up",
+        name: "FTL",
         cost: 1,
-        range: 2,
+        range: 20,
         directions: ["up"],
         selectionStyle: "precise",
       },
@@ -103,6 +104,10 @@ export default {
   name: "Tutorial",
   unlock: {
     cost: 0,
+  },
+  icon: {
+    src: planetIcon,
+    color: "primaryColor",
   },
   mission: {
     winCondition: 3,

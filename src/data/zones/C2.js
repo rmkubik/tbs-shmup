@@ -7,6 +7,7 @@ export default {
   unlock: {
     cost: 5,
   },
+  hidden: true,
   mission: {
     winCondition: 3,
     description:

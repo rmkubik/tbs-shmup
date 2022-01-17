@@ -1,16 +1,16 @@
 import { defaultDeck, directionSwappedDeck } from "../cards";
 import sectors from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
-import powerIcon from "../../../assets/power.png";
+import planetIcon from "../../../assets/asteroid5.png";
 
 export default {
-  name: "Unimplemented",
+  name: "The Recyclotron",
   unlock: {
     cost: 3,
   },
   icon: {
-    src: powerIcon,
-    color: "cautionColor",
+    src: planetIcon,
+    color: "primaryColor",
   },
   mission: {
     winCondition: 3,

@@ -6,7 +6,7 @@ import powerIcon from "../../../assets/power.png";
 export default {
   name: "Unimplemented",
   unlock: {
-    cost: 99,
+    cost: 3,
   },
   icon: {
     src: powerIcon,

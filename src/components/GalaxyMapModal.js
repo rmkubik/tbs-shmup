@@ -30,24 +30,10 @@ const isSomeNeighbor = ({ zonesMatrix, location }, comparisonFn) => {
   });
 };
 
-const isZoneUnlocked = ({ zonesMatrix, location, unlocked }) => {
-  const zone = getLocation(zonesMatrix, location);
+const isZoneUnlocked = ({ location, unlocked }) => {
+  const letterCoordinates = convertLocationToLetterCoordinates(location);
 
-  return (
-    zone.unlock?.cost === 0 ||
-    isSomeNeighbor({ zonesMatrix, location }, (neighbor, neighborLocation) => {
-      const neighborCoordinates =
-        convertLocationToLetterCoordinates(neighborLocation);
-
-      if (!unlocked[neighborCoordinates]) {
-        return false;
-      }
-
-      return (
-        unlocked[neighborCoordinates].highScore >= zone.unlock?.cost ?? Infinity
-      );
-    })
-  );
+  return unlocked[letterCoordinates]?.unlocked;
 };
 
 const isZoneHidden = ({ zonesMatrix, location }) => {
@@ -56,9 +42,21 @@ const isZoneHidden = ({ zonesMatrix, location }) => {
   return zone.hidden;
 };
 
+const getZoneLockedIcon = ({ zonesMatrix, location }) => {
+  const zone = getLocation(zonesMatrix, location);
+
+  return zone.lockedIcon;
+};
+
+const isZoneCompleted = ({ location, unlocked }) => {
+  const letterCoordinates = convertLocationToLetterCoordinates(location);
+
+  return unlocked[letterCoordinates]?.mission?.completed ?? false;
+};
+
 const isZoneLaunchable = ({ zonesMatrix, location, unlocked }) => {
   return (
-    isZoneUnlocked({ zonesMatrix, location, unlocked }) &&
+    isZoneUnlocked({ location, unlocked }) &&
     !isZoneHidden({ zonesMatrix, location })
   );
 };
@@ -67,7 +65,15 @@ const isNeighborUnlocked = ({ zonesMatrix, unlocked, location }) => {
   const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
 
   return neighbors.some((neighbor) => {
-    return isZoneUnlocked({ zonesMatrix, location: neighbor, unlocked });
+    return isZoneUnlocked({ location: neighbor, unlocked });
+  });
+};
+
+const isNeighborCompleted = ({ zonesMatrix, unlocked, location }) => {
+  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+
+  return neighbors.some((neighbor) => {
+    return isZoneCompleted({ location: neighbor, unlocked });
   });
 };
 
@@ -81,7 +87,7 @@ const getZoneName = ({ zonesMatrix, unlocked, location }) => {
     return;
   }
 
-  if (isZoneUnlocked({ zonesMatrix, unlocked, location })) {
+  if (isZoneUnlocked({ unlocked, location })) {
     // Show name of Zone if it's unlocked
     return getLocation(zonesMatrix, location).name;
   }
@@ -103,7 +109,7 @@ const getZoneDescription = ({ zonesMatrix, unlocked, location }) => {
     return;
   }
 
-  if (isZoneUnlocked({ zonesMatrix, unlocked, location })) {
+  if (isZoneUnlocked({ unlocked, location })) {
     // Get description of the Zone's mission if unlocked
     return getLocation(zonesMatrix, location).mission?.description;
   }
@@ -120,7 +126,13 @@ const getZoneContents = ({ zonesMatrix, location, unlocked, theme }) => {
     return null;
   }
 
-  if (isZoneUnlocked({ zonesMatrix, location, unlocked })) {
+  if (isZoneCompleted({ location, unlocked })) {
+    const zone = getLocation(zonesMatrix, location);
+
+    return <Sprite src={zone.icon?.src} color="positiveColor" />;
+  }
+
+  if (isZoneUnlocked({ location, unlocked })) {
     // If we're unlocked, show our icon.
     const zone = getLocation(zonesMatrix, location);
 
@@ -132,36 +144,41 @@ const getZoneContents = ({ zonesMatrix, location, unlocked, theme }) => {
     );
   }
 
-  const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
+  // const neighbors = getNeighbors(getCrossDirections, zonesMatrix, location);
 
-  if (
-    neighbors.some((neighbor) => {
-      // const getTile
-      return isZoneUnlocked({ zonesMatrix, location: neighbor, unlocked });
-    })
-  ) {
-    // If we neighbor an unlocked zone, show a lock with our unlock cost
-    return (
-      <Fragment>
-        <span
-          style={{
-            position: "absolute",
-            textAlign: "center",
-            fontSize: "8px",
-            width: "100%",
-            color: theme.backgroundColor,
-            fontWeight: "bolder",
-          }}
-        >
-          {getLocation(zonesMatrix, location).unlock?.cost}
-        </span>
+  // if (
+  //   neighbors.some((neighbor) => {
+  //     // const getTile
+  //     return isZoneUnlocked({ zonesMatrix, location: neighbor, unlocked });
+  //   })
+  // ) {
+  //   // If we neighbor an unlocked zone, show a lock with our unlock cost
+  //   return (
+  //     <Fragment>
+  //       <span
+  //         style={{
+  //           position: "absolute",
+  //           textAlign: "center",
+  //           fontSize: "8px",
+  //           width: "100%",
+  //           color: theme.backgroundColor,
+  //           fontWeight: "bolder",
+  //         }}
+  //       >
+  //         {getLocation(zonesMatrix, location).unlock?.cost}
+  //       </span>
 
-        <Sprite src={lockIcon} color={theme["primaryColor"]} />
-      </Fragment>
-    );
+  //       <Sprite src={lockIcon} color={theme["primaryColor"]} />
+  //     </Fragment>
+  //   );
+  // }
+
+  const lockedIcon = getZoneLockedIcon({ zonesMatrix, location });
+  if (lockedIcon) {
+    return <Sprite src={lockedIcon.src} color={lockedIcon.color} />;
   }
 
-  return ".";
+  // return ".";
 };
 
 const ZoneDescription = ({ zonesMatrix, unlocked, location }) => {

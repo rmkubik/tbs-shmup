@@ -2,11 +2,16 @@ import { defaultDeck, directionSwappedDeck } from "../cards";
 import sectors from "../sectors";
 import shipIcon from "../../../assets/ship1.png";
 import powerIcon from "../../../assets/power.png";
+import cubeIcon from "../../../assets/cube.png";
 
 export default {
   name: "Unimplemented",
   unlock: {
     cost: 99,
+  },
+  lockedIcon: {
+    src: cubeIcon,
+    color: "cautionColor",
   },
   icon: {
     src: powerIcon,
