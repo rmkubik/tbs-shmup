@@ -1023,17 +1023,19 @@ const App = () => {
         // This is the default win condition. Compare current
         // winStreak against this value.
 
-        if (winStreak >= zone.winCondition) {
+        if (winStreak >= zone.winCondition - 1) {
           const newUnlocked = { ...unlocked };
 
           if (!newUnlocked[currentZone]) {
             newUnlocked[currentZone] = {};
           }
 
-          const newHighScore = Math.max(
-            newUnlocked[currentZone].highScore ?? 0,
-            winStreak
-          );
+          const existingHighScore = newUnlocked[currentZone].highScore;
+          // High score is counted in terms of "number of sectors completed"
+          // The internal winStreak value refers to the array index of the
+          // sector being played. We need to add 1 to this value to adjust
+          // it back.
+          const newHighScore = Math.max(existingHighScore ?? 0, winStreak + 1);
 
           newUnlocked[currentZone] = {
             ...newUnlocked[currentZone],
