@@ -871,7 +871,13 @@ const App = () => {
           </Fragment>
         ) : (
           <span
-            style={{ position: "absolute", width: "100%", left: 0, top: 0 }}
+            style={{
+              position: "absolute",
+              width: "100%",
+              left: 0,
+              top: 0,
+              lineHeight: object.name === "." ? "8px" : "",
+            }}
           >
             {object.name}
           </span>
